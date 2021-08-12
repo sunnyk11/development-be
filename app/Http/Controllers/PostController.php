@@ -142,22 +142,27 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required',
             'description' => 'required',
-            'postImage' => 'required|mimes:jpg,png,jpeg',
+            //'postImage' => 'required|mimes:jpg,png,jpeg',
+			'postImage' => 'nullable|mimes:jpg,png,jpeg',											 
 			'category' => 'required',
 			//'post_image' => 'required|image|mimes:jpg,png,jpeg'
 			
         ]); 
 		
-		$updatedPostImageName = uniqid() . '-' . $request->file('postImage')->getClientOriginalName();
+		if($request->postImage !== null) {
+            $updatedPostImageName = uniqid() . '-' . $request->file('postImage')->getClientOriginalName();
 
-        $request->file('postImage')->move(public_path('storage/images'), $updatedPostImageName);
+            $request->file('postImage')->move(public_path('storage/images'), $updatedPostImageName);
+            Post::where('slug', $slug)->update([
+                'image_path' => $updatedPostImageName
+            ]);
+        }
 		
 		Post::where('slug', $slug)->update([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
 			'category' => $request->input('category'),
             'slug' => SlugService::createSlug(Post::class, 'slug', $request->title),
-			'image_path' => $updatedPostImageName,
 			'created_by' => $request->input('created_by'),
         ]);
 		

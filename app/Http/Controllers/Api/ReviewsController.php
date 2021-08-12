@@ -134,8 +134,13 @@ class ReviewsController extends Controller
      * @param  \App\Models\reviews  $reviews
      * @return \Illuminate\Http\Response
      */
-    public function destroy(reviews $reviews)
+    public function destroy($id)
     {
-        //
+        $review = reviews::where('id', $id);
+        $review->delete();
+        return response() -> json ([
+            'message' => 'The review has been deleted.'
+        ]); 
     }
 }
+

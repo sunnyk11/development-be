@@ -62,6 +62,7 @@ Route::group([
         Route::get('/user', 'App\Http\Controllers\Api\AuthController@user');
         Route::get('/verify_user', 'App\Http\Controllers\Api\AuthController@verify_user');
 		Route::get('/verify_user_mobile', 'App\Http\Controllers\Api\AuthController@verify_user_mobile');																								
+		Route::post('/upload_profile_pic', 'App\Http\Controllers\Api\AuthController@upload_profile_pic');																														
         Route::post('/change_password', 'App\Http\Controllers\Api\AuthController@change_password');
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
@@ -157,6 +158,7 @@ Route::group([
         Route::get('/product_update_admin', 'App\Http\Controllers\Api\AdminController@product_update');
         Route::get('/admin_lawyer_service', 'App\Http\Controllers\Api\AdminController@admin_lawyer_service');
         Route::get('/admin_review_index', 'App\Http\Controllers\Api\AdminController@review_index');
-    });
+		Route::delete('reviews/delete/{id}', 'App\Http\Controllers\Api\ReviewsController@destroy');
+	}); 
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });

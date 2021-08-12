@@ -43,7 +43,7 @@ class AuthController extends Controller
             'name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
-            'usertype' => 3,
+            'usertype' => $request->selectType,
             'userSelect_type' => $request->selectType,
             'other_mobile_number' => $request->other_mobile_number,
             'password' => bcrypt($request->password)
@@ -576,6 +576,23 @@ class AuthController extends Controller
         return \Response::json($arr);
     }
 
+	public function upload_profile_pic(Request $request) {
+
+        
+        $request->validate([
+            'profile_image' => 'required|mimes:jpg,png,jpeg',
+            'id' => 'required'			
+        ]); 
+
+        $newPostImageName = uniqid() . '-' . $request->file('profile_image')->getClientOriginalName();
+        $request->file('profile_image')->move(public_path('storage/images'), $newPostImageName);
+
+        User::where('id', $request['id'])->update(['profile_pic' => $newPostImageName]);
+
+        return response() -> json ([
+            'message' => 'The profile picture has been updated'
+        ], 201); 
+    }													  
     public function change_password(Request $request)
     {
         $input = $request->all();
@@ -649,8 +666,8 @@ class AuthController extends Controller
             $newUser = User::create([
                 'name' => $user->name,
                 'email' => $user->email,
-                'usertype' => 1,
-                'userSelect_type' => 1,
+                'usertype' => 3,
+                'userSelect_type' => 3,
                 'profile_pic' => $user->avatar_original,
                 'other_mobile_number' => 1234567890,
                 'phone_number_verification_status' => 1,
