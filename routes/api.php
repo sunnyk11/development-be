@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');
 //Route::resource('/blog', PostsController::class);
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
+Route::resource('property_type', 'App\Http\Controllers\Api\PropertyTypeController');
 Route::post('contact-form', 'App\Http\Controllers\ContactController@store');																			
 Route::middleware('auth:api')->post('posts', 'App\Http\Controllers\PostController@store');
 Route::get('posts', 'App\Http\Controllers\PostController@index');
@@ -71,9 +72,11 @@ Route::group([
 Route::group([
     'prefix' => 'product'
 ], function () {
+    Route::get('/feature_property', 'App\Http\Controllers\Api\ProductController@feature_property');
     Route::get('/getRecently_viewProperty', 'App\Http\Controllers\Api\ProductController@Recently_view');
     Route::get('/get_product', 'App\Http\Controllers\Api\ProductController@index');
     Route::get('/get_product_featured', 'App\Http\Controllers\Api\ProductController@index_featured');
+    Route::get('/product_list_featured', 'App\Http\Controllers\Api\ProductController@product_list_featured');
     Route::get('/seeto', 'App\Http\Controllers\Api\ProductController@product_index');
     Route::post('/see', 'App\Http\Controllers\Api\ProductController@search_prod_by_id');
     Route::post('/similarproperty', 'App\Http\Controllers\Api\ProductController@search_prod_by_city');
@@ -92,10 +95,14 @@ Route::group([
     Route::group([
         'middleware' => 'auth:api'
     ], function () {
+        
+        Route::post('/product_Rent_update', 'App\Http\Controllers\Api\ProductController@update_Rent_product');
+        Route::post('/product_sales_update', 'App\Http\Controllers\Api\ProductController@update_Sales_product');
         Route::post('/loginSimilarproperty', 'App\Http\Controllers\Api\ProductController@loginSimilarproperty');
         Route::post('/requ', 'App\Http\Controllers\Api\RequirementController@create');
         Route::get('/review_index', 'App\Http\Controllers\Api\ReviewsController@review_index');
         Route::post('/post_review', 'App\Http\Controllers\Api\ReviewsController@store');
+        Route::post('/Login_search_home', 'App\Http\Controllers\Api\ProductController@Login_search_home');
 
 
         Route::get('/get_requ', 'App\Http\Controllers\Api\RequirementController@index');
@@ -109,6 +116,10 @@ Route::group([
         Route::get('/views', 'App\Http\Controllers\Api\ProductController@dashboard_indexer');
 
         Route::post('/delete_product', 'App\Http\Controllers\Api\ProductController@delete_product');
+
+         Route::post('/delete_pro_img', 'App\Http\Controllers\Api\ProductImgController@delete_pro_img');
+        Route::get('/agent_properties', 'App\Http\Controllers\Api\ProductController@agent_properties');
+
         Route::get('/agent_properties', 'App\Http\Controllers\Api\ProductController@agent_properties');
 
         Route::post('/insert_product_sale', 'App\Http\Controllers\Api\ProductController@first');
@@ -121,10 +132,19 @@ Route::group([
         Route::post('/product_Searching_login', 'App\Http\Controllers\Api\ProductController@User_propertysearchlist');
         Route::post('/Propery_get_id', 'App\Http\Controllers\Api\ProductController@Propery_get_id');
         Route::get('/get_product_wishlist', 'App\Http\Controllers\Api\ProductController@index_featured_wishlist');
+        Route::get('/product_listing_wishlist', 'App\Http\Controllers\Api\ProductController@product_listing_wishlist');
+
         Route::resource('wishlist', 'App\Http\Controllers\Api\WishlistController');
         Route::post('wishlistDelete', 'App\Http\Controllers\Api\WishlistController@delete');
+
+          Route::resource('Product_comp', 'App\Http\Controllers\Api\ProductComparisionController');
+        Route::post('pro_comp_delete', 'App\Http\Controllers\Api\ProductComparisionController@delete');
+
          Route::post('User_productCount', 'App\Http\Controllers\Api\UserProductCountController@count_byID');
-        Route::get('User_CountData', 'App\Http\Controllers\Api\UserProductCountController@index');
+       
+        Route::get('User_Recently_pro', 'App\Http\Controllers\Api\UserProductCountController@index');
+
+        Route::post('/product_login_see', 'App\Http\Controllers\Api\ProductController@product_login_see');
 
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
@@ -142,9 +162,6 @@ Route::group([
     Route::group([
         'middleware' => 'auth:api'
     ], function () {
-
-      Route::post('/product_Rent_update', 'App\Http\Controllers\Api\AdminController@update_Rent_product');
-        Route::post('/product_sales_update', 'App\Http\Controllers\Api\AdminController@update_Sales_product');
         Route::post('/delete_product_admin', 'App\Http\Controllers\Api\AdminController@delete_product');
         Route::post('/user_page', 'App\Http\Controllers\Api\AdminController@user_check');
         Route::post('/user_update', 'App\Http\Controllers\Api\AdminController@user_update');

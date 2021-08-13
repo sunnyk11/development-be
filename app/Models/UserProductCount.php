@@ -19,4 +19,8 @@ class UserProductCount extends Model
     {
         return $this->hasOne('App\Models\User', 'id','user_id');
     }
+    public function product_img()
+    {
+        return $this->hasMany('App\Models\Product_img', 'product_id','product_id');
+    }
 }

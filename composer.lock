@@ -6440,16 +6440,16 @@
         },
         {
             "name": "twilio/sdk",
-            "version": "6.27.1",
+            "version": "6.28.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twilio/twilio-php.git",
-                "reference": "2e36a394c854719091136c09ad69f5b839716a64"
+                "reference": "bf3fc7e3a4619923bbc7d57817a52b8f016da951"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/2e36a394c854719091136c09ad69f5b839716a64",
-                "reference": "2e36a394c854719091136c09ad69f5b839716a64",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/bf3fc7e3a4619923bbc7d57817a52b8f016da951",
+                "reference": "bf3fc7e3a4619923bbc7d57817a52b8f016da951",
                 "shasum": ""
             },
             "require": {
@@ -6488,9 +6488,9 @@
             ],
             "support": {
                 "issues": "https://github.com/twilio/twilio-php/issues",
-                "source": "https://github.com/twilio/twilio-php/tree/6.27.1"
+                "source": "https://github.com/twilio/twilio-php/tree/6.28.0"
             },
-            "time": "2021-07-28T19:07:01+00:00"
+            "time": "2021-08-11T17:40:06+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -7042,26 +7042,27 @@
         },
         {
             "name": "fzaninotto/faker",
-            "version": "v1.9.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e"
+                "reference": "5ffe7db6c80f441f150fc88008d64e64af66634b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
-                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/5ffe7db6c80f441f150fc88008d64e64af66634b",
+                "reference": "5ffe7db6c80f441f150fc88008d64e64af66634b",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3.3 || ^7.0"
+                "php": "^5.3.3 || ^7.0 || ^8.0"
             },
             "require-dev": {
                 "ext-intl": "*",
                 "phpunit/phpunit": "^4.8.35 || ^5.7",
                 "squizlabs/php_codesniffer": "^2.9.2"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -7090,10 +7091,10 @@
             ],
             "support": {
                 "issues": "https://github.com/fzaninotto/Faker/issues",
-                "source": "https://github.com/fzaninotto/Faker/tree/v1.9.2"
+                "source": "https://github.com/fzaninotto/Faker/tree/master"
             },
             "abandoned": true,
-            "time": "2020-12-11T09:56:16+00:00"
+            "time": "2020-12-11T09:59:14+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",

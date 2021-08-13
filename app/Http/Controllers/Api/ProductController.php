@@ -17,6 +17,7 @@ use App\Models\Wishlist;
 use App\Models\Amenitie;
 use App\Models\ProductAmenties;
 use App\Models\UserProductCount;
+use App\Models\Product_img;
 class ProductController extends Controller
 {
     /**
@@ -26,7 +27,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $data = product::where('delete_flag', 0)->with('UserDetail')->Latest()->paginate();
+        $data = product::where('delete_flag', 0)->with('UserDetail','product_img','product_comparision','Property_Type')->orderBy('id', 'desc')->get();
         return response()->json([
             'data' =>$data,
         ], 201);
@@ -34,34 +35,81 @@ class ProductController extends Controller
 
     public function index_featured()
     {
-        $data = product::with('UserDetail')->where('delete_flag', 0)->Latest()->paginate(50);
+        $data = product::with('UserDetail','product_img','Property_Type')->where('delete_flag', 0)->orderBy('id', 'desc')->take(9)->get();
         return response()->json([
             'data' =>$data,
         ], 201);
     }
     public function index_featured_wishlist()
     {
-        $user_id = Auth::user()->id;
-        $product = product::with('UserDetail')->where('delete_flag', 0)->Latest()->paginate(50);
+       $user_id = Auth::user()->id;
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where('delete_flag', 0)->orderBy('id', 'desc')->take(9)->get();
+
+        // return  $product;
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
         $productcount = count($product);
         $wishlistcount = count($Wishlist);
 
        $productArray = json_decode(json_encode($product), true);
        $WishlistArray = json_decode(json_encode($Wishlist), true);
+
+        // return  $productArray;
        
        // wishlist check with product id nd wishlist id
        for ($i=0; $i < $productcount; $i++) {    
             for ($j=0; $j < $wishlistcount; $j++) { 
-                if($productArray['data'][$i]['id']==$WishlistArray[$j]['product_id']){
+                if($productArray[$i]['id']==$WishlistArray[$j]['product_id']){
                     $addWishlist="true";
-                    array_push($productArray['data'][$i],$addWishlist);
+                    array_push($productArray[$i],$addWishlist);
                 }
             }
         }
-        if($productArray['data']){
+        if($productArray){
             return response()->json([
-            'data' =>$productArray['data'],
+            'data' =>$productArray,
+          ], 201);
+        }else{
+            return response()->json([
+            'data' =>$product,
+          ], 201);
+        }
+    }
+
+    public function product_list_featured()
+    {
+        $data = product::with('UserDetail','product_img','Property_Type')->where('delete_flag', 0)->orderBy('id', 'desc')->get();
+        return response()->json([
+            'data' =>$data,
+        ], 201);
+    }
+
+ public function product_listing_wishlist()
+    {
+        $user_id = Auth::user()->id;
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where('delete_flag', 0)->orderBy('id', 'desc')->get();
+
+        // return  $product;
+        $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
+        $productcount = count($product);
+        $wishlistcount = count($Wishlist);
+
+       $productArray = json_decode(json_encode($product), true);
+       $WishlistArray = json_decode(json_encode($Wishlist), true);
+
+        // return  $productArray;
+       
+       // wishlist check with product id nd wishlist id
+       for ($i=0; $i < $productcount; $i++) {    
+            for ($j=0; $j < $wishlistcount; $j++) { 
+                if($productArray[$i]['id']==$WishlistArray[$j]['product_id']){
+                    $addWishlist="true";
+                    array_push($productArray[$i],$addWishlist);
+                }
+            }
+        }
+        if($productArray){
+            return response()->json([
+            'data' =>$productArray,
           ], 201);
         }else{
             return response()->json([
@@ -73,15 +121,24 @@ class ProductController extends Controller
 
     public function propertysearch_list(Request $request)
     {
-        $product = product::with('UserDetail')->where('delete_flag', 0)->search($request)->get();
+        $product = product::with('UserDetail','Property_Type')->where('delete_flag', 0)->search($request)->get();
         return response()->json([
             'data' =>$product,
           ], 201);
         
     }
+    public function feature_property()
+    {
+        $product = product::with('UserDetail','product_img')->where('delete_flag', 0)->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
+
+        return response()->json([
+            'data' =>$product,
+          ]);
+        
+    }
     public function Recently_view()
     {
-        $product = product::with('UserDetail')->where('delete_flag', 0)->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
+        $product = product::with('UserDetail','Property_Type')->where('delete_flag', 0)->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
 
         return response()->json([
             'data' =>$product,
@@ -97,7 +154,7 @@ class ProductController extends Controller
         ]);
             $city = $request->cityValue;
 
-        $productSimilar=product::with('UserDetail')->where('city', $city)->orderBy('id', 'desc')->take(6)->get();
+        $productSimilar=product::with('UserDetail','Property_Type','product_img')->where('city', $city)->orderBy('id', 'desc')->take(6)->get();
 
             return response()-> json([
                 'product' => $productSimilar,
@@ -107,9 +164,9 @@ class ProductController extends Controller
      
      public function loginSimilarproperty(Request $request)
      {
-        $city = $request->cityValue;  
+       $city = $request->cityValue;  
         $user_id = Auth::user()->id;
-        $product = product::with('UserDetail')->where('city', $city)->orderBy('id', 'desc')->take(6)->get();
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['city'=> $city,'delete_flag'=> 0])->orderBy('id', 'desc')->take(6)->get();
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
         $productcount = count($product);
         $wishlistcount = count($Wishlist);
@@ -136,8 +193,9 @@ class ProductController extends Controller
      }
     public function User_propertysearchlist(Request $request)
     {
-        $user_id = Auth::user()->id;
-        $product = product::with('UserDetail')->where('delete_flag', 0)->search($request)->get();
+        // return $request->input();
+       $user_id = Auth::user()->id;
+        $product = product::with('UserDetail','product_img','Property_Type')->where('delete_flag', 0)->search($request)->orderBy('id', 'desc')->get();
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
         $productcount = count($product);
         $wishlistcount = count($Wishlist);
@@ -165,7 +223,28 @@ class ProductController extends Controller
           ], 201);
         }
         
+        
     }
+
+     public function product_login_see(Request $request){
+
+
+        $request->validate([
+            'prod_id' => 'required',
+        ]);
+            $prod_id = $request->prod_id;
+
+        $user_id = Auth::user()->id;
+
+        // $product_id_func = product::find($prod_id)->productid;
+         $product_id_func = product::where('id', $prod_id)->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail')->orderBy('id', 'desc')->get();
+        product::where('id', $request->prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);;
+
+            return response()-> json([
+                'product' => $product_id_func,
+            ]);
+
+     }
 
      public function search_prod_by_id(Request $request){
 
@@ -176,7 +255,7 @@ class ProductController extends Controller
             $prod_id = $request->prod_id;
 
         // $product_id_func = product::find($prod_id)->productid;
-         $product_id_func = product::where('id', $prod_id)->with('amenities')->get();
+         $product_id_func = product::where('id', $prod_id)->with('amenities','Property_Type','product_img')->get();
 
         $userid = DB::table('products')->select('user_id')->where("id", $prod_id)->value("value");
         $user_details = DB::table('users')->select('id','name','email','profile_pic')->where('id', $userid)->get();
@@ -190,10 +269,42 @@ class ProductController extends Controller
 
      }
 
+
+     public function Login_search_home(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where('delete_flag', 0)->search($request)->orderBy('id', 'desc')->get();
+        $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
+        $productcount = count($product);
+        $wishlistcount = count($Wishlist);
+
+       $productArray = json_decode(json_encode($product), true);
+       $WishlistArray = json_decode(json_encode($Wishlist), true);
+       
+       // wishlist check with product id nd wishlist id
+       for ($i=0; $i < $productcount; $i++) {    
+            for ($j=0; $j < $wishlistcount; $j++) { 
+                if($productArray[$i]['id']==$WishlistArray[$j]['product_id']){
+                    $addWishlist="true";
+                    array_push($productArray[$i],$addWishlist);
+                }
+            }
+        }
+        if($productArray){
+            return response()->json([
+            'product' =>$productArray,
+          ], 201);
+        }else{
+            return response()->json([
+            'product' =>$product,
+          ], 201);
+        }
+    }
+
      public function search_func(Request $request){
 
         
-        $product = product::with('UserDetail')->where('delete_flag', 0)->search($request)->get();
+        $product = product::with('UserDetail','product_img','Property_Type')->where('delete_flag', 0)->search($request)->get();
         return response()->json([
             'product' =>$product,
           ], 201);
@@ -258,7 +369,7 @@ class ProductController extends Controller
 
     public function first(Request $request)
     {
-        $request -> validate([
+       $request -> validate([
             'build_name' => 'required',
             'type' => 'required',
             'address' => 'required' ,
@@ -269,11 +380,6 @@ class ProductController extends Controller
             'map_latitude' => '' ,
             'map_longitude' => '' ,
             'display_address' => 'required' ,
-            // 'product_image1' => 'required' ,
-            // 'product_image2' => 'required' ,
-            // 'product_image3' => 'required' ,
-            // 'product_image4' => 'required' ,
-            // 'product_image5' => 'required' ,
             'area' => 'required' ,
             'area_unit' => 'required' ,
             'carpet_area' => 'required' ,
@@ -311,48 +417,7 @@ class ProductController extends Controller
             'features' => 'required' ,
             'nearby_places' => 'required' ,
         ]);
-     $imageName1=null;     
-    if($request->input('product_image1') != null){
-            $base64_image1 = $request->input('product_image1'); // your base64 encoded
-            @list($type, $file_data1) = explode(';', $base64_image1);
-            @list(, $file_data1) = explode(',', $file_data1);
-            $imageName1 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-            Storage::disk('public')->put($imageName1, base64_decode($file_data1));
-    }
 
-    $imageName2=null;
-    if($request->input('product_image2') != null){
-        $base64_image2 = $request->input('product_image2'); // your base64 encoded
-        @list($type, $file_data2) = explode(';', $base64_image2);
-        @list(, $file_data2) = explode(',', $file_data2);
-        $imageName2 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-        Storage::disk('public')->put($imageName2, base64_decode($file_data2));
-    }
-
-   $imageName3=null;
-    if($request->input('product_image3') != null){
-        $base64_image3 = $request->input('product_image3'); // your base64 encoded
-        @list($type, $file_data3) = explode(';', $base64_image3);
-        @list(, $file_data3) = explode(',', $file_data3);
-        $imageName3 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-        Storage::disk('public')->put($imageName3, base64_decode($file_data3));
-    }
-    $imageName4=null;
-    if($request->input('product_image4') != null){
-        $base64_image4 = $request->input('product_image4'); // your base64 encoded
-        @list($type, $file_data4) = explode(';', $base64_image4);
-        @list(, $file_data4) = explode(',', $file_data4);
-        $imageName4 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-        Storage::disk('public')->put($imageName4, base64_decode($file_data4));
-    }
-    $imageName5=null;
-    if($request->input('product_image5') != null){
-        $base64_image5 = $request->input('product_image5'); // your base64 encoded
-        @list($type, $file_data5) = explode(';', $base64_image5);
-        @list(, $file_data5) = explode(',', $file_data5);
-        $imageName5 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-        Storage::disk('public')->put($imageName5, base64_decode($file_data5));
-    }
         $user_id = Auth::user()->id;
 
         $product_data = new Product([
@@ -367,11 +432,6 @@ class ProductController extends Controller
             'map_latitude' => $request->map_latitude,
             'map_longitude' => $request->map_longitude,
             'display_address' => $request->display_address,
-            'product_image1' => $imageName1,
-            'product_image2' => $imageName2,
-            'product_image3' => $imageName3,
-            'product_image4' => $imageName4,
-            'product_image5' => $imageName5,
             'area' => $request->area,
             'area_unit' => $request->area_unit,
             'carpet_area' => $request->carpet_area,
@@ -419,13 +479,40 @@ class ProductController extends Controller
         $product_data-> save();
         eventtracker::create(['symbol_code' => '8', 'event' => Auth::user()->name.' created a new property listing for sale.']);
 
+       
          $product_id=$product_data->id;
+         // inserted images functionalty
+        $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
+            $product_id)->get();
+        $db_img_length=count($DB_img);
+         
+        // product images functionalty
+        if($db_img_length<5){
+           $product_image= $request->input('product_image');
+           $Product_img_length=count($product_image);   
+            if($Product_img_length>0){
+                foreach ($product_image as $value) {   
+                    $base64_image = $value; // your base64 encoded
+                    @list($type, $file_data) = explode(';', $base64_image);
+                    @list(, $file_data) = explode(',', $file_data);
+                    $imageName = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
+                    Storage::disk('public')->put($imageName, base64_decode($file_data));
+                        $Product_images_data = [
+                            'user_id' => $user_id,
+                            'product_id' => $product_id,
+                            'image' =>$imageName 
+                        ];
+                    Product_img::create($Product_images_data);
+                }
+            }
+        }
+
            $user_id = Auth::user()->id;
            $amenities=$request->amenities;
            $length=count($amenities);
-           for($i=0; $i<$length;$i++){
+            foreach ($amenities as $amenties_value) {   
              $ProductAmenties = [
-                    'amenties' =>$amenities[$i],
+                    'amenties' =>$amenties_value,
                     'user_id' => $user_id,
                     'product_id' => $product_id
                 ];
@@ -454,12 +541,6 @@ class ProductController extends Controller
             'nearest_landmark' => 'required' ,
             'map_latitude' => '' ,
             'map_longitude' => '' ,
-            // 'product_image1' => 'required' ,
-            // 'product_image2' => 'required' ,
-            // 'product_image3' => 'required' ,
-            // 'product_image4' => 'required' ,
-            // 'product_image5' => 'required' ,
-            // 'nearby_places' => 'required' ,
             'area' => 'required' ,
             'area_unit' => 'required' ,
             'carpet_area' => 'required' ,
@@ -493,7 +574,6 @@ class ProductController extends Controller
             'price_negotiable' => 'required' ,
             'deposit' => '' ,
             'brokerage_charges' => '' ,
-            // 'amenities' => 'required' ,
             'facing_towards' => 'required' ,
             'availability_condition' => 'required' ,
             'expected_rent' => 'required' ,
@@ -505,50 +585,6 @@ class ProductController extends Controller
         ]);
 
 
-    $imageName1=null;
-    if($request->input('product_image1') != null){
-        $base64_image1 = $request->input('product_image1'); // your base64 encoded
-        @list($type, $file_data1) = explode(';', $base64_image1);
-        @list(, $file_data1) = explode(',', $file_data1);
-        $imageName1 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-        Storage::disk('public')->put('product_image_file/'.$imageName1, base64_decode($file_data1));
-    }
-
-    $imageName2=null;
-    if($request->input('product_image2') != null){
-        $base64_image2 = $request->input('product_image2'); // your base64 encoded
-        @list($type, $file_data2) = explode(';', $base64_image2);
-        @list(, $file_data2) = explode(',', $file_data2);
-        $imageName2 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-        Storage::disk('public')->put('product_image_file/'.$imageName2, base64_decode($file_data2));
-    }
-
-    $imageName3=null;
-    if($request->input('product_image3') != null){
-        $base64_image3 = $request->input('product_image3'); // your base64 encoded
-        @list($type, $file_data3) = explode(';', $base64_image3);
-        @list(, $file_data3) = explode(',', $file_data3);
-        $imageName3 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-        Storage::disk('public')->put('product_image_file/'.$imageName3, base64_decode($file_data3));
-    }
-
-    $imageName4=null;
-    if($request->input('product_image4') != null){
-        $base64_image4 = $request->input('product_image4'); // your base64 encoded
-        @list($type, $file_data4) = explode(';', $base64_image4);
-        @list(, $file_data4) = explode(',', $file_data4);
-        $imageName4 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-        Storage::disk('public')->put('product_image_file/'.$imageName4, base64_decode($file_data4));
-    }
-
-    $imageName5=null;
-    if($request->input('product_image5') != null){
-        $base64_image5 = $request->input('product_image5'); // your base64 encoded
-        @list($type, $file_data5) = explode(';', $base64_image5);
-        @list(, $file_data5) = explode(',', $file_data5);
-        $imageName5 = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
-        Storage::disk('public')->put('product_image_file/'.$imageName5, base64_decode($file_data5));
-    }
 
         $user_id = Auth::user()->id;
 
@@ -566,11 +602,6 @@ class ProductController extends Controller
             'nearest_landmark' => $request->nearest_landmark ,
             'map_latitude' => $request->map_latitude ,
             'map_longitude' => $request->map_longitude ,
-            'product_image1' => $imageName1,
-            'product_image2' => $imageName2,
-            'product_image3' => $imageName3,
-            'product_image4' => $imageName4,
-            'product_image5' => $imageName5,
             'nearby_places' => $request->nearby_places ,
             'area' => $request->area ,
             'area_unit' => $request->area_unit ,
@@ -605,7 +636,6 @@ class ProductController extends Controller
             'price_negotiable' => $request->price_negotiable ,
             'deposit' => $request->deposit ,
             'brokerage_charges' => $request->brokerage_charges ,
-            // 'amenities' => json_encode($request->amenities) ,
             'facing_towards' => $request->facing_towards ,
             'availability_condition' => $request->availability_condition ,
             'expected_rent' => $request->expected_rent ,
@@ -625,20 +655,45 @@ class ProductController extends Controller
 
             $product_data->save();
             eventtracker::create(['symbol_code' => '8', 'event' => Auth::user()->name.' created a new property listing for rent.']);
-             $product_id=$product_data->id;
-               $user_id = Auth::user()->id;
-               $amenities=$request->amenities;
-               $length=count($amenities);
-               for($i=0; $i<$length;$i++){
-                 $ProductAmenties = [
-                        'amenties' =>$amenities[$i],
-                        'user_id' => $user_id,
-                        'product_id' => $product_id
-                    ];
+
+       
+         $product_id=$product_data->id;
+         // inserted images functionalty
+        $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
+            $product_id)->get();
+        $db_img_length=count($DB_img);
+        // product images functionalty
+        if($db_img_length<5){
+           $product_image= $request->input('product_image');
+           $Product_img_length=count($product_image);   
+            if($Product_img_length>0){
+                foreach ($product_image as $value) {   
+                    $base64_image = $value; // your base64 encoded
+                    @list($type, $file_data) = explode(';', $base64_image);
+                    @list(, $file_data) = explode(',', $file_data);
+                    $imageName = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
+                    Storage::disk('public')->put($imageName, base64_decode($file_data));
+                        $Product_images_data = [
+                            'user_id' => $user_id,
+                            'product_id' => $product_id,
+                            'image' =>$imageName 
+                        ];
+                    Product_img::create($Product_images_data);
+                }
+            }
+        }
+
+           $amenities=$request->amenities;
+           $length=count($amenities);
+            foreach ($amenities as $amenties_value) {   
+             $ProductAmenties = [
+                    'amenties' =>$amenties_value,
+                    'user_id' => $user_id,
+                    'product_id' => $product_id
+                ];
                 ProductAmenties::create($ProductAmenties);
 
-                }
-
+            }
             return response()->json([
                 'message' => 'Successfully inserted product for rent',
                 'path' => $product_data,
@@ -648,13 +703,13 @@ class ProductController extends Controller
 
     public function delete_product (Request $request){
 
+
         $request->validate([
             'product_id' => 'required',
         ]);
 
 
         $product_userid = product::where('id', $request->product_id)->value('user_id');
-
         $user_id = Auth::user()->id;
 
         if ($user_id != $product_userid)
@@ -662,8 +717,19 @@ class ProductController extends Controller
                 'message' => 'Unauthorised User',
             ], 401);
 
+         // product img delete
+       //  $product_img=Product_img::select('image')->where('product_id', $request->product_id)->get();
+       //  $img_lenght=count($product_img);
+
+       // if($img_lenght>0){
+       //      for ($i=0; $i<$img_lenght ; $i++) { 
+       //       $image_path='storage/'.$product_img[$i]['image'];
+       //        unlink($image_path);
+       //      }
+       //  }
+        // product::where('id', $request->product_id)->delete();
+
         product::where('id', $request->product_id)->update(['delete_flag' => 1 ]);
-          UserProductCount::where('user_id', $user_id)->where('product_id', $request->product_id)->delete();
 
         return response()->json([
             'message' => 'Successfully deleted Product',
@@ -676,7 +742,7 @@ class ProductController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $data = product::where('user_id', $user_id)->where('delete_flag', 0)->Latest()->paginate();
+        $data = product::with('product_img')->where('user_id', $user_id)->where('delete_flag', 0)->Latest()->paginate();
         //$tableq = DB::table('users')->select('id','name','email','profile_pic')->get();
         return response()->json([
             //'users'=> $tableq,
@@ -697,6 +763,437 @@ class ProductController extends Controller
             'view_count' => $views,
             'property_count' => $property_count,
         ], 200);
+    }
+ public function update_Sales_product(Request $request)
+    {
+
+        $request -> validate([
+            'id' => 'required',
+            'address' => 'required',
+            'city' => 'required',
+            'possession_by' => 'required',
+            'locality' => 'required',
+            'display_address' => 'required',
+            'tax_govt_charge' => 'required',
+            'price_negotiable' => 'required',
+            'type' => 'required',
+            'bedroom' => 'required',
+            'bathroom' => 'required',
+            'balconies' => 'required',
+            'additional_rooms' => 'required',
+            'total_floors' => 'required',
+            'property_on_floor' => 'required',
+            'rera_registration_status' => 'required',
+            'facing_towards' => 'required',
+            'additional_parking_status' => 'required',
+            'description' => 'required',
+            'availability_condition' => 'required',
+            'buildyear' => 'required',
+            'equipment' => 'required',
+            'features' => 'required',
+            'area' => 'required',
+            'area_unit' => 'required',
+            'carpet_area' => 'required',
+            'property_detail' => 'required',
+            'build_name' => 'required',
+            'nearest_landmark' => 'required',
+        ]);
+        $product = product::where('id', $request->id)->with('amenities')->first();
+
+        
+
+        $data = product::find($request->id);
+
+        $usertype = Auth::user()->usertype;
+
+        // if($usertype <6 ){
+        //     return response()->json([
+        //         'unauthorised',
+        //     ], 401);
+        // }
+
+
+        $product_id=$request->id;
+       $user_id = Auth::user()->id;
+
+        // inserted images functionalty
+        $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
+            $product_id)->get();
+        $db_img_length=count($DB_img);
+
+       // product images functionalty
+        if($db_img_length<5){
+            $product_image= $request->input('product_image');
+            $Product_img_length=count($product_image);   
+            if($Product_img_length>0){
+                foreach ($product_image as $value) {
+                    
+                    $base64_image = $value; // your base64 encoded
+                    @list($type, $file_data) = explode(';', $base64_image);
+                    @list(, $file_data) = explode(',', $file_data);
+                    $imageName = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
+                    Storage::disk('public')->put($imageName, base64_decode($file_data));
+                        $Product_images_data = [
+                            'user_id' => $user_id,
+                            'product_id' => $product_id,
+                            'image' =>$imageName 
+                        ];
+                    Product_img::create($Product_images_data);
+                }
+                
+            }
+        }
+
+        $data->address = $request->address;
+        $data->city = $request->city;
+        $data->rent_cond = $request->rent_cond;
+        $data->possession_by = $request->possession_by;
+        $data->locality = $request->locality;
+        $data->display_address = $request->display_address;
+        $data->ownership = $request->ownership;
+        $data->expected_pricing = $request->expected_pricing;
+        $data->inclusive_pricing_details = $request->inclusive_pricing_details;
+        $data->tax_govt_charge = $request->tax_govt_charge;
+        $data->price_negotiable = $request->price_negotiable;
+        $data->maintenance_charge_status = $request->maintenance_charge_status;
+        $data->maintenance_charge = $request->maintenance_charge;
+        $data->maintenance_charge_condition = $request->maintenance_charge_condition;
+        $data->deposit = $request->deposit;
+        $data->brokerage_charges = $request->brokerage_charges;
+        $data->type = $request->type;
+        $data->bedroom = $request->bedroom;
+        $data->bathroom = $request->bathroom;
+        $data->balconies = $request->balconies;
+        $data->additional_rooms = $request->additional_rooms;
+        $data->furnishing_status = $request->furnishing_status;
+        $data->furnishings = $request->furnishings;
+        $data->total_floors = $request->total_floors;
+        $data->property_on_floor = $request->property_on_floor;
+        $data->rera_registration_status = $request->rera_registration_status;
+        // $data->amenities = $request->amenities;
+        $data->facing_towards = $request->facing_towards;
+        $data->additional_parking_status = $request->additional_parking_status;
+        $data->description = $request->description;
+        $data->parking_covered_count = $request->parking_covered_count;
+        $data->parking_open_count = $request->parking_open_count;
+        $data->availability_condition = $request->availability_condition;
+        $data->buildyear = $request->buildyear;
+        $data->age_of_property = $request->age_of_property;
+        $data->month_of_notice = $request->month_of_notice;
+        $data->equipment = $request->equipment;
+        $data->features = $request->features;
+        $data->nearby_places = $request->nearby_places;
+        $data->area = $request->area;
+        $data->area_unit = $request->area_unit;
+        $data->carpet_area = $request->carpet_area;
+        $data->property_detail = $request->property_detail;
+        $data->build_name = $request->build_name;
+        $data->nearest_landmark = $request->nearest_landmark;
+        $data->map_latitude = $request->map_latitude;
+        $data->map_longitude = $request->map_longitude;
+        // $data->delete_flag = $request->delete_flag;
+        
+        $data->save();
+
+
+
+       // uncheck Amenties
+       $amenity_Uncheck=$request->amenity_Uncheck;
+       $Uncheck_length=count($amenity_Uncheck);
+       if($Uncheck_length>0){
+           for($i=0; $i<$Uncheck_length;$i++){
+                $Uncheck_Amenties = [
+                    'amenties' =>$amenity_Uncheck[$i],
+                    'user_id' => $user_id,
+                    'product_id' => $product_id
+                ];
+
+                $Amenties_uncheck_Count = ProductAmenties::where('user_id',$user_id)->where('product_id',$product_id)->where('amenties',$Uncheck_Amenties['amenties'])->get();
+                $count = count($Amenties_uncheck_Count);
+                
+                if($count>0){
+                ProductAmenties::where($Uncheck_Amenties)->delete();
+                }
+            }
+        }
+
+
+       // check amenties
+       $amenities=$request->amenities;
+       $length=count($amenities);
+       if($length>0){
+           for($i=0; $i<$length;$i++){
+                $ProductAmenties = [
+                    'amenties' =>$amenities[$i],
+                    'user_id' => $user_id,
+                    'product_id' => $product_id
+                ];
+                
+                $ProductAmenties_Count = ProductAmenties::where('user_id',$user_id)->where('product_id',$product_id)->where('amenties',$ProductAmenties['amenties'])->get();
+                $count = count($ProductAmenties_Count);
+                
+                if($count==0){
+                ProductAmenties::create($ProductAmenties);
+                }
+            }
+        }
+
+
+        return response() -> json([
+            'data' => $data
+        ]);
+
+    }
+    public function update_Rent_product(Request $request)
+    {
+
+        $request -> validate([
+            'id' => 'required',
+            'address' => 'required',
+            'city' => 'required',
+            'possession_by' => 'required',
+            'locality' => 'required',
+            'display_address' => 'required',
+            'tax_govt_charge' => 'required',
+            'price_negotiable' => 'required',
+            'available_for' => 'required',
+            'type' => 'required',
+            'bedroom' => 'required',
+            'bathroom' => 'required',
+            'balconies' => 'required',
+            'additional_rooms' => 'required',
+            // 'furnishing_status' => 'required',
+            'total_floors' => 'required',
+            'property_on_floor' => 'required',
+            'rera_registration_status' => 'required',
+            'facing_towards' => 'required',
+            'additional_parking_status' => 'required',
+            'description' => 'required',
+            'availability_condition' => 'required',
+            'buildyear' => 'required',
+            // 'age_of_property' => 'required',
+            'expected_rent' => 'required',
+            'inc_electricity_and_water_bill' => 'required',
+            'security_deposit' => 'required',
+            'duration_of_rent_aggreement' => 'required',
+            // 'month_of_notice' => 'required',
+            'equipment' => 'required',
+            'features' => 'required',
+            'area' => 'required',
+            'area_unit' => 'required',
+            'carpet_area' => 'required',
+            'property_detail' => 'required',
+            'build_name' => 'required',
+            'willing_to_rent_out_to' => 'required',
+            'agreement_type' => 'required',
+            'nearest_landmark' => 'required',
+        ]);
+        $product = product::where('id', $request->id)->with('amenities')->first();
+
+        $data = product::find($request->id);
+
+        $usertype = Auth::user()->usertype;
+
+        // if($usertype <6 ){
+        //     return response()->json([
+        //         'unauthorised',
+        //     ], 401);
+        // }
+            
+        $product_id=$request->id;
+       $user_id = Auth::user()->id;
+
+        // inserted images functionalty
+        $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
+            $product_id)->get();
+        $db_img_length=count($DB_img);
+
+       // product images functionalty
+        if($db_img_length<5){
+            $product_image= $request->input('product_image');
+            $Product_img_length=count($product_image);   
+            if($Product_img_length>0){
+                foreach ($product_image as $value) {
+                    
+                    $base64_image = $value; // your base64 encoded
+                    @list($type, $file_data) = explode(';', $base64_image);
+                    @list(, $file_data) = explode(',', $file_data);
+                    $imageName = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
+                    Storage::disk('public')->put($imageName, base64_decode($file_data));
+                        $Product_images_data = [
+                            'user_id' => $user_id,
+                            'product_id' => $product_id,
+                            'image' =>$imageName 
+                        ];
+                    Product_img::create($Product_images_data);
+                }
+                
+            }
+        }
+
+        // $data->view_counter = $request->view_counter;
+        $data->address = $request->address;
+        $data->city = $request->city;
+        $data->rent_cond = $request->rent_cond;
+        // $data->rent_availability = $request->rent_availability;
+        // $data->sale_availability = $request->sale_availability;
+        $data->possession_by = $request->possession_by;
+        $data->locality = $request->locality;
+        $data->display_address = $request->display_address;
+        $data->ownership = $request->ownership;
+        $data->expected_pricing = $request->expected_pricing;
+        $data->inclusive_pricing_details = $request->inclusive_pricing_details;
+        $data->tax_govt_charge = $request->tax_govt_charge;
+        $data->price_negotiable = $request->price_negotiable;
+        $data->maintenance_charge_status = $request->maintenance_charge_status;
+        $data->maintenance_charge = $request->maintenance_charge;
+        $data->maintenance_charge_condition = $request->maintenance_charge_condition;
+        $data->deposit = $request->deposit;
+        $data->available_for = $request->available_for;
+        $data->brokerage_charges = $request->brokerage_charges;
+        $data->type = $request->type;
+        $data->bedroom = $request->bedroom;
+        $data->bathroom = $request->bathroom;
+        $data->balconies = $request->balconies;
+        $data->additional_rooms = $request->additional_rooms;
+        $data->furnishing_status = $request->furnishing_status;
+        $data->furnishings = $request->furnishings;
+        $data->total_floors = $request->total_floors;
+        $data->property_on_floor = $request->property_on_floor;
+        $data->rera_registration_status = $request->rera_registration_status;
+        $data->facing_towards = $request->facing_towards;
+        $data->additional_parking_status = $request->additional_parking_status;
+        $data->description = $request->description;
+        $data->parking_covered_count = $request->parking_covered_count;
+        $data->parking_open_count = $request->parking_open_count;
+        $data->availability_condition = $request->availability_condition;
+        $data->buildyear = $request->buildyear;
+        $data->age_of_property = $request->age_of_property;
+        $data->expected_rent = $request->expected_rent;
+        $data->inc_electricity_and_water_bill = $request->inc_electricity_and_water_bill;
+        $data->security_deposit = $request->security_deposit;
+        $data->duration_of_rent_aggreement = $request->duration_of_rent_aggreement;
+        $data->month_of_notice = $request->month_of_notice;
+        $data->equipment = $request->equipment;
+        $data->features = $request->features;
+        $data->nearby_places = $request->nearby_places;
+        $data->area = $request->area;
+        $data->area_unit = $request->area_unit;
+        $data->carpet_area = $request->carpet_area;
+        $data->property_detail = $request->property_detail;
+        $data->build_name = $request->build_name;
+        $data->willing_to_rent_out_to = $request->willing_to_rent_out_to;
+        $data->agreement_type = $request->agreement_type;
+        $data->nearest_landmark = $request->nearest_landmark;
+        $data->map_latitude = $request->map_latitude;
+        $data->map_longitude = $request->map_longitude;
+              $Product_Data = [
+                 'address'=> $data->address,
+                 'city'=>  $data->city,
+                 'rent_cond' =>$data->rent_cond,
+                 'possession_by'=> $data->possession_by,
+                 'locality' =>$data->locality,
+                 'display_address' =>$data->display_address,
+                 'ownership'=>$data->ownership,
+                 'expected_pricing' =>$data->expected_pricing,
+                 'inclusive_pricing_details'=>$data->inclusive_pricing_details,
+                 'tax_govt_charge'=>$data->tax_govt_charge ,
+                 'price_negotiable'=>$data->price_negotiable,
+                 'maintenance_charge_status'=>$data->maintenance_charge_status,
+                 'maintenance_charge'=>$data->maintenance_charge,
+                 'maintenance_charge_condition'=>$data->maintenance_charge_condition,
+                 'deposit'=>$data->deposit,
+                 'available_for'=>$data->available_for,
+                 'brokerage_charges'=>$data->brokerage_charges,
+                 'type'=> $data->type,
+                 'bedroom'=>$data->bedroom,
+                 'bathroom'=> $data->bathroom,
+                 'balconies'=> $data->balconies,
+                 'additional_rooms'=> $data->additional_rooms,
+                 'furnishing_status'=>$data->furnishing_status,
+                 'furnishings'=>$data->furnishings,
+                 'total_floors'=>$data->total_floors,
+                 'property_on_floor'=>$data->property_on_floor,
+                 'rera_registration_status'=>$data->rera_registration_status,
+                 'facing_towards'=>$data->facing_towards,
+                 'description'=> $data->description ,
+                 'additional_parking_status'=>$data->additional_parking_status,
+                 'parking_covered_count'=>$data->parking_covered_count,
+                 'parking_open_count'=>$data->parking_open_count,
+                 'availability_condition'=>$data->availability_condition,
+                 'buildyear'=> $data->buildyear ,
+                 'age_of_property'=>$data->age_of_property,
+                 'expected_rent'=>$data->expected_rent,
+                 'inc_electricity_and_water_bill'=>$data->inc_electricity_and_water_bill,
+                 'security_deposit'=> $data->security_deposit,
+                 'duration_of_rent_aggreement'=>$data->duration_of_rent_aggreement,
+                 'month_of_notice'=>$data->month_of_notice,
+                 'equipment'=>$data->equipment,
+                 'features'=>$data->features,
+                 'nearby_places'=>$data->nearby_places,
+                 'area'=>$data->area,
+                 'area_unit'=>$data->area_unit,
+                 'carpet_area'=>$data->carpet_area,
+                 'property_detail'=>$data->property_detail,
+                 'build_name'=>$data->build_name ,
+                 'willing_to_rent_out_to'=>$data->willing_to_rent_out_to,
+                 'agreement_type'=>$data->agreement_type,
+                 'nearest_landmark'=>$data->nearest_landmark,
+                 'map_latitude'=> $data->map_latitude,
+                 'map_longitude'=> $data->map_longitude,
+            ];  
+
+        
+        $data->save();
+        $product_id=$request->id;
+       $user_id = Auth::user()->id;
+
+       // uncheck Amenties
+       $amenity_Uncheck=$request->amenity_Uncheck;
+       $Uncheck_length=count($amenity_Uncheck);
+       if($Uncheck_length>0){
+            foreach ($amenity_Uncheck as $uncheck_amen) {
+                $Uncheck_Amenties = [
+                    'amenties' =>$uncheck_amen,
+                    'user_id' => $user_id,
+                    'product_id' => $product_id
+                ];
+
+                $Amenties_uncheck_Count = ProductAmenties::where('user_id',$user_id)->where('product_id',$product_id)->where('amenties',$Uncheck_Amenties['amenties'])->get();
+                $count = count($Amenties_uncheck_Count);
+                
+                if($count>0){
+                ProductAmenties::where($Uncheck_Amenties)->delete();
+                }
+            }
+        }
+
+
+       // check amenties
+       $amenities_check=$request->amenities;
+       $length=count($amenities_check);
+       if($length>0){
+            foreach ($amenities_check as $Check_amenities) {
+                $ProductAmenties = [
+                    'amenties' =>$Check_amenities,
+                    'user_id' => $user_id,
+                    'product_id' => $product_id
+                ];
+                
+                $ProductAmenties_Count = ProductAmenties::where('user_id',$user_id)->where('product_id',$product_id)->where('amenties',$ProductAmenties['amenties'])->get();
+                $count = count($ProductAmenties_Count);
+                
+                if($count==0){
+                ProductAmenties::create($ProductAmenties);
+                }
+            }
+        }
+
+
+        return response() -> json([
+            'data' => $data
+        ]);
+
     }
 
 
@@ -858,7 +1355,7 @@ class ProductController extends Controller
         ]);
 
        $user_id = Auth::user()->id;
-        $product = product::where('id', $request->id)->where('user_id',$user_id)->with('amenities')->first();
+        $product = product::where('id', $request->id)->where('user_id',$user_id)->with('amenities','product_img','Property_Type')->first();
        
        if($product){
             return response()->json([

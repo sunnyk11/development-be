@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ProductAmenties;
+use Auth;
 
 class product extends Model
 {
@@ -85,6 +86,19 @@ class product extends Model
         return $this->hasOne('App\Models\User', 'id','user_id');
     }
 
+    public function product_comparision()
+    {
+
+        $user_id = Auth::user()->id;
+        return $this->hasOne('App\Models\Product_Comparision', 'product_id','id')->where('status', '1')->where('user_id', $user_id)->orderBy('id', 'asc')->take(4);
+    }
+
+    public function Single_wishlist()
+    {
+        
+        $user_id = Auth::user()->id;
+        return $this->hasOne('App\Models\Wishlist', 'product_id','id')->where('user_id', $user_id)->where('status', '1');
+    }
     public function wishlist()
     {
         return $this->hasMany('App\Models\Wishlist', 'product_id','id');
@@ -93,7 +107,15 @@ class product extends Model
     {
         return $this->hasMany('App\Models\ProductAmenties', 'product_id','id');
     }
-
+    public function product_img()
+    {
+        return $this->hasMany('App\Models\Product_img', 'product_id','id');
+    }
+    public function Property_Type()
+    {
+        return $this->hasOne('App\Models\Property_type', 'id','type')->where('status', '1');
+    }
+   
     public function roles()
     {
 
@@ -104,7 +126,7 @@ class product extends Model
             $query = $query->where('build_name', 'like', "%" . $searchTerm->build_name . "%");
         }
         if ($searchTerm->Location) {
-           $query = $query->where('city', 'like', "%" . $searchTerm->Location . "%");
+           $query = $query->where('address', 'like', "%" . $searchTerm->Location . "%");
         }
         if ($searchTerm->area_unit) {
             $query = $query->where('area_unit', $searchTerm->area_unit);
@@ -118,9 +140,9 @@ class product extends Model
         if ($searchTerm->Bedrooms) {
             $query = $query->where('bedroom', $searchTerm->Bedrooms);
         }
-        if ($searchTerm->availability_condition) {
-            $query = $query->where('availability_condition', $searchTerm->availability_condition);
-        }
+        // if ($searchTerm->availability_condition) {
+        //     $query = $query->where('availability_condition', $searchTerm->availability_condition);
+        // }
         if ($searchTerm->Years) {
             $query = $query->where('buildyear', $searchTerm->Years);
         }

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\ProductAmenties;
+use App\Models\Property_type;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\product;
 
-class ProductAmentiesController extends Controller
+class PropertyTypeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,9 +16,19 @@ class ProductAmentiesController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $data=Property_type::with('Product_type_count')->where('status', '1')->orderBy('id', 'asc')->get(); 
 
+        $pro_type_count=[];
+        foreach ($data as $key => $value) {
+            $product_count= count($value['product_type_count']);
+            $count=['pro_count'=>$product_count,'pro_type'=>$value['name']];
+            array_push($pro_type_count,$count);
+        }
+        return response()->json([
+            'data' => $data,
+            'count'=>$pro_type_count 
+        ], 200);
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -41,10 +53,10 @@ class ProductAmentiesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\ProductAmenties  $productAmenties
+     * @param  \App\Models\Property_type  $property_type
      * @return \Illuminate\Http\Response
      */
-    public function show(ProductAmenties $productAmenties)
+    public function show(Property_type $property_type)
     {
         //
     }
@@ -52,10 +64,10 @@ class ProductAmentiesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\ProductAmenties  $productAmenties
+     * @param  \App\Models\Property_type  $property_type
      * @return \Illuminate\Http\Response
      */
-    public function edit(ProductAmenties $productAmenties)
+    public function edit(Property_type $property_type)
     {
         //
     }
@@ -64,10 +76,10 @@ class ProductAmentiesController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ProductAmenties  $productAmenties
+     * @param  \App\Models\Property_type  $property_type
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ProductAmenties $productAmenties)
+    public function update(Request $request, Property_type $property_type)
     {
         //
     }
@@ -75,10 +87,10 @@ class ProductAmentiesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\ProductAmenties  $productAmenties
+     * @param  \App\Models\Property_type  $property_type
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ProductAmenties $productAmenties)
+    public function destroy(Property_type $property_type)
     {
         //
     }

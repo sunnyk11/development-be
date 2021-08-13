@@ -29,7 +29,7 @@ class ReviewsController extends Controller
         // $user_id = Auth::user()->id;
 
         return response()->json([
-            'data' => reviews::with('UserDetail')->orderBy('id', 'desc')->take(6)->get()
+            'data' => reviews::with('UserDetail')->where('stars', '5')->orderBy('id', 'desc')->take(3)->get()
         ]);
     }
 

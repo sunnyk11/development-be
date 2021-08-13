@@ -16,9 +16,10 @@ class CreateProductAmentiesTable extends Migration
         Schema::create('product_amenties', function (Blueprint $table) {
             $table->id();
             $table->integer('amenties');
-            $table->integer('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products')->onUpdate('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

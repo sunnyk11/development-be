@@ -20,7 +20,7 @@ class UserProductCountController extends Controller
     public function index()
     {
          $user_id = Auth::user()->id;
-         $data=UserProductCount::where('user_id',$user_id)->with('productdetails')->orderBy('Product_count', 'desc')->take(6)->get();
+         $data=UserProductCount::where('user_id',$user_id)->with('productdetails','product_img')->orderBy('Product_count', 'desc')->take(6)->get();
         return response()->json([
             'data' => $data
         ], 200);
