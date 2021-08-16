@@ -9,7 +9,7 @@ use Auth;
 
 class product extends Model
 {
-    use HasFactory;
+    use HasFactory; 
     protected $fillable = [
         'user_id',
         'address',
@@ -132,7 +132,8 @@ class product extends Model
             $query = $query->where('area_unit', $searchTerm->area_unit);
         }
         if ($searchTerm->type) {
-            $query = $query->where('type', $searchTerm->type);
+            $type_value=(int)$searchTerm->type;
+            $query = $query->where('type', $type_value);
         }
         if ($searchTerm->Bathrooms) {
             $query = $query->where('bathroom', $searchTerm->Bathrooms);

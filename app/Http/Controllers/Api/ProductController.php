@@ -18,6 +18,7 @@ use App\Models\Amenitie;
 use App\Models\ProductAmenties;
 use App\Models\UserProductCount;
 use App\Models\Product_img;
+use App\Models\Product_Comparision;
 class ProductController extends Controller
 {
     /**
@@ -117,11 +118,30 @@ class ProductController extends Controller
           ], 201);
         }
     }
+    public function search_pro_type(Request $request)
+    {
+        // return $request->input('id');
+        $product = product::with('UserDetail','Property_Type','product_img')->where(['delete_flag'=> '0','type'=> $request->id])->get();
+        return response()->json([
+            'data' =>$product,
+          ], 201);
+        
+    }
+    
+    public function search_pro_type_login(Request $request)
+    {
+        // return $request->input('id');
+        $product = product::with('UserDetail','Property_Type','product_img','Property_Type','product_comparision')->where(['delete_flag'=> '0','type'=> $request->id])->get();
+        return response()->json([
+            'data' =>$product,
+          ], 201);
+        
+    }
 
 
     public function propertysearch_list(Request $request)
     {
-        $product = product::with('UserDetail','Property_Type')->where('delete_flag', 0)->search($request)->get();
+        $product = product::with('UserDetail','Property_Type','product_img')->where('delete_flag', 0)->search($request)->get();
         return response()->json([
             'data' =>$product,
           ], 201);
@@ -154,7 +174,7 @@ class ProductController extends Controller
         ]);
             $city = $request->cityValue;
 
-        $productSimilar=product::with('UserDetail','Property_Type','product_img')->where('city', $city)->orderBy('id', 'desc')->take(6)->get();
+        $productSimilar=product::with('UserDetail','Property_Type','product_img')->where(['city'=> $city,'delete_flag'=>0])->orderBy('id', 'desc')->take(6)->get();
 
             return response()-> json([
                 'product' => $productSimilar,
@@ -292,28 +312,22 @@ class ProductController extends Controller
         }
         if($productArray){
             return response()->json([
-            'product' =>$productArray,
+            'data' =>$productArray,
           ], 201);
         }else{
             return response()->json([
-            'product' =>$product,
+            'data' =>$product,
           ], 201);
         }
     }
 
      public function search_func(Request $request){
-
-        
         $product = product::with('UserDetail','product_img','Property_Type')->where('delete_flag', 0)->search($request)->get();
         return response()->json([
-            'product' =>$product,
+            'data' =>$product,
           ], 201);
      }
-
-
-
-     public function city_search_func(Request $request){
-
+    public function city_search_func(Request $request){
         $request->validate([
             'city' => 'required'
         ]);
@@ -341,11 +355,7 @@ class ProductController extends Controller
         ]);
      }
 
-
-
-
-
-      public function product_index(){
+    public function product_index(){
 
         $mer=[];
         $max_id = DB::table('products')->where('id', DB::raw("(select max(`id`) from products)"))->value("id");
@@ -365,10 +375,7 @@ class ProductController extends Controller
 
     }
 
-
-
-    public function first(Request $request)
-    {
+    public function first(Request $request){
        $request -> validate([
             'build_name' => 'required',
             'type' => 'required',
@@ -731,6 +738,15 @@ class ProductController extends Controller
 
         product::where('id', $request->product_id)->update(['delete_flag' => 1 ]);
 
+        // propduct count inactive
+        UserProductCount::where('product_id', $request->product_id)->update(['status' => '0']);
+
+        // wishlist inactive
+        Wishlist::where('product_id', $request->product_id)->update(['status' => '0']);
+
+        // property comaprision
+        Product_Comparision::where('product_id', $request->product_id)->update(['status' => '0']);
+
         return response()->json([
             'message' => 'Successfully deleted Product',
         ], 201);
@@ -742,7 +758,7 @@ class ProductController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $data = product::with('product_img')->where('user_id', $user_id)->where('delete_flag', 0)->Latest()->paginate();
+        $data = product::with('product_img')->where('user_id', $user_id)->where('delete_flag', 0)->get();
         //$tableq = DB::table('users')->select('id','name','email','profile_pic')->get();
         return response()->json([
             //'users'=> $tableq,

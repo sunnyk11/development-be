@@ -15,7 +15,7 @@ class Product_Comparision extends Model
 
     public function productdetails()
     {
-        return $this->hasOne('App\Models\product', 'id','product_id');
+        return $this->hasOne('App\Models\product', 'id','product_id')->with('Property_Type');
     }
     
     public function UserDetail()

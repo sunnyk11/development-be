@@ -18,6 +18,7 @@ class CreateUserProductCountsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('product_id');
             $table->integer('Product_count');
+            $table->enum('status', ['0', '1'])->default('1');
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onUpdate('cascade');
             $table->timestamps();

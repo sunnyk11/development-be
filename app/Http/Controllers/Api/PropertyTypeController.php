@@ -21,8 +21,10 @@ class PropertyTypeController extends Controller
         $pro_type_count=[];
         foreach ($data as $key => $value) {
             $product_count= count($value['product_type_count']);
-            $count=['pro_count'=>$product_count,'pro_type'=>$value['name']];
-            array_push($pro_type_count,$count);
+            if($product_count>0){
+                $count=['id'=>$value['id'],'pro_count'=>$product_count,'pro_type'=>$value['name']];
+                array_push($pro_type_count,$count);
+            }
         }
         return response()->json([
             'data' => $data,

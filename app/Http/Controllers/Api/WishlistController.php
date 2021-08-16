@@ -19,7 +19,7 @@ class WishlistController extends Controller
     public function index()
     {
         $user_id = Auth::user()->id;
-       $data=Wishlist::where('status', '1')->where('user_id',$user_id)->with('productdetails','UserDetail')->orderBy('id', 'asc')->get();
+       $data=Wishlist::where('status', '1')->where('user_id',$user_id)->with('productdetails','UserDetail','product_img','product_comparision')->orderBy('id', 'asc')->get();
         return response()->json([
             'data' => $data
         ], 200);

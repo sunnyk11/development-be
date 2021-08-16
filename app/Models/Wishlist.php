@@ -15,11 +15,20 @@ class Wishlist extends Model
     
     public function productdetails()
     {
-        return $this->hasOne('App\Models\product', 'id','product_id');
+        return $this->hasOne('App\Models\product', 'id','product_id')->with('Property_Type');
     }
     
     public function UserDetail()
     {
         return $this->hasOne('App\Models\User', 'id','user_id');
     }
+     public function product_img()
+    {
+        return $this->hasMany('App\Models\Product_img', 'product_id','product_id');
+    } 
+    
+    public function product_comparision()
+    {
+        return $this->hasOne('App\Models\Product_Comparision', 'product_id','product_id')->where('status', '1')->orderBy('id', 'asc')->take(4);
+    } 
 }

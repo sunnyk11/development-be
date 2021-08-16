@@ -89,6 +89,9 @@ Route::group([
     Route::post('/lawyer_page', 'App\Http\Controllers\Api\LawyerController@lawyer_check');
 
     Route::post('/product_review', 'App\Http\Controllers\Api\ReviewsController@product_review');
+
+    Route::post('/search_pro_type', 'App\Http\Controllers\Api\ProductController@search_pro_type');
+    
     Route::post('/product_Searching', 'App\Http\Controllers\Api\ProductController@propertysearch_list');
     Route::get('/testimonial', 'App\Http\Controllers\Api\ReviewsController@testimonial');
 
@@ -103,6 +106,7 @@ Route::group([
         Route::get('/review_index', 'App\Http\Controllers\Api\ReviewsController@review_index');
         Route::post('/post_review', 'App\Http\Controllers\Api\ReviewsController@store');
         Route::post('/Login_search_home', 'App\Http\Controllers\Api\ProductController@Login_search_home');
+        Route::post('/search_pro_type_login', 'App\Http\Controllers\Api\ProductController@search_pro_type_login');
 
 
         Route::get('/get_requ', 'App\Http\Controllers\Api\RequirementController@index');
