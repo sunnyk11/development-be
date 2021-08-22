@@ -563,7 +563,7 @@ class ProductController extends Controller
             'additional_parking_status' => 'required' ,
             'parking_covered_count' => '' ,
             'parking_open_count' => '' ,
-            'rent_availability' => 'required' ,
+            'rent_availability' => '' ,
             'available_for' => 'required' ,
             'buildyear' => 'required' ,
             'age_of_property' => 'required' ,
@@ -758,7 +758,7 @@ class ProductController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $data = product::with('product_img')->where('user_id', $user_id)->where('delete_flag', 0)->get();
+        $data = product::with('product_img')->where('user_id', $user_id)->where('delete_flag', 0)->orderBy('id', 'desc')->get();
         //$tableq = DB::table('users')->select('id','name','email','profile_pic')->get();
         return response()->json([
             //'users'=> $tableq,
