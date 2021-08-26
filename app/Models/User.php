@@ -39,6 +39,10 @@ class User extends Authenticatable
         'law_firm_number',
         'practice_number',
         'password',
+        'user_role',
+        'internal_user',
+        'branch',
+        'area_names'
     ];
 
     /**

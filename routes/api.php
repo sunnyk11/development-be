@@ -38,8 +38,17 @@ Route::group([
     Route::post('/user_signup', 'App\Http\Controllers\Api\AuthController@user_signup');
 	Route::post('/verify_mobile', 'App\Http\Controllers\Api\AuthController@verify_mobile_number');																							  
     Route::post('/user_signup_new', 'App\Http\Controllers\Api\AuthController@user_signup_new');
+	Route::post('/internal_user_signup', 'App\Http\Controllers\Api\AuthController@internal_user_signup');																								  
     Route::get('/get_product_featured', 'App\Http\Controllers\Api\ProductController@index_featured');
 
+	Route::post('/create_role', 'App\Http\Controllers\Api\AuthController@create_user_role');
+	Route::post('/get_access_rights', 'App\Http\Controllers\Api\AuthController@get_access_rights');
+    Route::get('/get_roles', 'App\Http\Controllers\Api\AuthController@get_roles');
+    Route::get('/role/{id}', 'App\Http\Controllers\Api\AuthController@get_role_details');
+    Route::post('roles/update/{id}', 'App\Http\Controllers\Api\AuthController@update_role');
+    Route::delete('roles/delete/{id}', 'App\Http\Controllers\Api\AuthController@delete_role');
+
+    Route::get('/get_areas', 'App\Http\Controllers\Api\AuthController@get_areas');																						
     Route::post('/owner_signup', 'App\Http\Controllers\Api\AuthController@owner_signup');
     Route::post('/dealer_signup', 'App\Http\Controllers\Api\AuthController@dealer_company_signup');
     Route::post('/lawyer_signup', 'App\Http\Controllers\Api\AuthController@lawyer_signup');

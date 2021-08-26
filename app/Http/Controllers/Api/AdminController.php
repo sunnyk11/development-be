@@ -168,11 +168,11 @@ class AdminController extends Controller
         }
 
         return response()-> json([
-            'data' => user::where('usertype', 1)->get(),
-            'data_owner' => user::where('usertype', 2)->get(),
-            'data_dealer' => user::where('usertype', 3)->get(),
-            'data_lawyer' => user::where('usertype', 4)->get(),
-            'data_admin' => user::where('usertype', '>', 6)->get(),
+            'data_agent' => user::where('usertype', 3)->get(),
+            'data_builder' => user::where('usertype', 4)->get(),
+            'data_individual' => user::where('usertype', 5)->get(),
+            'data_internal_user' => user::where('usertype', 8)->get(),
+            'data_admin' => user::where('usertype', 11)->get(),
         ],200);
     }
 
@@ -827,14 +827,18 @@ class AdminController extends Controller
     public function user_check(Request $request)
     {
         $request -> validate([
-            'id' => 'required'
+            'email' => 'required'
         ]);
 
-        $lawyer = User::where('id', $request->id)->first();
-
+        //$lawyer = User::where('id', $request->id)->first();
+        $data = DB::table('users')
+                    ->join('internal_users', 'users.email', '=', 'internal_users.email')
+                    ->where('users.email', '=', $request->email)
+                    ->select('users.*', 'internal_users.*')
+                    ->get();
 
         return response()->json([
-            'data' => $lawyer
+            'data' => $data
         ]);
 
     }

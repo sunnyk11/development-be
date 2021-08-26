@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\InternalUser;
+use App\Models\UserRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -15,6 +17,7 @@ use App\Models\eventtracker;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
+use DB;
 
 class AuthController extends Controller
 {
@@ -46,6 +49,7 @@ class AuthController extends Controller
             'usertype' => $request->selectType,
             'userSelect_type' => $request->selectType,
             'other_mobile_number' => $request->other_mobile_number,
+            'internal_user' => "No",
             'password' => bcrypt($request->password)
         ]);
 
@@ -69,8 +73,6 @@ class AuthController extends Controller
             'profile_pic' => 'required',
             'password' => 'required|string|confirmed'
         ]);
-
-
 
         $base64_image = $request->input('profile_pic'); // your base64 encoded
         @list($type, $file_data) = explode(';', $base64_image);
@@ -118,6 +120,122 @@ class AuthController extends Controller
             ->create("+91".$request->other_mobile_number, "sms");
 
     } 
+
+    /* Code added by Radhika Start */
+
+    public function internal_user_signup(Request $request)
+    {
+        $request->validate([
+            'user_name' => 'required',
+            'email' => 'required|string|unique:users',
+            'other_mobile_number' => 'required|integer|unique:users',
+            'address' => 'required',
+            'password' => 'required',
+            'branch' => 'required',
+            'user_role' => 'required',
+            'area_name' => 'required',
+        ]);
+
+        /*$token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $twilio->verify->v2->services($twilio_verify_sid)
+            ->verifications
+            ->create("+91".$request->other_mobile_number, "sms"); */
+
+
+        $user = new User([
+            'name' => $request->user_name,
+            'email' => $request->email,
+            'other_mobile_number' => $request->other_mobile_number,
+            'usertype' => 8,
+            'address' => $request->address,
+            'address1' => $request->address1,
+            'password' => bcrypt($request->password),
+            'internal_user' => "Yes",
+            'branch' => $request->branch,
+            'user_role' => $request->user_role,
+            'area_names' => json_encode($request->area_name)
+        ]);
+
+        $user->save();
+       
+        eventtracker::create(['symbol_code' => '2', 'event' => $request->user_name.' created a new Internal User Account']);
+
+
+        return response()->json([
+            'data' => $user,
+            'message' => 'Successfully created Internal User'
+        ], 201);
+    }
+
+    public function create_user_role(Request $request){
+
+        $request->validate([
+            'role' => 'required|unique:user_roles',
+            'role_id' => 'required|integer|unique:user_roles'
+        ]);
+
+        $newRoleID = uniqid() . '-' . $request->role_id;
+
+        $role = new UserRole([
+            'role' => $request->role,
+            //'role_id' => $request->role_id,
+            'role_id' => $newRoleID,
+            'access_all_users' => $request->access_all_users,
+            'access_properties' => $request->access_properties,
+            //'access_requirements' => $request->access_requirements,
+            'access_reviews' => $request->access_reviews,
+            'access_lawyer_services' => $request->access_lawyer_services,
+            'access_loan_control' => $request->access_loan_control,
+            'access_user_creator' => $request->access_user_creator,
+            'access_manage_blog' => $request->access_blog,
+            'access_manage_roles' => $request->access_roles,
+            'access_list_property' => $request->access_list_property
+            
+        ]);
+
+        $role->save();
+       // eventtracker::create(['symbol_code' => '2', 'event' => $request->name.' created a new User Role']);
+
+       return response()->json([
+        'data' => $role,
+        'message' => 'Successfully created User Role'
+    ], 201);
+
+    }
+
+    public function update_role(Request $request, $id) {
+
+        UserRole::where('role_id', $id)->update([
+            'access_all_users' => $request->access_all_users,
+            'access_properties' => $request->access_properties,
+			//'access_requirements' => $request->access_requirements,
+            'access_reviews' => $request->access_reviews,
+			'access_lawyer_services' => $request->access_lawyer_services,
+            'access_loan_control' => $request->access_loan_control,
+            'access_user_creator' => $request->access_user_creator,
+            'access_manage_blog' => $request->access_manage_blog,
+            'access_manage_roles' => $request->access_manage_roles,
+            'access_list_property' => $request->access_list_property
+        ]);
+
+        return response() -> json ([
+            'message' => 'The role details have been updated'
+        ], 201);
+    }
+
+    public function delete_role($id) {
+
+        $role = UserRole::where('role_id', $id);
+        $role->delete();
+        return response() -> json ([
+            'message' => 'The role has been deleted.'
+        ]); 
+    }
+
+    /* Code added by Radhika End */
 
     public function owner_signup(Request $request)
     {
@@ -574,6 +692,40 @@ class AuthController extends Controller
             }
         }
         return \Response::json($arr);
+    }
+
+    public function get_access_rights(Request $request) {
+
+        $request->validate([
+            'email' => 'required'			
+        ]);
+
+        /*$access_rights = User::where('email', $request->email)->get();
+        return $access_rights; */
+		$access_rights = DB::table('users')
+		->join('user_roles', 'users.user_role', '=', 'user_roles.role')
+        ->where('users.email', $request->email)
+		->select('users.*', 'user_roles.*' )
+		->get();
+
+        return $access_rights;
+    }
+
+    public function get_roles(Request $request) {
+
+        return $roles = DB::table('user_roles')->get();
+    }
+
+    public function get_areas(Request $request) {
+
+        return $areas = DB::table('areas')->select('area')->get();
+    }
+
+    /* Function to fetch Individual Role details */
+
+    public function get_role_details($id) {
+
+        return $role = DB::table('user_roles')->where('role_id', $id)->get();
     }
 
 	public function upload_profile_pic(Request $request) {
