@@ -824,6 +824,7 @@ class AuthController extends Controller
                 'other_mobile_number' => 1234567890,
                 'phone_number_verification_status' => 1,
                 'id'=> $user->id,
+                'internal_user' => "No",
                 'password' => encrypt('123456dummy')
             ]);
 

@@ -15,7 +15,7 @@ class AddColumnsToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('last_name')->after('name');
-			$table->integer('userSelect_type')->after('usertype');
+			$table->integer('userSelect_type')->after('usertype')->nullable();
         });
     }
 

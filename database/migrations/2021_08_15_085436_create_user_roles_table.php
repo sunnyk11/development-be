@@ -25,6 +25,8 @@ class CreateUserRolesTable extends Migration
             $table->string('access_loan_control');
             $table->string('access_user_creator');
             $table->string('access_manage_blog');
+            //$table->string('access_manage_roles');
+            //$table->string('access_list_property');
             $table->timestamps();
         });
     }
