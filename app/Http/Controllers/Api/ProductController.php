@@ -257,7 +257,7 @@ class ProductController extends Controller
         $user_id = Auth::user()->id;
 
         // $product_id_func = product::find($prod_id)->productid;
-         $product_id_func = product::where('id', $prod_id)->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail')->orderBy('id', 'desc')->get();
+         $product_id_func = product::where('id', $prod_id)->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail','Property_Type')->orderBy('id', 'desc')->get();
         product::where('id', $request->prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);;
 
             return response()-> json([
@@ -377,56 +377,56 @@ class ProductController extends Controller
 
     public function first(Request $request){
        $request -> validate([
-            'build_name' => 'required',
-            'type' => 'required',
-            'address' => 'required' ,
-            'city' => 'required' ,
-            'locality' => 'required' ,
-            'property_detail' => 'required' ,
-            'nearest_landmark' => 'required' ,
-            'map_latitude' => '' ,
-            'map_longitude' => '' ,
-            'display_address' => 'required' ,
-            'area' => 'required' ,
-            'area_unit' => 'required' ,
-            'carpet_area' => 'required' ,
-            'bedroom' => 'required' ,
-            'bathroom' => 'required' ,
-            'balconies' => 'required' ,
-            'additional_rooms' => 'required' ,
-            'furnishing_status' => 'required' ,
-            'furnishings' => '' ,
-            'total_floors' => 'required' ,
-            'property_on_floor' => 'required' ,
-            'rera_registration_status' => 'required' ,
-            'additional_parking_status' => 'required' ,
-            'parking_covered_count' => '' ,
-            'parking_open_count' => '' ,
-            'sale_availability' => '' ,
-            'possession_by' => 'required' ,
-            'maintenance_charge' => '' ,
-            'maintenance_charge_status' => '' ,
-            'maintenance_charge_condition' => '' ,
-            'ownership' => '' ,
-            'expected_pricing' => 'required' ,
-            'inclusive_pricing_details' => '' ,
-            'tax_govt_charge' => 'required' ,
-            'price_negotiable' => 'required' ,
-            'deposit' => '' ,
-            'brokerage_charges' => '' ,
-            'facing_towards' => 'required' ,
-            'availability_condition' => 'required' ,
+            // 'build_name' => 'required',
+            // 'type' => 'required',
+            // 'address' => 'required' ,
+            // 'city' => 'required' ,
+            // 'locality' => 'required' ,
+            // 'property_detail' => 'required' ,
+            // 'nearest_landmark' => 'required' ,
+            // 'map_latitude' => '' ,
+            // 'map_longitude' => '' ,
+            // 'display_address' => 'required' ,
+            // 'area' => 'required' ,
+            // 'area_unit' => 'required' ,
+            // 'carpet_area' => 'required' ,
+            // 'bedroom' => 'required' ,
+            // 'bathroom' => 'required' ,
+            // 'balconies' => 'required' ,
+            // 'additional_rooms' => 'required' ,
+            // 'furnishing_status' => 'required' ,
+            // 'furnishings' => '' ,
+            // 'total_floors' => 'required' ,
+            // 'property_on_floor' => 'required' ,
+            // 'rera_registration_status' => 'required' ,
+            // 'additional_parking_status' => 'required' ,
+            // 'parking_covered_count' => '' ,
+            // 'parking_open_count' => '' ,
+            // 'sale_availability' => '' ,
+            // 'possession_by' => 'required' ,
+            // 'maintenance_charge' => '' ,
+            // 'maintenance_charge_status' => '' ,
+            // 'maintenance_charge_condition' => '' ,
+            // 'ownership' => '' ,
+            // 'expected_pricing' => 'required' ,
+            // 'inclusive_pricing_details' => '' ,
+            // 'tax_govt_charge' => 'required' ,
+            // 'price_negotiable' => 'required' ,
+            // 'deposit' => '' ,
+            // 'brokerage_charges' => '' ,
+            // 'facing_towards' => 'required' ,
+            // 'availability_condition' => 'required' ,
             // 'amenities' => 'required' ,
-            'buildyear' => 'required' ,
-            'age_of_property' => 'required' ,
+            // 'buildyear' => 'required' ,
+            // 'age_of_property' => 'required' ,
             //'description' => 'required' ,
-            'equipment' => 'required' ,
-            'features' => 'required' ,
-            'nearby_places' => 'required' ,
+            // 'equipment' => 'required' ,
+            // 'features' => 'required' ,
+            // 'nearby_places' => 'required' ,
         ]);
-
         $user_id = Auth::user()->id;
-
+        $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
+         $addtional_room=implode(',',$request->additional_rooms);
         $product_data = new Product([
             'user_id' => $user_id,
             'build_name' => $request->build_name,
@@ -434,6 +434,7 @@ class ProductController extends Controller
             'address' => $request->address,
             'city' => $request->city,
             'locality' => $request->locality,
+            'pincode' => $request->pincode,
             'property_detail' => $request->property_detail,
             'nearest_landmark' => $request->nearest_landmark,
             'map_latitude' => $request->map_latitude,
@@ -445,7 +446,7 @@ class ProductController extends Controller
             'bedroom' => $request->bedroom,
             'bathroom' => $request->bathroom,
             'balconies' => $request->balconies,
-            'additional_rooms' => $request->additional_rooms,
+            'additional_rooms' => $addtional_room,
             'furnishing_status' => $request->furnishing_status,
             'furnishings' => json_encode($request->furnishings),
             'total_floors' => $request->total_floors,
@@ -471,10 +472,11 @@ class ProductController extends Controller
             // 'amenities' => json_encode($request->amenities),
             'buildyear' => $request->buildyear,
             'age_of_property' => $request->age_of_property,
-            'description' => $request->description,
+            // 'description' => $request->description,
             'equipment' => $request->equipment,
             'features' => $request->features,
             'nearby_places' => $request->nearby_places,
+            'video_link'=>$video_link,
         ]);
         $user_type = Auth::user()->usertype;
 
@@ -536,64 +538,66 @@ class ProductController extends Controller
     public function second(Request $request)
     {
         $request -> validate([
-            'build_name' => 'required' ,
-            'type' => 'required' ,
-            'willing_to_rent_out_to' => 'required' ,
-            'agreement_type' => 'required' ,
-            'address' => 'required' ,
-            'display_address' => 'required' ,
-            'city' => 'required' ,
-            'locality' => 'required' ,
-            'property_detail' => 'required' ,
-            'nearest_landmark' => 'required' ,
-            'map_latitude' => '' ,
-            'map_longitude' => '' ,
-            'area' => 'required' ,
-            'area_unit' => 'required' ,
-            'carpet_area' => 'required' ,
-            'bedroom' => 'required' ,
-            'bathroom' => 'required' ,
-            'balconies' => 'required' ,
-            'additional_rooms' => 'required' ,
-            'furnishing_status' => 'required' ,
+            // 'build_name' => 'required' ,
+            // 'type' => 'required' ,
+            // 'willing_to_rent_out_to' => 'required' ,
+            // 'agreement_type' => 'required' ,
+            // 'address' => 'required' ,
+            // 'display_address' => 'required' ,
+            // 'city' => 'required' ,
+            // 'locality' => 'required' ,
+            // 'property_detail' => 'required' ,
+            // 'nearest_landmark' => 'required' ,
+            // 'map_latitude' => '' ,
+            // 'map_longitude' => '' ,
+            // 'area' => 'required' ,
+            // 'area_unit' => 'required' ,
+            // 'carpet_area' => 'required' ,
+            // 'bedroom' => 'required' ,
+            // 'bathroom' => 'required' ,
+            // 'balconies' => 'required' ,
+            // 'additional_rooms' => 'required' ,
+            // 'furnishing_status' => 'required' ,
             //'furnishings' => '' ,
-            'total_floors' => 'required' ,
-            'property_on_floor' => 'required' ,
-            'rera_registration_status' => 'required' ,
-            'additional_parking_status' => 'required' ,
-            'parking_covered_count' => '' ,
-            'parking_open_count' => '' ,
+            // 'total_floors' => 'required' ,
+            // 'property_on_floor' => 'required' ,
+            // 'rera_registration_status' => 'required' ,
+            // 'additional_parking_status' => 'required' ,
+            // 'parking_covered_count' => '' ,
+            // 'parking_open_count' => '' ,
             //'rent_availability' => '' ,
-            'available_for' => 'required' ,
-            'buildyear' => 'required' ,
-            'age_of_property' => 'required' ,
-            'possession_by' => 'required' ,
-            'duration_of_rent_aggreement' => 'required' ,
-            'security_deposit' => 'required' ,
+            // 'available_for' => 'required' ,
+            // 'buildyear' => 'required' ,
+            // 'age_of_property' => 'required' ,
+            // 'possession_by' => 'required' ,
+            // 'duration_of_rent_aggreement' => 'required' ,
+            // 'security_deposit' => 'required' ,
             //'maintenance_charge' => '',
-            'maintenance_charge_status' => '' ,
+            // 'maintenance_charge_status' => '' ,
             //'maintenance_charge_condition' => '' ,
-            'ownership' => 'required' ,
-            'rent_cond' => 'required' ,
+            // 'ownership' => 'required' ,
+            // 'rent_cond' => 'required' ,
             //'expected_pricing' => '' ,
             //'inclusive_pricing_details' => '' ,
-            'tax_govt_charge' => 'required' ,
-            'price_negotiable' => 'required' ,
+            // 'tax_govt_charge' => 'required' ,
+            // 'price_negotiable' => 'required' ,
             //'deposit' => '' ,
-            'brokerage_charges' => '' ,
-            'facing_towards' => 'required' ,
-            'availability_condition' => 'required' ,
-            'expected_rent' => 'required' ,
-            'inc_electricity_and_water_bill' => 'required' ,
-            'month_of_notice' => 'required' ,
-            'equipment' => 'required' ,
-            'features' => 'required' ,
+            // 'brokerage_charges' => '' ,
+            // 'facing_towards' => 'required' ,
+            // 'availability_condition' => 'required' ,
+            // 'expected_rent' => 'required' ,
+            // 'inc_electricity_and_water_bill' => 'required' ,
+            // 'month_of_notice' => 'required' ,
+            // 'equipment' => 'required' ,
+            // 'features' => 'required' ,
             //'description' => 'required' ,
         ]);
 
 
 
         $user_id = Auth::user()->id;
+        $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
+         $addtional_room=implode(',',$request->additional_rooms);
 
             $product_data = new Product([
             'user_id' => $user_id ,
@@ -625,20 +629,18 @@ class ProductController extends Controller
             'additional_parking_status' => $request->additional_parking_status ,
             'parking_covered_count' => $request->parking_covered_count ,
             'parking_open_count' => $request->parking_open_count ,
-            //'rent_availability' => $request->rent_availability ,
+            'rent_availability' => $request->rent_availability ,
             'available_for' => $request->available_for ,
             'buildyear' => $request->buildyear ,
             'age_of_property' => $request->age_of_property ,
             'possession_by' => $request->possession_by ,
             'duration_of_rent_aggreement' => $request->duration_of_rent_aggreement ,
             'security_deposit' => $request->security_deposit ,
-            //'maintenance_charge' =>$request->maintenance_charge ,
+            'maintenance_charge' =>$request->maintenance_charge,
             'maintenance_charge_status' => $request->maintenance_charge_status ,
             //'maintenance_charge_condition' => $request->maintenance_charge_condition ,
             'ownership' => $request->ownership ,
             'rent_cond' => $request->rent_cond ,
-            //'expected_pricing' => $request->expected_pricing ,
-            //'inclusive_pricing_details' => $request->inclusive_pricing_details ,
             'tax_govt_charge' => $request->tax_govt_charge ,
             'price_negotiable' => $request->price_negotiable ,
             //'deposit' => $request->deposit ,
@@ -647,10 +649,11 @@ class ProductController extends Controller
             'availability_condition' => $request->availability_condition ,
             'expected_rent' => $request->expected_rent ,
             'inc_electricity_and_water_bill' => $request->inc_electricity_and_water_bill ,
-            'month_of_notice' => $request->month_of_notice ,
+            'pincode' => $request->pincode,
             'equipment' => $request->equipment ,
-            'features' => $request->features ,
+            'additional_rooms' => $addtional_room,
             //'description' => $request->description ,
+            'video_link'=>$video_link,
             ]);
 
             $user_type = Auth::user()->usertype;
@@ -802,7 +805,7 @@ class ProductController extends Controller
             'rera_registration_status' => 'required',
             'facing_towards' => 'required',
             'additional_parking_status' => 'required',
-            'description' => 'required',
+            // 'description' => 'required',
             'availability_condition' => 'required',
             'buildyear' => 'required',
             'equipment' => 'required',
@@ -831,6 +834,7 @@ class ProductController extends Controller
 
         $product_id=$request->id;
        $user_id = Auth::user()->id;
+        $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
 
         // inserted images functionalty
         $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
@@ -889,7 +893,7 @@ class ProductController extends Controller
         // $data->amenities = $request->amenities;
         $data->facing_towards = $request->facing_towards;
         $data->additional_parking_status = $request->additional_parking_status;
-        $data->description = $request->description;
+        // $data->description = $request->description;
         $data->parking_covered_count = $request->parking_covered_count;
         $data->parking_open_count = $request->parking_open_count;
         $data->availability_condition = $request->availability_condition;
@@ -907,7 +911,7 @@ class ProductController extends Controller
         $data->nearest_landmark = $request->nearest_landmark;
         $data->map_latitude = $request->map_latitude;
         $data->map_longitude = $request->map_longitude;
-        // $data->delete_flag = $request->delete_flag;
+        $data->video_link = $video_link;
         
         $data->save();
 
@@ -984,7 +988,7 @@ class ProductController extends Controller
             'rera_registration_status' => 'required',
             'facing_towards' => 'required',
             'additional_parking_status' => 'required',
-            'description' => 'required',
+            // 'description' => 'required',
             'availability_condition' => 'required',
             'buildyear' => 'required',
             // 'age_of_property' => 'required',
@@ -1018,6 +1022,7 @@ class ProductController extends Controller
             
         $product_id=$request->id;
        $user_id = Auth::user()->id;
+        $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
 
         // inserted images functionalty
         $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
@@ -1079,7 +1084,7 @@ class ProductController extends Controller
         $data->rera_registration_status = $request->rera_registration_status;
         $data->facing_towards = $request->facing_towards;
         $data->additional_parking_status = $request->additional_parking_status;
-        $data->description = $request->description;
+        // $data->description = $request->description;
         $data->parking_covered_count = $request->parking_covered_count;
         $data->parking_open_count = $request->parking_open_count;
         $data->availability_condition = $request->availability_condition;
@@ -1103,6 +1108,7 @@ class ProductController extends Controller
         $data->nearest_landmark = $request->nearest_landmark;
         $data->map_latitude = $request->map_latitude;
         $data->map_longitude = $request->map_longitude;
+        $data->video_link = $video_link;
               $Product_Data = [
                  'address'=> $data->address,
                  'city'=>  $data->city,
@@ -1132,7 +1138,7 @@ class ProductController extends Controller
                  'property_on_floor'=>$data->property_on_floor,
                  'rera_registration_status'=>$data->rera_registration_status,
                  'facing_towards'=>$data->facing_towards,
-                 'description'=> $data->description ,
+                 // 'description'=> $data->description,
                  'additional_parking_status'=>$data->additional_parking_status,
                  'parking_covered_count'=>$data->parking_covered_count,
                  'parking_open_count'=>$data->parking_open_count,
@@ -1157,6 +1163,7 @@ class ProductController extends Controller
                  'nearest_landmark'=>$data->nearest_landmark,
                  'map_latitude'=> $data->map_latitude,
                  'map_longitude'=> $data->map_longitude,
+                 'video_link'=>  $data->video_link,
             ];  
 
         
@@ -1256,7 +1263,7 @@ class ProductController extends Controller
             'amenities' => 'required',
             'facing_towards' => 'required',
             'additional_parking_status' => 'required',
-            'description' => 'required',
+            // 'description' => 'required',
             'parking_covered_count' => 'required',
             'parking_open_count' => 'required',
             'availability_condition' => 'required',
@@ -1331,7 +1338,7 @@ class ProductController extends Controller
         $data->amenities = $request->amenities;
         $data->facing_towards = $request->facing_towards;
         $data->additional_parking_status = $request->additional_parking_status;
-        $data->description = $request->description;
+        // $data->description = $request->description;
         $data->parking_covered_count = $request->parking_covered_count;
         $data->parking_open_count = $request->parking_open_count;
         $data->availability_condition = $request->availability_condition;

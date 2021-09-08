@@ -48,7 +48,9 @@ Route::group([
     Route::post('roles/update/{id}', 'App\Http\Controllers\Api\AuthController@update_role');
     Route::delete('roles/delete/{id}', 'App\Http\Controllers\Api\AuthController@delete_role');
 
-    Route::get('/get_areas', 'App\Http\Controllers\Api\AuthController@get_areas');																						
+    Route::get('/get_areas', 'App\Http\Controllers\Api\AuthController@get_areas');
+
+    Route::post('/get_pincodebyid', 'App\Http\Controllers\Api\AuthController@get_pincodebyid');																						
     Route::post('/owner_signup', 'App\Http\Controllers\Api\AuthController@owner_signup');
     Route::post('/dealer_signup', 'App\Http\Controllers\Api\AuthController@dealer_company_signup');
     Route::post('/lawyer_signup', 'App\Http\Controllers\Api\AuthController@lawyer_signup');

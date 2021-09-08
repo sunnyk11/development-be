@@ -718,7 +718,14 @@ class AuthController extends Controller
 
     public function get_areas(Request $request) {
 
-        return $areas = DB::table('areas')->select('area')->get();
+        return $areas = DB::table('areas')->select('area','pincode','id')->get();
+    }
+
+    public function get_pincodebyid(Request $request) {
+         $data = DB::table('areas')->select('area','pincode','id')->where('id', $request->id)->first();
+        return response()->json([
+            'data' =>$data,
+        ], 200);
     }
 
     /* Function to fetch Individual Role details */

@@ -20,6 +20,7 @@ class product extends Model
         'maintenance_charge',
         'possession_by',
         'locality',
+        'pincode',
         'display_address',
         'ownership',
         'expected_pricing',
@@ -74,6 +75,7 @@ class product extends Model
         'nearest_landmark',
         'map_latitude',
         'map_longitude',
+        'video_link',
     ];
 
     public function productid()
