@@ -27,6 +27,7 @@ class product extends Model
         'inclusive_pricing_details',
         'tax_govt_charge',
         'price_negotiable',
+        'negotiable_status',
         'maintenance_charge_status',
         'maintenance_charge',
         'maintenance_charge_condition',
@@ -43,6 +44,7 @@ class product extends Model
         'bathroom',
         'balconies',
         'additional_rooms',
+        'additional_rooms_status',
         'furnishing_status',
         'furnishings',
         'total_floors',
@@ -76,6 +78,7 @@ class product extends Model
         'map_latitude',
         'map_longitude',
         'video_link',
+        'draft',
     ];
 
     public function productid()
@@ -104,6 +107,10 @@ class product extends Model
     public function wishlist()
     {
         return $this->hasMany('App\Models\Wishlist', 'product_id','id');
+    }
+    public function locality()
+    {
+        return $this->hasOne('App\Models\area', 'id','locality');
     }
     public function amenities()
     {

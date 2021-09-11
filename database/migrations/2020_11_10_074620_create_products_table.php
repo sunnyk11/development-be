@@ -24,13 +24,13 @@ class CreateProductsTable extends Migration
             $table->string('sale_availability')->nullable();
             $table->string('possession_by')->nullable();
             $table->string('locality')->nullable();
-            $table->string('pincode')->nullable();
             $table->boolean('display_address')->nullable();
             $table->string('ownership')->nullable();
             $table->string('expected_pricing')->nullable();
             $table->longText('inclusive_pricing_details')->nullable();
             $table->boolean('tax_govt_charge')->nullable();
-            $table->integer('price_negotiable')->nullable();
+            $table->boolean('price_negotiable')->nullable();
+            $table->boolean('negotiable_status')->nullable();
             $table->boolean('maintenance_charge_status')->nullable();
             $table->string('maintenance_charge')->nullable();
             $table->string('maintenance_charge_condition')->nullable();
@@ -47,6 +47,7 @@ class CreateProductsTable extends Migration
             $table->string('bathroom')->nullable();
             $table->string('balconies')->nullable();
             $table->string('additional_rooms')->nullable();
+            $table->boolean('additional_rooms_status')->default(0);
             $table->string('furnishing_status')->nullable();
             $table->json('furnishings')->nullable();
             $table->string('total_floors')->nullable();
@@ -79,7 +80,6 @@ class CreateProductsTable extends Migration
             $table->string('nearest_landmark')->nullable();
             $table->string('map_latitude')->nullable();
             $table->string('map_longitude')->nullable();
-            $table->string('video_link')->nullable();
             $table->boolean('delete_flag')->default(0);
             $table->timestamps();
         });
