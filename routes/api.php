@@ -76,9 +76,13 @@ Route::group([
 		Route::get('/verify_user_mobile', 'App\Http\Controllers\Api\AuthController@verify_user_mobile');																								
 		Route::post('/upload_profile_pic', 'App\Http\Controllers\Api\AuthController@upload_profile_pic');																														
         Route::post('/change_password', 'App\Http\Controllers\Api\AuthController@change_password');
+        
+        Route::post('payment','App\Http\Controllers\Api\PaymentController@payment')->name('payment.payment');
+        
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });
+Route::post('post-payment','App\Http\Controllers\Api\PaymentController@postPayment')->name('post.payment');
 
 Route::group([
     'prefix' => 'product'
@@ -109,6 +113,7 @@ Route::group([
     Route::group([
         'middleware' => 'auth:api'
     ], function () {
+
         
         Route::post('/product_Rent_update', 'App\Http\Controllers\Api\ProductController@update_Rent_product');
         Route::post('/product_sales_update', 'App\Http\Controllers\Api\ProductController@update_Sales_product');
@@ -118,7 +123,7 @@ Route::group([
         Route::post('/post_review', 'App\Http\Controllers\Api\ReviewsController@store');
         Route::post('/Login_search_home', 'App\Http\Controllers\Api\ProductController@Login_search_home');
         Route::post('/search_pro_type_login', 'App\Http\Controllers\Api\ProductController@search_pro_type_login');
-
+      Route::post('/check_order_product', 'App\Http\Controllers\Api\ProductOrderController@check_order_product');
 
         Route::get('/get_requ', 'App\Http\Controllers\Api\RequirementController@index');
         Route::get('/requ_display', 'App\Http\Controllers\Api\RequirementController@display');
@@ -159,6 +164,8 @@ Route::group([
         Route::get('User_Recently_pro', 'App\Http\Controllers\Api\UserProductCountController@index');
 
         Route::post('/product_login_see', 'App\Http\Controllers\Api\ProductController@product_login_see');
+       Route::get('/solid_properties', 'App\Http\Controllers\Api\ProductOrderController@solid_properties');
+       Route::get('/purchased_properties', 'App\Http\Controllers\Api\ProductOrderController@purchase_properties');
 
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');

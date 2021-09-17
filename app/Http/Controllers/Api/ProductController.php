@@ -28,7 +28,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $data = product::where(['delete_flag'=> '0','draft'=> '0'])->with('UserDetail','product_img','product_comparision','Property_Type')->orderBy('id', 'desc')->get();
+        $data = product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->with('UserDetail','product_img','product_comparision','Property_Type')->orderBy('id', 'desc')->get();
         return response()->json([
             'data' =>$data,
         ], 201);
@@ -36,7 +36,7 @@ class ProductController extends Controller
 
     public function index_featured()
     {
-        $data = product::with('UserDetail','product_img','Property_Type')->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->take(9)->get();
+        $data = product::with('UserDetail','product_img','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->orderBy('id', 'desc')->take(9)->get();
         return response()->json([
             'data' =>$data,
         ], 201);
@@ -44,7 +44,7 @@ class ProductController extends Controller
     public function index_featured_wishlist()
     {
        $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->take(9)->get();
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->orderBy('id', 'desc')->take(9)->get();
 
         // return  $product;
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
@@ -78,7 +78,7 @@ class ProductController extends Controller
 
     public function product_list_featured()
     {
-        $data = product::with('UserDetail','product_img','Property_Type')->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->get();
+        $data = product::with('UserDetail','product_img','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->orderBy('id', 'desc')->get();
         return response()->json([
             'data' =>$data,
         ], 201);
@@ -87,7 +87,7 @@ class ProductController extends Controller
  public function product_listing_wishlist()
     {
         $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->get();
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->orderBy('id', 'desc')->get();
 
         // return  $product;
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
@@ -121,7 +121,7 @@ class ProductController extends Controller
     public function search_pro_type(Request $request)
     {
         // return $request->input('id');
-        $product = product::with('UserDetail','Property_Type','product_img')->where(['delete_flag'=> '0','draft'=> '0','type'=> $request->id])->get();
+        $product = product::with('UserDetail','Property_Type','product_img')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0','type'=> $request->id])->get();
         return response()->json([
             'data' =>$product,
           ], 201);
@@ -131,7 +131,7 @@ class ProductController extends Controller
     public function search_pro_type_login(Request $request)
     {
         // return $request->input('id');
-        $product = product::with('UserDetail','Property_Type','product_img','Property_Type','product_comparision')->where(['delete_flag'=> '0','draft'=> '0','type'=> $request->id])->get();
+        $product = product::with('UserDetail','Property_Type','product_img','Property_Type','product_comparision')->where(['delete_flag'=> '0','draft'=> '0','type'=> $request->id,'order_status'=> '0'])->get();
         return response()->json([
             'data' =>$product,
           ], 201);
@@ -141,7 +141,9 @@ class ProductController extends Controller
 
     public function propertysearch_list(Request $request)
     {
-        $product = product::with('UserDetail','Property_Type','product_img')->where(['delete_flag'=> '0','draft'=> '0'])->search($request)->get();
+        // return $request->input();
+        // return $request->Bedrooms;
+        $product = product::with('amenities','UserDetail','Property_Type','product_img')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->search($request)->get();
         return response()->json([
             'data' =>$product,
           ], 201);
@@ -149,7 +151,7 @@ class ProductController extends Controller
     }
     public function feature_property()
     {
-        $product = product::with('UserDetail','product_img')->where(['delete_flag'=> '0','draft'=> '0'])->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
+        $product = product::with('UserDetail','product_img')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
 
         return response()->json([
             'data' =>$product,
@@ -158,7 +160,7 @@ class ProductController extends Controller
     }
     public function Recently_view()
     {
-        $product = product::with('UserDetail','Property_Type')->where(['delete_flag'=> '0','draft'=> '0'])->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
+        $product = product::with('UserDetail','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
 
         return response()->json([
             'data' =>$product,
@@ -174,7 +176,7 @@ class ProductController extends Controller
         ]);
             $city = $request->cityValue;
 
-        $productSimilar=product::with('UserDetail','Property_Type','product_img')->where(['city'=> $city,'delete_flag'=>0,'draft'=>'0'])->orderBy('id', 'desc')->take(6)->get();
+        $productSimilar=product::with('UserDetail','Property_Type','product_img')->where(['city'=> $city,'delete_flag'=>0,'draft'=>'0','order_status'=> '0'])->orderBy('id', 'desc')->take(6)->get();
 
             return response()-> json([
                 'product' => $productSimilar,
@@ -186,7 +188,7 @@ class ProductController extends Controller
      {
        $city = $request->cityValue;  
         $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['city'=> $city,'delete_flag'=> 0,'draft'=> '0'])->orderBy('id', 'desc')->take(6)->get();
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['city'=> $city,'delete_flag'=> 0,'draft'=> '0','order_status'=> '0'])->orderBy('id', 'desc')->take(6)->get();
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
         $productcount = count($product);
         $wishlistcount = count($Wishlist);
@@ -210,12 +212,12 @@ class ProductController extends Controller
           ], 201);
         }
 
-     }
+    }
     public function User_propertysearchlist(Request $request)
     {
         // return $request->input();
        $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','product_img','Property_Type')->where(['delete_flag'=> '0','draft'=> '0'])->search($request)->orderBy('id', 'desc')->get();
+        $product = product::with('UserDetail','amenities','product_img','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->search($request)->orderBy('id', 'desc')->get();
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
         $productcount = count($product);
         $wishlistcount = count($Wishlist);
@@ -257,8 +259,9 @@ class ProductController extends Controller
         $user_id = Auth::user()->id;
 
         // $product_id_func = product::find($prod_id)->productid;
-         $product_id_func = product::where('id', $prod_id)->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail','Property_Type')->orderBy('id', 'desc')->get();
-        product::where('id', $request->prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);;
+         $product_id_func = product::where(['delete_flag'=> '0','draft'=> '0','id'=>$prod_id])->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail','Property_Type')->orderBy('id', 'desc')->get();
+
+           product::where('id', $request->prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);;
 
             return response()-> json([
                 'product' => $product_id_func,
@@ -275,7 +278,7 @@ class ProductController extends Controller
             $prod_id = $request->prod_id;
 
         // $product_id_func = product::find($prod_id)->productid;
-         $product_id_func = product::where('id', $prod_id)->with('amenities','Property_Type','product_img')->get();
+         $product_id_func = product::where((['delete_flag'=> '0','draft'=> '0','id'=>$prod_id,'order_status'=> '0']))->with('amenities','Property_Type','product_img')->get();
 
         $userid = DB::table('products')->select('user_id')->where("id", $prod_id)->value("value");
         $user_details = DB::table('users')->select('id','name','email','profile_pic')->where('id', $userid)->get();
@@ -293,7 +296,7 @@ class ProductController extends Controller
      public function Login_search_home(Request $request)
     {
         $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['delete_flag'=> '0','draft'=> '0'])->search($request)->orderBy('id', 'desc')->get();
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->search($request)->orderBy('id', 'desc')->get();
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
         $productcount = count($product);
         $wishlistcount = count($Wishlist);
@@ -322,7 +325,7 @@ class ProductController extends Controller
     }
 
      public function search_func(Request $request){
-        $product = product::with('UserDetail','product_img','Property_Type')->where(['delete_flag'=> '0','draft'=> '0'])->search($request)->get();
+        $product = product::with('UserDetail','product_img','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->search($request)->get();
         return response()->json([
             'data' =>$product,
           ], 201);
@@ -341,7 +344,7 @@ class ProductController extends Controller
 
         // $products = product::where('build_name', 'LIKE', "%{$q}%");
 
-        $products = product::Where(['city' => $prod_query3 , 'delete_flag' => 0,'draft'=> '0']);
+        $products = product::Where(['city' => $prod_query3 , 'delete_flag' => 0,'draft'=> '0','order_status'=> '0']);
 
 
         // foreach ($needles as $needle) {
@@ -416,7 +419,9 @@ class ProductController extends Controller
                 
             }
         }
+        // $product_uid= rand (10,100).time();
 
+        // $data->product_uid= $product_uid;
         $data->address = $request->address;
         $data->city = $request->city;
         $data->rent_cond = $request->rent_cond;
@@ -496,7 +501,11 @@ class ProductController extends Controller
            $user_id = Auth::user()->id;
         $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
          $addtional_room=implode(',',$request->additional_rooms);
+
+        $product_uid= rand (10,100).time();
+
         $product_data = new Product([
+            'product_uid' => $product_uid,
             'user_id' => $user_id,
             'build_name' => $request->build_name,
             'type' => $request->type,
@@ -649,8 +658,9 @@ class ProductController extends Controller
                 
             }
         }
+       // $product_uid= rand (10,100).time();
 
-        // $data->view_counter = $request->view_counter;
+       //  $data->product_uid = $product_uid;
         $data->address = $request->address;
         $data->city = $request->city;
         $data->rent_cond = $request->rent_cond;
@@ -794,9 +804,12 @@ class ProductController extends Controller
         $user_id = Auth::user()->id;
         $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
          $addtional_room=implode(',',$request->additional_rooms);
+           
+         $product_uid= rand (10,100).time();
 
             $product_data = new Product([
             'user_id' => $user_id ,
+            'product_uid' => $product_uid,
             'build_name' => $request->build_name ,
             'type' => $request->type ,
             'willing_to_rent_out_to' => $request->willing_to_rent_out_to ,
@@ -961,7 +974,7 @@ class ProductController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $data = product::with('product_img')->where('user_id', $user_id)->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->get();
+        $data = product::with('product_img')->where('user_id', $user_id)->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->orderBy('id', 'desc')->get();
         //$tableq = DB::table('users')->select('id','name','email','profile_pic')->get();
         return response()->json([
             //'users'=> $tableq,
@@ -974,7 +987,7 @@ class ProductController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $data = product::with('product_img')->where(['delete_flag'=> '0','draft'=> '1','user_id'=>  $user_id])->orderBy('id', 'desc')->get();
+        $data = product::with('product_img')->where(['delete_flag'=> '0','draft'=> '1','order_status'=> '0','user_id'=>  $user_id])->orderBy('id', 'desc')->get();
         return response()->json([
             'data' =>$data,
         ], 200);

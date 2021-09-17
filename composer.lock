@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "51e18a5a2e2d01cf7cea96f2f00fa696",
+    "content-hash": "cf24bf68d0f9cb88c40f19f4fad6ce1b",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -584,16 +584,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "3.1.1",
+            "version": "3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "8e0fde2b90e3f61361013d1e928621beeea07bc0"
+                "reference": "3ee2622b57370c786f531678f6641208747f7bfc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/8e0fde2b90e3f61361013d1e928621beeea07bc0",
-                "reference": "8e0fde2b90e3f61361013d1e928621beeea07bc0",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/3ee2622b57370c786f531678f6641208747f7bfc",
+                "reference": "3ee2622b57370c786f531678f6641208747f7bfc",
                 "shasum": ""
             },
             "require": {
@@ -605,15 +605,15 @@
             },
             "require-dev": {
                 "doctrine/coding-standard": "9.0.0",
-                "jetbrains/phpstorm-stubs": "2020.2",
-                "phpstan/phpstan": "0.12.81",
-                "phpstan/phpstan-strict-rules": "^0.12.2",
+                "jetbrains/phpstorm-stubs": "2021.1",
+                "phpstan/phpstan": "0.12.96",
+                "phpstan/phpstan-strict-rules": "^0.12.11",
                 "phpunit/phpunit": "9.5.5",
-                "psalm/plugin-phpunit": "0.13.0",
+                "psalm/plugin-phpunit": "0.16.1",
                 "squizlabs/php_codesniffer": "3.6.0",
                 "symfony/cache": "^5.2|^6.0",
                 "symfony/console": "^2.0.5|^3.0|^4.0|^5.0|^6.0",
-                "vimeo/psalm": "4.6.4"
+                "vimeo/psalm": "4.10.0"
             },
             "suggest": {
                 "symfony/console": "For helpful console commands such as SQL execution and import of files."
@@ -673,7 +673,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/3.1.1"
+                "source": "https://github.com/doctrine/dbal/tree/3.1.2"
             },
             "funding": [
                 {
@@ -689,7 +689,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-06-19T17:59:55+00:00"
+            "time": "2021-09-12T20:56:32+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -3495,6 +3495,56 @@
                 "source": "https://github.com/paragonie/random_compat"
             },
             "time": "2020-10-15T08:29:30+00:00"
+        },
+        {
+            "name": "paytm/paytmchecksum",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/paytm/Paytm_PHP_Checksum.git",
+                "reference": "a032d3cbeb3846720c2c606b9f3c8057c355042e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/paytm/Paytm_PHP_Checksum/zipball/a032d3cbeb3846720c2c606b9f3c8057c355042e",
+                "reference": "a032d3cbeb3846720c2c606b9f3c8057c355042e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "paytm\\paytmchecksum\\": "paytmchecksum/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Soumya Vats",
+                    "role": "Developer"
+                }
+            ],
+            "description": "This is for paytm checksum creation and verification in PHP",
+            "homepage": "https://developer.paytm.com/docs/checksum/#php",
+            "keywords": [
+                "Paytm PHP",
+                "Paytm checksum",
+                "Paytm payment",
+                "Paytm signature",
+                "checksum",
+                "paytm",
+                "signature"
+            ],
+            "support": {
+                "issues": "https://github.com/paytm/Paytm_PHP_Checksum/issues",
+                "source": "https://github.com/paytm/Paytm_PHP_Checksum/tree/v1.1.0"
+            },
+            "time": "2020-11-11T13:42:29+00:00"
         },
         {
             "name": "php-http/message-factory",

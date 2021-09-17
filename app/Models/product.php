@@ -79,6 +79,7 @@ class product extends Model
         'map_longitude',
         'video_link',
         'draft',
+        'product_uid',
     ];
 
     public function productid()
@@ -124,6 +125,10 @@ class product extends Model
     {
         return $this->hasOne('App\Models\Property_type', 'id','type')->where('status', '1');
     }
+    public function Pro_order()
+    {
+        return $this->hasOne('App\Models\product_order', 'product_id','product_uid')->where('transaction_status', 'TXN_SUCCESS');
+    }
    
     public function roles()
     {
@@ -148,19 +153,28 @@ class product extends Model
             $query = $query->where('bathroom', $searchTerm->Bathrooms);
         }
         if ($searchTerm->Bedrooms) {
+
             $query = $query->where('bedroom', $searchTerm->Bedrooms);
         }
-        // if ($searchTerm->availability_condition) {
-        //     $query = $query->where('availability_condition', $searchTerm->availability_condition);
-        // }
+        if ($searchTerm->Minimum) {
+            $min = $searchTerm->Minimum;
+            $query->where(function($query) use ($min){
+                $query->where('expected_pricing', '>=', $min)
+                      ->orWhere('expected_rent', '>=', $min);
+            });
+        }
+        if ($searchTerm->Maximum) {
+            $max = $searchTerm->Maximum;
+            $query->where(function($query) use ($max){
+                $query->where('expected_pricing', '<=', $max)
+                      ->orWhere('expected_rent', '<=', $max);
+            });
+        }
+
         if ($searchTerm->Years) {
             $query = $query->where('buildyear', $searchTerm->Years);
         }
-        if ($searchTerm->Minimum && $searchTerm->Maximum) {
-            $min=(int)$searchTerm->Minimum;
-            $max=(int)$searchTerm->Maximum;            
-            $query =$query->where('expected_pricing', '>=',$min)->where('expected_pricing', '<=', $max)->orWhere('expected_rent', '>=',$min)->orWhere('expected_rent', '>=',$max);
-        }
+
         if ($searchTerm->property_status== "all") {
             $query = $query->orderBy('id', 'desc');
         }

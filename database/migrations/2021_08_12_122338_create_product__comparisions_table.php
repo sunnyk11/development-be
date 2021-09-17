@@ -15,7 +15,7 @@ class CreateProductComparisionsTable extends Migration
     {
         Schema::create('product__comparisions', function (Blueprint $table) {
             $table->id();
-             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('product_id');
             $table->enum('status', ['0', '1'])->default('1');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
