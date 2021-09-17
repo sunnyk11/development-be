@@ -80,6 +80,7 @@ class product extends Model
         'video_link',
         'draft',
         'product_uid',
+        'order_status',
     ];
 
     public function productid()
