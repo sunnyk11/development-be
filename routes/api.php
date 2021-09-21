@@ -31,6 +31,11 @@ Route::get('posts/{post}', 'App\Http\Controllers\PostController@show');
 Route::middleware('auth:api')->post('posts/update/{slug}', 'App\Http\Controllers\PostController@update');
 Route::middleware('auth:api')->delete('posts/delete/{slug}', 'App\Http\Controllers\PostController@destroy');
 
+Route::get('get_rent_plans', 'App\Http\Controllers\PlansController@get_rent_plans');
+Route::get('get_letout_plans', 'App\Http\Controllers\PlansController@get_letout_plans');
+Route::get('get_rent_features', 'App\Http\Controllers\PlansController@get_rent_features');
+Route::get('get_letout_features', 'App\Http\Controllers\PlansController@get_letout_features');
+
 Route::group([
     'prefix' => 'auth'
 ], function () {
@@ -55,8 +60,11 @@ Route::group([
     Route::post('/dealer_signup', 'App\Http\Controllers\Api\AuthController@dealer_company_signup');
     Route::post('/lawyer_signup', 'App\Http\Controllers\Api\AuthController@lawyer_signup');
 
+    Route::post('/crm_api_call', 'App\Http\Controllers\Api\AuthController@crm_api_call');
+
     Route::post('/verify', 'App\Http\Controllers\Api\AuthController@verify');
-	Route::post('/verify_mob', 'App\Http\Controllers\Api\AuthController@verify_mob');																				 
+	Route::post('/verify_mob', 'App\Http\Controllers\Api\AuthController@verify_mob');	
+    Route::post('/verify_profile_mob', 'App\Http\Controllers\Api\AuthController@verify_profile_mob');																			 
     Route::post('/reverify', 'App\Http\Controllers\Api\AuthController@reverify');
     Route::post('/forgot_password', 'App\Http\Controllers\Api\AuthController@forgot_password');
 
@@ -186,6 +194,7 @@ Route::group([
         Route::post('/delete_product_admin', 'App\Http\Controllers\Api\AdminController@delete_product');
         Route::post('/user_page', 'App\Http\Controllers\Api\AdminController@user_check');
         Route::post('/user_update', 'App\Http\Controllers\Api\AdminController@user_update');
+        Route::post('/user_update_new', 'App\Http\Controllers\Api\AdminController@user_update_new');
         Route::post('/admin_loans', 'App\Http\Controllers\Api\LoansController@first');
         Route::post('/loan_delete', 'App\Http\Controllers\Api\LoansController@loan_delete');
         Route::get('/user_index', 'App\Http\Controllers\Api\AdminController@user_index_admin');

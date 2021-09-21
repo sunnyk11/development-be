@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use DB;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -107,9 +108,22 @@ class AuthController extends Controller
     }
 
     public function verify_mobile_number(Request $request) {
-        $request->validate([ 
-            'other_mobile_number' => 'required|integer|unique:users'
-        ]);
+        
+         $user = User::where('id', $request['user_id'])->get();
+         
+        $db_mobile_no = $user[0]['other_mobile_number'];
+        if($db_mobile_no === $request['other_mobile_number'])
+        {
+            $request->validate([ 
+                'other_mobile_number' => 'required|integer'
+            ]);
+        }
+
+        else {
+            $request->validate([ 
+                'other_mobile_number' => 'required|integer|unique:users'
+            ]);
+        }
 
         $token = getenv("TWILIO_AUTH_TOKEN");
         $twilio_sid = getenv("TWILIO_SID");
@@ -412,11 +426,33 @@ class AuthController extends Controller
         ], 201);
     }
 
+    public function crm_api_call(Request $request) {
+        $user = User::where('id', $request['id'])->get();
+
+        $response = Http::post('https://admincrm.housingstreet.com/api/Lead/SaveBuyer', [
+            'BuyerEmail' => $user[0]['email'],
+            'PhoneNo' => $user[0]['other_mobile_number'],
+            'BuyerName' => $user[0]['name'],
+            'Source' => 'Web'
+        ]);
+
+        return response()->json([
+            'message' => 'Successfully added lead',
+            'response_success' => $response->successful(),
+            'response_fail' => $response->failed(),
+            'response_client_error' => $response->clientError(),
+            'response_server_error' => $response->serverError(),
+            'response_body' => $response->body()
+        ], 201);
+    }
+
     public function verify(Request $request)
     {
         $data = $request->validate([
             'verification_code' => ['required', 'numeric'],
             'phone_number' => ['required', 'string'],
+            'email_address' => ['required', 'string'],
+            'name_first' => ['required', 'string']
         ]);
         /* Get credentials from .env */
         $token = getenv("TWILIO_AUTH_TOKEN");
@@ -429,9 +465,23 @@ class AuthController extends Controller
 
         if ($verification->valid) {
             User::where('other_mobile_number', $data['phone_number'])->update(['phone_number_verification_status' => 1]);
+
+            $response = Http::post('https://admincrm.housingstreet.com/api/Lead/SaveBuyer', [
+                'BuyerEmail' => $data['email_address'],
+                'PhoneNo' => $data['phone_number'],
+                'BuyerName' => $data['name_first'],
+                'Source' => 'Web'
+            ]);
+
             return response()->json([
-                'message' => 'Successfully verified'
+                'message' => 'Successfully verified',
+                'response_success' => $response->successful(),
+                'response_fail' => $response->failed(),
+                'response_client_error' => $response->clientError(),
+                'response_server_error' => $response->serverError(),
+                'response_body' => $response->body()
             ], 201);
+
         }
         return response()->json([
             'message' => 'verification error'
@@ -442,9 +492,50 @@ class AuthController extends Controller
 
     public function verify_mob(Request $request)
     {
+
         $data = $request->validate([
             'verification_code' => 'required|string',
-            'other_mobile_number' => 'required|string|unique:users',
+            'other_mobile_number' => 'required|string',
+            'user_id' => 'required|numeric'
+        ]);
+        /* Get credentials from .env */
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $verification = $twilio->verify->v2->services($twilio_verify_sid)
+            ->verificationChecks
+            ->create($data['verification_code'], array('to' => "+91".$data['other_mobile_number']));
+
+        if ($verification->valid) {
+            User::where('id', $data['user_id'])->update(['other_mobile_number' => $data['other_mobile_number'], 'phone_number_verification_status' => 1]);
+            $user = User::where('id', $data['user_id'])->get();
+            $response = Http::post('https://admincrm.housingstreet.com/api/Lead/SaveBuyer', [
+                'BuyerEmail' => $user[0]['email'],
+                'PhoneNo' => $user[0]['other_mobile_number'],
+                'BuyerName' => $user[0]['name'],
+                'Source' => 'Web'
+            ]);
+
+            return response()->json([
+                'message' => 'Successfully verified',
+                'response_success' => $response->successful(),
+                'response_fail' => $response->failed(),
+                'response_client_error' => $response->clientError(),
+                'response_server_error' => $response->serverError(),
+                'response_body' => $response->body()
+            ], 201);
+        }
+        return response()->json([
+            'message' => 'verification error'
+        ], 401);
+    }
+
+    public function verify_profile_mob(Request $request)
+    {
+        $data = $request->validate([
+            'verification_code' => 'required',
+            'other_mobile_number' => 'required|string',
             'user_id' => 'required|numeric'
         ]);
         /* Get credentials from .env */

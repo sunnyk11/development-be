@@ -502,7 +502,7 @@ class ProductController extends Controller
         $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
          $addtional_room=implode(',',$request->additional_rooms);
 
-        $product_uid= rand (10,100).time();
+        $product_uid= rand (1000,9999).time();
 
         $product_data = new Product([
             'product_uid' => $product_uid,
@@ -805,7 +805,7 @@ class ProductController extends Controller
         $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
          $addtional_room=implode(',',$request->additional_rooms);
            
-         $product_uid= rand (10,100).time();
+         $product_uid= rand (1000,9999).time();
 
             $product_data = new Product([
             'user_id' => $user_id ,

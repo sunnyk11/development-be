@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(AmenitiesSeeder::class);
         $this->call(Property_typeSeeder::class);
         $this->call(User_Roles_Table_Seeder::class);
+        $this->call(Rent_Plans_Table_Seeder::class);
     }
 }

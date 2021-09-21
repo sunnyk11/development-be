@@ -23,7 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('company_url')->nullable();
             $table->string('address')->nullable();
             $table->string('city')->nullable();
-            $table->string('other_mobile_number');
+            $table->string('other_mobile_number')->unique();
             $table->string('landline_number')->nullable();
             $table->longText('company_profile')->nullable();
             $table->string('pan_number')->nullable();

@@ -11,6 +11,8 @@ use App\Models\product;
 use App\Models\product_order;
 use App\Models\product_transaction;
 use Illuminate\Support\Facades\DB;
+use App\Models\Wishlist;
+use App\Models\Product_Comparision;
 
 class PaymentController extends Controller
 {
@@ -111,6 +113,10 @@ class PaymentController extends Controller
             // product disable after payment
             if($request->STATUS == 'TXN_SUCCESS'){ 
               product::where('id', $product_id->id)->update(['order_status' => '1']);
+              /* Wishlist disabled by ID */
+              Wishlist::where('product_id', $product_id->id)->update(['status' => '0']);
+                /* Product comparison disabled by ID */
+              Product_Comparision::where('product_id', $product_id->id)->update(['status' => '0']);
             }
 
             $angular_url='http://localhost:4200/productpage?id='.$product_id->id.'&status='.$request->RESPCODE;

@@ -20,6 +20,7 @@ use App\Models\last_searched_properties;
 use App\Models\lawyer;
 use Illuminate\Support\Facades\DB;
 use App\Models\ProductAmenties;
+use Twilio\Rest\Client;
 
 class AdminController extends Controller
 {
@@ -83,7 +84,7 @@ class AdminController extends Controller
      * @param  \App\Models\admin  $admin
      * @return \Illuminate\Http\Response
      */
-    public function user_update(Request $request)
+    /*public function user_update(Request $request)
     {
         $usertype = Auth::user()->usertype;
 
@@ -144,6 +145,47 @@ class AdminController extends Controller
             'update_data' => $updated_data
 
         ], 201);
+    } */
+
+    public function user_update_new(Request $request)
+    {
+        $usertype = Auth::user()->usertype;
+
+        $request -> validate([
+        'id' => 'required' ,
+        'name' => '' ,
+        'other_mobile_number' => 'unique:users'
+        ]);
+
+        $data = user::find($request->id);
+        if($request->name != NULL) {
+            $data->name = $request->name;
+        }
+
+        if($request->other_mobile_number != NULL)
+
+        {
+        $data->other_mobile_number = $request->other_mobile_number;    
+
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $twilio->verify->v2->services($twilio_verify_sid)
+            ->verifications
+            ->create("+91".$request->other_mobile_number, "sms");
+        }    
+            
+        $data->save();    
+
+        $updated_data = user::find($request->id);
+
+        return response()->json([
+            'data' => $data,
+            'update_data' => $updated_data,
+            'message' => "Successfully Updated"
+        ], 201);
+     
     }
 
     /**
