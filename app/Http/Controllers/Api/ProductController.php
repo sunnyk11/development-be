@@ -996,15 +996,18 @@ class ProductController extends Controller
 
     public function dashboard_indexer(){
 
-        $id = Auth::user()->id;
-        $views = product::select('view_counter')->where('user_id', $id)->get()->sum('view_counter');
+        $user_id = Auth::user()->id;
+        $views = product::select('view_counter')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0','user_id'=>  $user_id])->get()->sum('view_counter');
 
-        $property_count = product::where('user_id', $id)->get()->count();
+        $property_count = product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0','user_id'=>  $user_id])->get()->count();
+
+       $wishlist_data= Wishlist::where(['status'=> '1','user_id' =>$user_id])->get()->count();
 
 
         return response()->json([
             'view_count' => $views,
             'property_count' => $property_count,
+            'wishlist_count'  =>$wishlist_data,
         ], 200);
     }
  public function update_Sales_product(Request $request){
