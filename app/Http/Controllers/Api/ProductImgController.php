@@ -101,10 +101,10 @@ class ProductImgController extends Controller
             ], 401);
 
         $image_result= Product_img::where([ 'user_id'=> $user_id,'product_id'=> $pro_id , 'id'=>$request->product_id ])->first();
-        if(!empty($image_result['image'])){
-            $image_path='storage/'.$image_result['image'];
-            unlink($image_path);
-        }
+        // if(!empty($image_result['image'])){
+        //     $image_path='storage/'.$image_result['image'];
+        //     unlink($image_path);
+        // }
         Product_img::where([ 'user_id'=> $user_id,'product_id'=> $pro_id , 'id'=>$request->product_id ])->delete();
 
         return response()->json([

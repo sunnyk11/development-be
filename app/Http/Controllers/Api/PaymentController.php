@@ -119,7 +119,7 @@ class PaymentController extends Controller
               Product_Comparision::where('product_id', $product_id->id)->update(['status' => '0']);
             }
 
-            $angular_url='http://localhost:4200/productpage?id='.$product_id->id.'&status='.$request->RESPCODE;
+            $angular_url = env('angular_url').'productpage?id='.$product_id->id.'&status='.$request->RESPCODE;
             
             return response()->redirectTo($angular_url);     
         }catch (\Exception $e) {
