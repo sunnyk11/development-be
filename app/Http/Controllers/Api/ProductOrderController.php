@@ -42,6 +42,48 @@ class ProductOrderController extends Controller
             'data' =>$data,
           ], 201);
     }
+ public function property_all_orders()
+    {
+       $user_id = Auth::user()->id;
+
+        $product_details= product::select('product_uid')->where(['user_id'=> $user_id])->get();
+        $arr=[];
+        foreach ($product_details as $key => $value) {
+            array_push($arr,$value['product_uid']);
+        }
+       // sold property
+        $sold = product_order::with('Pro_order')->whereIn('product_id', $arr)->where('transaction_status', 'TXN_SUCCESS')->orderBy('id', 'desc')->get();
+
+     // purchased property
+        $purchased = product_order::with('Pro_order')->where(['user_id'=> $user_id, 'transaction_status' => 'TXN_SUCCESS'])->orderBy('id', 'desc')->get();
+        
+          return response()->json([
+            'sold' =>$sold,
+            'purchased' =>$purchased,
+          ], 201);
+    }
+    public function user_order_product()
+    {
+       $user_id = Auth::user()->id;
+       
+       // sold out property funtionalty
+        $product_details= product::select('product_uid')->where(['user_id'=> $user_id])->get();
+        $arr=[];
+        foreach ($product_details as $key => $value) {
+            array_push($arr,$value['product_uid']);
+        }
+
+        $solid_properties = product_order::with('Pro_order')->whereIn('product_id', $arr)->where('transaction_status', 'TXN_SUCCESS')->orderBy('id', 'desc')->get();
+            
+
+            // purchased property funtionalty
+          $purchased = product_order::with('Pro_order')->where(['user_id'=> $user_id, 'transaction_status' => 'TXN_SUCCESS'])->orderBy('id', 'desc')->get();
+
+          return response()->json([
+            'sold_pro' =>$solid_properties,
+            'purchased'=>$purchased,
+          ], 201);
+    }
      public function check_order_product(Request $request)
      {
         $product_id = $request->product_id;

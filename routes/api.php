@@ -36,6 +36,9 @@ Route::get('get_letout_plans', 'App\Http\Controllers\PlansController@get_letout_
 Route::get('get_rent_features', 'App\Http\Controllers\PlansController@get_rent_features');
 Route::get('get_letout_features', 'App\Http\Controllers\PlansController@get_letout_features');
 
+
+Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
+
 Route::group([
     'prefix' => 'auth'
 ], function () {
@@ -174,6 +177,7 @@ Route::group([
         Route::post('/product_login_see', 'App\Http\Controllers\Api\ProductController@product_login_see');
        Route::get('/solid_properties', 'App\Http\Controllers\Api\ProductOrderController@solid_properties');
        Route::get('/purchased_properties', 'App\Http\Controllers\Api\ProductOrderController@purchase_properties');
+       Route::get('/user_order_product', 'App\Http\Controllers\Api\ProductOrderController@property_all_orders');
 
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');

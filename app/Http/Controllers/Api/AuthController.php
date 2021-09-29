@@ -59,7 +59,8 @@ class AuthController extends Controller
 
         return response()->json([
             'data' => $user,
-            'message' => 'Successfully created user!'
+            'message' => 'Successfully created user!',
+            'status'  =>200
         ], 201);
     }
 
@@ -618,16 +619,23 @@ class AuthController extends Controller
             $token->expires_at = Carbon::now()->addWeeks(20);
         }
         $token->save();
+         $user_data=[
+            'username' => $user->name,
+            'email'    => $user->email,
+            'usertype' => $user->usertype,
+        ];
         return response()->json([
             'username' => $user->name,
             'id' => $user->id,
+            'email'    => $user->email,
             'usertype' => $user->usertype,
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
             )->toDateTimeString(),
-            'misc' => $user
+            'misc' => $user,
+            'user_data' => $user_data
         ]);
     }
 

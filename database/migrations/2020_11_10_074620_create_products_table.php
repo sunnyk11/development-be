@@ -30,7 +30,6 @@ class CreateProductsTable extends Migration
             $table->longText('inclusive_pricing_details')->nullable();
             $table->boolean('tax_govt_charge')->nullable();
             $table->boolean('price_negotiable')->nullable();
-            $table->boolean('negotiable_status')->nullable();
             $table->boolean('maintenance_charge_status')->nullable();
             $table->string('maintenance_charge')->nullable();
             $table->string('maintenance_charge_condition')->nullable();
@@ -47,7 +46,6 @@ class CreateProductsTable extends Migration
             $table->string('bathroom')->nullable();
             $table->string('balconies')->nullable();
             $table->string('additional_rooms')->nullable();
-            $table->boolean('additional_rooms_status')->default(0);
             $table->string('furnishing_status')->nullable();
             $table->json('furnishings')->nullable();
             $table->string('total_floors')->nullable();
