@@ -111,6 +111,13 @@ Route::group([
     Route::post('/req_index', 'App\Http\Controllers\Api\RequirementController@reqHandler');
     Route::get('/agent_properties', 'App\Http\Controllers\Api\ProductController@agent_properties');
 
+    Route::get('/getlocalArea', 'App\Http\Controllers\Api\LocalareaController@index');
+    Route::post('/get_localareaby_id', 'App\Http\Controllers\Api\LocalareaController@get_localareaby_id');
+    Route::get('/getarea_service', 'App\Http\Controllers\Api\AreaServiceController@index');
+    Route::post('/get_service_id', 'App\Http\Controllers\Api\AreaServiceController@get_service_By_id');
+    
+    Route::post('/local_service', 'App\Http\Controllers\Api\AreaServiceUserController@search_data'); 
+
     Route::get('/lawyer_service_index', 'App\Http\Controllers\Api\LawyerController@lawyer_index');
     Route::post('/lawyer_page', 'App\Http\Controllers\Api\LawyerController@lawyer_check');
 
@@ -178,6 +185,10 @@ Route::group([
        Route::get('/solid_properties', 'App\Http\Controllers\Api\ProductOrderController@solid_properties');
        Route::get('/purchased_properties', 'App\Http\Controllers\Api\ProductOrderController@purchase_properties');
        Route::get('/user_order_product', 'App\Http\Controllers\Api\ProductOrderController@property_all_orders');
+
+        Route::post('/service_user_reviews', 'App\Http\Controllers\Api\ServiceUserReviewsController@store');
+        Route::post('/getarea_user_details', 'App\Http\Controllers\Api\AreaServiceUserController@user_details_byId');
+
 
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');

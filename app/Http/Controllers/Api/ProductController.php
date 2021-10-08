@@ -690,7 +690,7 @@ class ProductController extends Controller
         $data->furnishings = $request->furnishings;
         $data->total_floors = $request->total_floors;
         $data->property_on_floor = $request->property_on_floor;
-        $data->rera_registration_status = $request->rera_registration_status;
+        // $data->rera_registration_status = $request->rera_registration_status;
         $data->facing_towards = $request->facing_towards;
         $data->additional_parking_status = $request->additional_parking_status;
         // $data->description = $request->description;
@@ -732,7 +732,7 @@ class ProductController extends Controller
                  'price_negotiable'=>$data->price_negotiable,
                  'maintenance_charge_status'=>$data->maintenance_charge_status,
                  'maintenance_charge'=>$data->maintenance_charge,
-                 'maintenance_charge_condition'=>$data->maintenance_charge_condition,
+                 ' '=>$data->maintenance_charge_condition,
                  'deposit'=>$data->deposit,
                  'available_for'=>$data->available_for,
                  'brokerage_charges'=>$data->brokerage_charges,
@@ -746,7 +746,7 @@ class ProductController extends Controller
                  'furnishings'=>$data->furnishings,
                  'total_floors'=>$data->total_floors,
                  'property_on_floor'=>$data->property_on_floor,
-                 'rera_registration_status'=>$data->rera_registration_status,
+                 // 'rera_registration_status'=>$data->rera_registration_status,
                  'facing_towards'=>$data->facing_towards,
                  // 'description'=> $data->description,
                  'additional_parking_status'=>$data->additional_parking_status,

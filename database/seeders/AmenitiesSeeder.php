@@ -46,6 +46,58 @@ class AmenitiesSeeder extends Seeder
 
           ['id' => 15,'name' => 'Window Coverings','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
+          ['id' => 16,'name' => 'Wardrobe','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 17,'name' => 'Light','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 18,'name' => 'Beds','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 19,'name' => 'Fan','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 20,'name' => 'Modular Kit','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 21,'name' => 'Fridge','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 22,'name' => 'Ac','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 23,'name' => 'Stove','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 24,'name' => 'Microwave','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 25,'name' => 'Exhaust Fan','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 26,'name' => 'Geyser','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 27,'name' => 'Washing Machine','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 28,'name' => 'Curtains','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 29,'name' => 'Sofa','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 30,'name' => 'Tv','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 31,'name' => 'Water Purified','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+
+          ['id' => 32,'name' => 'Chimney','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
+          ['id' => 33,'name' => 'Dinning Table','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+
        ];
 
        \App\Models\Amenitie::insert($AmenitieData);
