@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Auth;
 
 class Wishlist extends Model
 {
@@ -30,6 +31,7 @@ class Wishlist extends Model
     
     public function product_comparision()
     {
-        return $this->hasOne('App\Models\Product_Comparision', 'product_id','product_id')->where('status', '1')->orderBy('id', 'asc')->take(4);
+        $user_id = Auth::user()->id;
+        return $this->hasOne('App\Models\Product_Comparision', 'product_id','product_id')->where('status', '1')->where('user_id', $user_id);
     } 
 }
