@@ -17,7 +17,7 @@ class Wishlist extends Model
     public function productdetails()
     {
         //return $this->hasOne('App\Models\product', 'id','product_id')->with('Property_Type')->where('delete_flag', 0);
-        return $this->hasOne('App\Models\product', 'id','product_id')->with('Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0']);
+        return $this->hasOne('App\Models\product', 'id','product_id')->with('Property_Type','product_comparision','UserDetail','product_img')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0']);
     }
     
     public function UserDetail()

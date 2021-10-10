@@ -334,28 +334,50 @@ class ProductController extends Controller
         $request->validate([
             'city' => 'required'
         ]);
-        $prod_query3 = $request->city;
-
-
-        // $needles = explode(',', $q);
-
-        // In my case, I wanted to split the string when a comma or a whitespace is found:
-        // $needles = preg_split('/[\s,]+/', $q);
-
-        // $products = product::where('build_name', 'LIKE', "%{$q}%");
-
-        $products = product::Where(['city' => $prod_query3 , 'delete_flag' => 0,'draft'=> '0','order_status'=> '0']);
-
-
-        // foreach ($needles as $needle) {
-        //     $products = $products->orWhere('build_name', 'LIKE', "%{$needle}%");
-        // }
-
-        $products = $products->Latest()->paginate(150);
+        $data = product::Where(['city' =>  $request->city,'delete_flag' => 0,'draft'=> '0','order_status'=> '0'])->with('UserDetail','product_img','Property_Type')->get();
 
         return response()-> json([
-            'product' => $products,
+            'data' => $data,
         ]);
+     }
+    public function city_search_login_uesr(Request $request){
+        $request->validate([
+            'city' => 'required'
+        ]);
+        $user_id = Auth::user()->id;
+        $product = product::Where(['city' =>  $request->city,'delete_flag' => 0,'draft'=> '0','order_status'=> '0'])->with('UserDetail','product_img','product_comparision','Property_Type')->get();
+
+        $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
+        $productcount = count($product);
+        $wishlistcount = count($Wishlist);
+
+       $productArray = json_decode(json_encode($product), true);
+       $WishlistArray = json_decode(json_encode($Wishlist), true);
+        // dd($productArray);
+       
+       // wishlist check with product id nd wishlist id
+       for ($i=0; $i < $productcount; $i++) {    
+            for ($j=0; $j < $wishlistcount; $j++) { 
+                if($productArray[$i]['id']==$WishlistArray[$j]['product_id']){
+                    $addWishlist="true";
+                    array_push($productArray[$i],$addWishlist);
+                }
+            }
+        }
+        if($productArray){
+            return response()->json([
+            'data' =>$productArray,
+          ], 201);
+        }else{
+            return response()->json([
+            'data' =>$product,
+          ], 201);
+
+        }
+
+        // return response()-> json([
+        //     'data' => $data,
+        // ]);
      }
 
     public function product_index(){

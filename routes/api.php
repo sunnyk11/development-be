@@ -135,6 +135,8 @@ Route::group([
         
         Route::post('/product_Rent_update', 'App\Http\Controllers\Api\ProductController@update_Rent_product');
         Route::post('/product_sales_update', 'App\Http\Controllers\Api\ProductController@update_Sales_product');
+
+        Route::post('/city_search_login', 'App\Http\Controllers\Api\ProductController@city_search_login_uesr');
         Route::post('/loginSimilarproperty', 'App\Http\Controllers\Api\ProductController@loginSimilarproperty');
         Route::post('/requ', 'App\Http\Controllers\Api\RequirementController@create');
         Route::get('/review_index', 'App\Http\Controllers\Api\ReviewsController@review_index');
@@ -187,6 +189,7 @@ Route::group([
        Route::get('/user_order_product', 'App\Http\Controllers\Api\ProductOrderController@property_all_orders');
 
         Route::post('/service_user_reviews', 'App\Http\Controllers\Api\ServiceUserReviewsController@store');
+        
         Route::post('/getarea_user_details', 'App\Http\Controllers\Api\AreaServiceUserController@user_details_byId');
 
 
