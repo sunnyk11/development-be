@@ -89,11 +89,27 @@ Route::group([
         Route::post('/change_password', 'App\Http\Controllers\Api\AuthController@change_password');
         
         Route::post('payment','App\Http\Controllers\Api\PaymentController@payment')->name('payment.payment');
+        Route::get('plans_payment/{id}','App\Http\Controllers\Api\PaymentController@plans_payment');
+        Route::post('post_selected_plan','App\Http\Controllers\PlansController@post_selected_plan');
+        Route::get('get_order_details/{id}', 'App\Http\Controllers\PlansController@get_order_details');
+        Route::get('get_invoice_details/{id}', 'App\Http\Controllers\PlansController@get_invoice_details');
+        Route::get('get_user_invoices/{id}', 'App\Http\Controllers\PlansController@get_user_invoices');
+        Route::get('get_property_details/{id}', 'App\Http\Controllers\PlansController@get_property_details');
+        Route::get('update_property_details/{id}', 'App\Http\Controllers\PlansController@update_property_details');
+        Route::get('update_invoice_details', 'App\Http\Controllers\PlansController@update_invoice_details');
+        
+        Route::get('get_credit_details/{id}', 'App\Http\Controllers\PlansController@get_credit_details');
+        Route::get('get_total_credit/{id}', 'App\Http\Controllers\PlansController@get_total_credit');
+        
+        
+        Route::post('generate_invoice', 'App\Http\Controllers\PlansController@generate_invoice');
         
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });
 Route::post('post-payment','App\Http\Controllers\Api\PaymentController@postPayment')->name('post.payment');
+Route::post('plans-post-payment','App\Http\Controllers\Api\PaymentController@PlansPostPayment');
+
 
 Route::group([
     'prefix' => 'product'

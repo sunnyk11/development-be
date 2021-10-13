@@ -10,9 +10,14 @@ use PaytmChecksum;
 use App\Models\product;
 use App\Models\product_order;
 use App\Models\product_transaction;
+use App\Models\plansOrders;
+use App\Models\plansTransaction;
 use Illuminate\Support\Facades\DB;
 use App\Models\Wishlist;
 use App\Models\Product_Comparision;
+use App\Models\planCredit;
+use Carbon\Carbon;
+use App\Models\invoices;
 
 class PaymentController extends Controller
 {
@@ -119,7 +124,7 @@ class PaymentController extends Controller
               Product_Comparision::where('product_id', $product_id->id)->update(['status' => '0']);
             }
 
-            $angular_url=getenv("angular_url").$product_id->id.'&status='.$request->RESPCODE;
+            $angular_url = env('angular_url').'productpage?id='.$product_id->id.'&status='.$request->RESPCODE;
             
             return response()->redirectTo($angular_url);     
         }catch (\Exception $e) {
@@ -127,6 +132,158 @@ class PaymentController extends Controller
         }
     }
 
+    public function plans_payment($orderID) {
+
+        try {
+            $order_id=$orderID;
+            $MOBILE_NO = Auth::user()->other_mobile_number;
+            $EMAIL =  Auth::user()->email;
+            $CUST_ID = Auth::user()->id;
+
+            $order_details = DB::table('plans_orders')->where('order_id', $order_id)->get();
+            $price = $order_details[0]->plan_price;
+            $gst_price = (18 * $price) / 100;
+            $total_price = $price + $gst_price;
+
+             $body = [
+                 "MID"              => getenv("MID"),
+                 "WEBSITE"          => getenv("WEBSITE"),
+                 "INDUSTRY_TYPE_ID" => getenv("INDUSTRY_TYPE_ID"),
+                 "ORDER_ID"         => $order_id,
+                 "CALLBACK_URL"     => getenv("CALLBACK_URL_PLANS"),
+                 "TXN_AMOUNT"       => $total_price,
+                 "CUST_ID"          => $CUST_ID,
+                 "MOBILE_NO"        => $MOBILE_NO,
+                 "EMAIL"            =>  $EMAIL
+             ];
+              
+             $paytmChecksum = PaytmChecksum::generateSignature($body, 'G1wjysZljdRKqMzm');
+             $body["CHECKSUMHASH"] = $paytmChecksum;
+             
+             $jsonbody = json_encode($body);
+             error_log($jsonbody);
+          
+             return response()->json([
+                 'data' => $body,
+                 'status' => 201
+                 
+             ], 200);
+         } 
+         catch (\Exception $e) {
+             return $this->getExceptionResponse($e);
+         }
+
+    }
+
+    public function PlansPostPayment(Request $request) {
+
+        try {   
+            $plan_transaction= [
+                'order_id'           =>  $request->ORDERID,
+                'MID'                =>  $request->MID,
+                'transaction_id'     =>  $request->TXNID,
+                'transaction_amount' =>  $request->TXNAMOUNT,
+                'transaction_status' =>  $request->STATUS,
+                'transaction_date'   =>  $request->TXNDATE,
+                'respcode'           =>  $request->RESPCODE,
+                'resp_message'       =>  $request->RESPMSG,
+                'getwayname'         =>  $request->GATEWAYNAME,
+                'bank_txn_id'        =>  $request->BANKTXNID,
+                'bank_name'          =>  $request->BANKNAME,
+                'checksumhash'       =>  $request->CHECKSUMHASH,
+                'paymentmode'        =>  $request->PAYMENTMODE,
+                'currency'           =>  $request->CURRENCY,
+                'retryAllowed'       =>  $request->retryAllowed,
+                'errorMessage'       =>  $request->errorMessage,
+                'errorCode'          =>  $request->errorCode
+            ];  
+
+            // transaction save on database by Unique order id
+            plansTransaction::create($plan_transaction);
+
+            // transaction status update
+            plansOrders::where('order_id', $request->ORDERID)->update(['transaction_status' => $request->STATUS]);
+
+            if($request->STATUS == 'TXN_SUCCESS') {
+                $year = Carbon::now()->format('y');
+                $month = Carbon::now()->format('m');
+                $day = Carbon::now()->format('d');
+                $hour = Carbon::now()->format('h');
+                $minute = Carbon::now()->format('i');
+                $second = Carbon::now()->format('s');
+                
+                //$invoice_id = 'INV'.rand (10,100).time();
+                $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second;
+                plansOrders::where('order_id', $request->ORDERID)->update(['amount_paid' => $request->TXNAMOUNT, 'invoice_no' => $invoice_id, 'payment_status' => 'PAID']);
+
+                $order_details = DB::table('plans_orders')->where('order_id', $request->ORDERID)->get();
+                $user_email = $order_details[0]->user_email;
+                $credit_details = DB::table('plan_credits')->where('user_email', $user_email)->get();
+
+                $credit = new planCredit([
+                    'user_id' => $order_details[0]->user_id,
+                    'user_email' => $order_details[0]->user_email,
+                    'payment_status' => 'PAID',
+                    'credits' => $order_details[0]->expected_rent,
+                    'invoice_no' => $order_details[0]->invoice_no
+                ]);
+
+                $credit->save();
+
+                $todayDate = Carbon::now()->format('Y-m-d');
+
+                $invoice = new invoices([
+                    'invoice_no' => $invoice_id,
+                    'plan_name' => $order_details[0]->plan_name,
+                    'plan_id' => $order_details[0]->plan_id,
+                    'plan_type' => $order_details[0]->plan_type,
+                    'payment_type' => $order_details[0]->payment_type,
+                    'order_id' => $order_details[0]->order_id,
+                    'expected_rent' => $order_details[0]->expected_rent,
+                    'plan_price' => $order_details[0]->plan_price,
+                    'payment_status' => 'PAID',
+                    'user_email' => $order_details[0]->user_email,
+                    'user_id' => $order_details[0]->user_id,
+                    'invoice_generated_date' => $todayDate,
+                    'invoice_paid_date' => $todayDate,
+                    'amount_paid' => $request->TXNAMOUNT,
+                    'transaction_status' => $request->STATUS,
+                    'payment_mode' => 'Online',
+                    'payment_received' => 'Yes'     
+                ]);
+
+                $invoice->save();
+                
+                /*$total_credit = DB::table('total_credits')->where('user_email', $user_email)->get();
+                if($total_credit->isEmpty()) {
+                    
+                    $tot_credit = new totalCredits([
+                        'user_id' => $order_details[0]->user_id,
+                        'user_email' => $order_details[0]->user_email,
+                        'total_credits' => $order_details[0]->expected_rent
+                    ]);
+
+                    $tot_credit->save();
+                }
+                else {
+                    $existing_credit = $total_credit[0]->total_credits;
+                    $new_credit = $existing_credit + $order_details[0]->expected_rent;
+                    totalCredits::where('user_email', $user_email)->update(['total_credits' => $new_credit]);
+                } */
+                
+                $angular_url = env('angular_url').'invoice?'.'invoice_no='.$invoice_id;
+            }
+            else {
+                plansOrders::where('order_id', $request->ORDERID)->update(['payment_status' => 'FAIL']);
+                $angular_url = env('angular_url').'plans?'.'status='.$request->RESPCODE;
+            }
+            
+            return response()->redirectTo($angular_url);     
+        }
+        catch (\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
 
     /**
      * Show the form for creating a new resource.

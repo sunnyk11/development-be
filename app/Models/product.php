@@ -81,6 +81,7 @@ class product extends Model
         'draft',
         'product_uid',
         'order_status',
+        'enabled'
     ];
 
     public function productid()

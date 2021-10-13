@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use App\Models\InternalUser;
 use App\Models\UserRole;
+use App\Models\crmApiCalls;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -59,8 +60,7 @@ class AuthController extends Controller
 
         return response()->json([
             'data' => $user,
-            'message' => 'Successfully created user!',
-            'status'  =>200
+            'message' => 'Successfully created user!'
         ], 201);
     }
 
@@ -429,13 +429,34 @@ class AuthController extends Controller
 
     public function crm_api_call(Request $request) {
         $user = User::where('id', $request['id'])->get();
-
+    
+        $request_time = now();
+        $now = strtotime($request_time);
         $response = Http::post('https://admincrm.housingstreet.com/api/Lead/SaveBuyer', [
             'BuyerEmail' => $user[0]['email'],
             'PhoneNo' => $user[0]['other_mobile_number'],
             'BuyerName' => $user[0]['name'],
             'Source' => 'Web'
         ]);
+        
+        $date = strtotime($response->headers()['Date'][0]);
+        
+        $crm_data = new crmApiCalls([
+            'response_body' => $response->body(),
+            'response_client_error' => $response->clientError(),
+            'response_fail' => $response->failed(),
+            'response_server_error' => $response->serverError(),
+            'response_status' => $response->status(),
+            'response_success' => $response->successful(),
+            'request_time' => $request_time,
+            'response_time' => date('Y-m-d H:i:s', $date),
+            'user_email' => $user[0]['email'],
+            'user_phone' => $user[0]['other_mobile_number'],
+            'user_name' => $user[0]['name'],
+            'source' => 'Web'
+        ]);
+
+        $crm_data->save();
 
         return response()->json([
             'message' => 'Successfully added lead',
@@ -443,7 +464,11 @@ class AuthController extends Controller
             'response_fail' => $response->failed(),
             'response_client_error' => $response->clientError(),
             'response_server_error' => $response->serverError(),
-            'response_body' => $response->body()
+            'response_body' => $response->body(),
+            'response_json' => $response->json(),
+            'response_status' => $response->status(),
+            'response_headers' => date('Y-m-d H:i:s', $date),
+            'response' => $response
         ], 201);
     }
 
