@@ -127,10 +127,16 @@ class product extends Model
     {
         return $this->hasOne('App\Models\Property_type', 'id','type')->where('status', '1');
     }
+    // public function Pro_order()
+    // {
+    //     return $this->hasOne('App\Models\product_order', 'product_id','product_uid')->where('transaction_status', 'TXN_SUCCESS');
+    // }
+ 
     public function Pro_order()
-    {
-        return $this->hasOne('App\Models\product_order', 'product_id','product_uid')->where('transaction_status', 'TXN_SUCCESS');
-    }
+     {
+         return $this->hasOne('App\Models\invoices', 'product_id','product_uid')->where('transaction_status', 'TXN_SUCCESS');
+     }
+
    
     public function roles()
     {

@@ -35,7 +35,7 @@ Route::get('get_rent_plans', 'App\Http\Controllers\PlansController@get_rent_plan
 Route::get('get_letout_plans', 'App\Http\Controllers\PlansController@get_letout_plans');
 Route::get('get_rent_features', 'App\Http\Controllers\PlansController@get_rent_features');
 Route::get('get_letout_features', 'App\Http\Controllers\PlansController@get_letout_features');
-
+Route::post('get_product_details', 'App\Http\Controllers\Api\ProductController@get_product_details');
 
 Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
 
@@ -90,10 +90,17 @@ Route::group([
         
         Route::post('payment','App\Http\Controllers\Api\PaymentController@payment')->name('payment.payment');
         Route::get('plans_payment/{id}','App\Http\Controllers\Api\PaymentController@plans_payment');
+        Route::get('plans_rent_payment/{id}','App\Http\Controllers\Api\PaymentController@plans_rent_payment');
+        
         Route::post('post_selected_plan','App\Http\Controllers\PlansController@post_selected_plan');
+        Route::post('post_selected_rent_plan','App\Http\Controllers\PlansController@post_selected_rent_plan');
         Route::get('get_order_details/{id}', 'App\Http\Controllers\PlansController@get_order_details');
+        Route::get('get_rent_order_details/{id}', 'App\Http\Controllers\PlansController@get_rent_order_details');
         Route::get('get_invoice_details/{id}', 'App\Http\Controllers\PlansController@get_invoice_details');
         Route::get('get_user_invoices/{id}', 'App\Http\Controllers\PlansController@get_user_invoices');
+        Route::get('get_all_user_invoices/{id}', 'App\Http\Controllers\PlansController@get_all_user_invoices');
+        Route::get('get_rented_properties/{id}', 'App\Http\Controllers\PlansController@get_rented_properties');
+        
         Route::get('get_property_details/{id}', 'App\Http\Controllers\PlansController@get_property_details');
         Route::get('update_property_details/{id}', 'App\Http\Controllers\PlansController@update_property_details');
         Route::get('update_invoice_details', 'App\Http\Controllers\PlansController@update_invoice_details');
@@ -103,12 +110,14 @@ Route::group([
         
         
         Route::post('generate_invoice', 'App\Http\Controllers\PlansController@generate_invoice');
+        Route::post('generate_rent_invoice', 'App\Http\Controllers\PlansController@generate_rent_invoice');
         
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });
 Route::post('post-payment','App\Http\Controllers\Api\PaymentController@postPayment')->name('post.payment');
 Route::post('plans-post-payment','App\Http\Controllers\Api\PaymentController@PlansPostPayment');
+Route::post('plans-rent-post-payment','App\Http\Controllers\Api\PaymentController@PlansRentPostPayment');
 
 
 Route::group([

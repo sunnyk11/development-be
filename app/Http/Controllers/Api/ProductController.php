@@ -19,6 +19,7 @@ use App\Models\ProductAmenties;
 use App\Models\UserProductCount;
 use App\Models\Product_img;
 use App\Models\Product_Comparision;
+
 class ProductController extends Controller
 {
     /**
@@ -754,7 +755,7 @@ class ProductController extends Controller
                  'price_negotiable'=>$data->price_negotiable,
                  'maintenance_charge_status'=>$data->maintenance_charge_status,
                  'maintenance_charge'=>$data->maintenance_charge,
-                 ' '=>$data->maintenance_charge_condition,
+                 'maintenance_charge_condition'=>$data->maintenance_charge_condition,
                  'deposit'=>$data->deposit,
                  'available_for'=>$data->available_for,
                  'brokerage_charges'=>$data->brokerage_charges,
@@ -868,7 +869,7 @@ class ProductController extends Controller
             'security_deposit' => $request->security_deposit ,
             'maintenance_charge' =>$request->maintenance_charge,
             'maintenance_charge_status' => $request->maintenance_charge_status ,
-            //'maintenance_charge_condition' => $request->maintenance_charge_condition ,
+            'maintenance_charge_condition' => $request->maintenance_charge_condition ,
             'ownership' => $request->ownership ,
             'rent_cond' => $request->rent_cond ,
             'tax_govt_charge' => $request->tax_govt_charge ,
@@ -996,7 +997,7 @@ class ProductController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $data = product::with('product_img')->where('user_id', $user_id)->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0'])->orderBy('id', 'desc')->get();
+        $data = product::with('product_img')->where('user_id', $user_id)->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->get();
         //$tableq = DB::table('users')->select('id','name','email','profile_pic')->get();
         return response()->json([
             //'users'=> $tableq,
@@ -1644,6 +1645,14 @@ class ProductController extends Controller
                 'data' => $product
             ]);
         }
+    }
+
+    public function get_product_details(Request $request) {
+        $request -> validate([
+            'id' => 'required'
+        ]);
+
+        return $product_details = DB::table('products')->where('id', $request->id)->get();
     }
 
     public function store(Request $request)

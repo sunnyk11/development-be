@@ -33,7 +33,6 @@ class CreatePlansTransactionsTable extends Migration
             $table->longText('errorMessage')->nullable();
             $table->integer('errorCode')->nullable();
             $table->enum('status', ['0', '1'])->default('1');
-            $table->foreign('order_id')->references('order_id')->on('plans_orders')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

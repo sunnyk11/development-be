@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\RentPlans;
 use App\Models\LetOutPlans;
 use App\Models\plansOrders;
+use App\Models\plansRentOrders;
 use DB;
 use App\Models\planCredit;
 use Carbon\Carbon;
@@ -133,6 +134,7 @@ class PlansController extends Controller
                 'expected_rent' => $request->expected_rent,
                 'plan_price' => $request->plan_price,
                 'payment_type' => $request->payment_type
+                
             ]);
 
             $plan->save();
@@ -143,8 +145,61 @@ class PlansController extends Controller
             ], 201);
     }
 
+    public function post_selected_rent_plan(Request $request) {
+        $request->validate([
+            'user_id' => 'required',
+            'user_email' => 'required',
+            'plan_type' => 'required',
+			'plan_name' => 'required',
+            'expected_rent' => 'required',
+            'plan_id' => 'required',
+            'payment_type' => 'required',
+            'plan_price' => 'required',
+            'property_id' => 'required',
+            'property_name' => 'required',
+            'gst_amount' => 'required',
+            'security_deposit' => 'required',
+            'total_amount' => 'required',
+            'property_uid' => 'required',
+            'payment_mode' => 'required'
+        ]);
+
+        $order_id = 'OR'.rand (10,100).time();
+
+            $plan = new plansRentOrders([
+                'user_id' => $request->user_id,
+                'user_email' => $request->user_email,
+                'order_id' => $order_id,
+                'plan_type' => $request->plan_type,
+                'plan_name' => $request->plan_name,
+                'plan_id' => $request->plan_id,
+                'expected_rent' => $request->expected_rent,
+                'plan_price' => $request->plan_price,
+                'payment_type' => $request->payment_type,
+                'property_id' => $request->property_id,
+                'property_name' => $request->property_name,
+                'gst_amount' => $request->gst_amount,
+                'maintenance_charge' => $request->maintenance_charge,
+                'security_deposit' => $request->security_deposit,
+                'total_amount' => $request->total_amount,
+                'property_uid' => $request->property_uid,
+                'payment_mode' => $request->payment_mode
+            ]);
+
+            $plan->save();
+
+            return response()->json([
+                'data' => $plan,
+                'message' => 'Successfully created Rent Plan Order'
+            ], 201);
+    }
+
     public function get_order_details($orderID) {
         return $order_details = DB::table('plans_orders')->where('order_id', $orderID)->get();
+    }
+
+    public function get_rent_order_details($orderID) {
+        return $order_details = DB::table('plans_rent_orders')->where('order_id', $orderID)->get();
     }
 
     public function get_invoice_details($invoiceID) {
@@ -154,7 +209,14 @@ class PlansController extends Controller
     public function get_user_invoices($emailID) {
         return $invoice_details = DB::table('invoices')->where([
             ['user_email', $emailID],
-            ['plan_status', 'available']
+            ['plan_status', 'available'],
+            ['plan_type', 'let_out']
+        ])->get();
+    }
+
+    public function get_all_user_invoices($emailID) {
+        return $invoice_details = DB::table('invoices')->where([
+            ['user_email', $emailID]
         ])->get();
     }
 
@@ -290,5 +352,62 @@ class PlansController extends Controller
         }
         
 
+    }
+
+    public function generate_rent_invoice(Request $request) {
+        try {
+
+            $order_details = DB::table('plans_rent_orders')->where('order_id', $request->orderID)->get();
+    
+            if($order_details[0]->invoice_no == NULL)
+            {
+                $year = Carbon::now()->format('y');
+                $month = Carbon::now()->format('m');
+                $day = Carbon::now()->format('d');
+                $hour = Carbon::now()->format('h');
+                $minute = Carbon::now()->format('i');
+                $second = Carbon::now()->format('s');
+                $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second;
+                plansRentOrders::where('order_id', $request->orderID)->update(['invoice_no' => $invoice_id, 'payment_status' => 'UNPAID']);
+            }
+            else {
+                $invoice_id = $order_details[0]->invoice_no;
+            }
+
+                $todayDate = Carbon::now()->format('Y-m-d');
+
+                $invoice = new invoices([
+                    'invoice_no' => $invoice_id,
+                    'plan_name' => $order_details[0]->plan_name,
+                    'plan_id' => $order_details[0]->plan_id,
+                    'plan_type' => $order_details[0]->plan_type,
+                    'payment_type' => $order_details[0]->payment_type,
+                    'order_id' => $order_details[0]->order_id,
+                    'expected_rent' => $order_details[0]->expected_rent,
+                    'plan_price' => $order_details[0]->plan_price,
+                    'payment_status' => 'UNPAID',
+                    'user_email' => $order_details[0]->user_email,
+                    'user_id' => $order_details[0]->user_id,
+                    'invoice_generated_date' => $todayDate,
+                    'payment_mode' => 'Cash',
+                    'payment_received' => 'Pending'  
+                ]);
+
+                $invoice->save();
+            
+            
+            return response()->json([
+                'data' => $invoice_id
+            ], 201);
+            
+            }
+        catch (\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+        
+    }
+
+    public function get_rented_properties($userEmail) {
+       return $property_details = DB::table('plans_rent_orders')->where(['user_email' => $userEmail, 'transaction_status' => 'TXN_SUCCESS'])->get();
     }
 }

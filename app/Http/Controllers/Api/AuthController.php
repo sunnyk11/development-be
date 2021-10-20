@@ -536,12 +536,33 @@ class AuthController extends Controller
         if ($verification->valid) {
             User::where('id', $data['user_id'])->update(['other_mobile_number' => $data['other_mobile_number'], 'phone_number_verification_status' => 1]);
             $user = User::where('id', $data['user_id'])->get();
+            $request_time = now();
+            $now = strtotime($request_time);
             $response = Http::post('https://admincrm.housingstreet.com/api/Lead/SaveBuyer', [
                 'BuyerEmail' => $user[0]['email'],
                 'PhoneNo' => $user[0]['other_mobile_number'],
                 'BuyerName' => $user[0]['name'],
                 'Source' => 'Web'
             ]);
+
+            $date = strtotime($response->headers()['Date'][0]);
+
+            $crm_data = new crmApiCalls([
+                'response_body' => $response->body(),
+                'response_client_error' => $response->clientError(),
+                'response_fail' => $response->failed(),
+                'response_server_error' => $response->serverError(),
+                'response_status' => $response->status(),
+                'response_success' => $response->successful(),
+                'request_time' => $request_time,
+                'response_time' => date('Y-m-d H:i:s', $date),
+                'user_email' => $user[0]['email'],
+                'user_phone' => $user[0]['other_mobile_number'],
+                'user_name' => $user[0]['name'],
+                'source' => 'Web'
+            ]);
+    
+            $crm_data->save();
 
             return response()->json([
                 'message' => 'Successfully verified',
