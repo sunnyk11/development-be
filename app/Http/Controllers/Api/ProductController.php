@@ -173,14 +173,14 @@ class ProductController extends Controller
 
 
         $request->validate([
-            'cityValue' => 'required',
+            'cityname' => 'required',
         ]);
-            $city = $request->cityValue;
+            $city = $request->cityname;
 
         $productSimilar=product::with('UserDetail','Property_Type','product_img')->where(['city'=> $city,'delete_flag'=>0,'draft'=>'0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(6)->get();
 
             return response()-> json([
-                'product' => $productSimilar,
+                'data' => $productSimilar,
             ]);
 
      }
@@ -274,22 +274,17 @@ class ProductController extends Controller
 
 
         $request->validate([
-            'prod_id' => 'required',
+            'id' => 'required',
         ]);
-            $prod_id = $request->prod_id;
+        $prod_id = $request->id;
+         $product_data = product::where((['delete_flag'=> '0','draft'=> '0','id'=>$prod_id,'order_status'=> '0']))->with('amenities','Property_Type','product_img','UserDetail')->first();
 
-        // $product_id_func = product::find($prod_id)->productid;
-         $product_id_func = product::where((['delete_flag'=> '0','draft'=> '0','id'=>$prod_id,'order_status'=> '0']))->with('amenities','Property_Type','product_img')->get();
+       // increase product count 
+        product::where('id', $prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);;
 
-        $userid = DB::table('products')->select('user_id')->where("id", $prod_id)->value("value");
-        $user_details = DB::table('users')->select('id','name','email','profile_pic')->where('id', $userid)->get();
-
-        product::where('id', $request->prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);;
-
-            return response()-> json([
-                'user_data' => $user_details,
-                'product' => $product_id_func,
-            ]);
+        return response()-> json([
+            'data' => $product_data,
+        ]);
 
      }
 

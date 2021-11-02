@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ServiceProvider;
 use App\Models\ServiceUserReviews;
 use Auth;
+use Illuminate\Support\Facades\DB;
 
 class AreaServiceUserController extends Controller
 {
@@ -61,6 +62,13 @@ class AreaServiceUserController extends Controller
           ], 201);
 
     }
+    public function star_ratingbyId(Request $request){
+
+         $rating_data = ServiceUserReviews::where(['status'=> '1','s_user_id'=>$request->service_id,'stars'=>$request->star])->with('UserDetail','service_img')->get();
+         return response()->json([
+            'rating_data'  => $rating_data, 
+          ], 201);
+   }
     public function user_details_byId(Request $request){
         // user details by id
        $user_id = Auth::user()->id;
@@ -69,11 +77,15 @@ class AreaServiceUserController extends Controller
        $review_data = ServiceUserReviews::where(['status'=> '1','s_user_id'=>$request->user_id])->with('UserDetail')->get();
 
        $user_review =ServiceUserReviews::where(['status'=> '1','s_user_id'=>$request->user_id,'user_id'=>$user_id])->first();
+        
+        $avg_reviews =ServiceUserReviews::where(['status'=> '1','s_user_id'=>$request->user_id])->select('stars', DB::raw('count(*) as users'))->groupBy('stars')->get();
+        
 
         return response()->json([
             'user_data'    => $user_data,
             'review_data'  => $review_data,
             'user_review'  =>$user_review,
+            'avg_reviews'     => $avg_reviews, 
           ], 201);
 
     }

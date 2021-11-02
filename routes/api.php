@@ -150,7 +150,7 @@ Route::group([
 
     Route::post('/search_pro_type', 'App\Http\Controllers\Api\ProductController@search_pro_type');
     
-    Route::post('/product_Searching', 'App\Http\Controllers\Api\ProductController@propertysearch_list');
+    Route::post('/productsearching', 'App\Http\Controllers\Api\ProductController@propertysearch_list');
     Route::get('/testimonial', 'App\Http\Controllers\Api\ReviewsController@testimonial');
 
     Route::group([
@@ -216,6 +216,8 @@ Route::group([
         Route::post('/service_user_reviews', 'App\Http\Controllers\Api\ServiceUserReviewsController@store');
         
         Route::post('/getarea_user_details', 'App\Http\Controllers\Api\AreaServiceUserController@user_details_byId');
+        
+        Route::post('/star_ratingbyId', 'App\Http\Controllers\Api\AreaServiceUserController@star_ratingbyId');
 
 
     });

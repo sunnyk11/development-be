@@ -18,5 +18,9 @@ class ServiceUserReviews extends Model
     {
         return $this->hasOne('App\Models\AreaServiceUser', 'user_id','s_user_id');
     }
+    public function service_img()
+    {
+        return $this->hasMany('App\Models\ServiceImgReview', 'service_id','id');
+    }
 
 }

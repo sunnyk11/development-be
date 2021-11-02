@@ -117,7 +117,7 @@ class product extends Model
     }
     public function amenities()
     {
-        return $this->hasMany('App\Models\ProductAmenties', 'product_id','id');
+        return $this->hasMany('App\Models\ProductAmenties', 'product_id','id')->with('amenties');
     }
     public function product_img()
     {
@@ -144,53 +144,52 @@ class product extends Model
     }
 
     public function scopeSearch($query, $searchTerm) {
-        if ($searchTerm->build_name) {
-            $query = $query->where('build_name', 'like', "%" . $searchTerm->build_name . "%");
+        if ($searchTerm->data['build_name']) {
+            $query = $query->where('build_name', 'like', "%" . $searchTerm->data['build_name'] . "%");
         }
-        if ($searchTerm->Location) {
-           $query = $query->where('address', 'like', "%" . $searchTerm->Location . "%");
+        if ($searchTerm->data['location']) {
+           $query = $query->where('address', 'like', "%" . $searchTerm->data['location'] . "%");
         }
-        if ($searchTerm->area_unit) {
-            $query = $query->where('area_unit', $searchTerm->area_unit);
+        if ($searchTerm->data['area_unit']) {
+            $query = $query->where('area_unit', $searchTerm->data['area_unit']);
         }
-        if ($searchTerm->type) {
-            $type_value=(int)$searchTerm->type;
+        if ($searchTerm->data['type']) {
+            $type_value=(int)$searchTerm->data['type'];
             $query = $query->where('type', $type_value);
         }
-        if ($searchTerm->Bathrooms) {
-            $query = $query->where('bathroom', $searchTerm->Bathrooms);
+        if ($searchTerm->data['bathrooms']) {
+            $query = $query->where('bathroom', $searchTerm->data['bathrooms']);
         }
-        if ($searchTerm->Bedrooms) {
+        if ($searchTerm->data['bedrooms']) {
 
-            $query = $query->where('bedroom', $searchTerm->Bedrooms);
+            $query = $query->where('bedroom', $searchTerm->data['bedrooms']);
         }
-        if ($searchTerm->Minimum) {
-            $min = $searchTerm->Minimum;
+        if ($searchTerm->data['sliderControl'][0]) {
+            $min = $searchTerm->data['sliderControl'][0];
             $query->where(function($query) use ($min){
                 $query->where('expected_pricing', '>=', $min)
                       ->orWhere('expected_rent', '>=', $min);
             });
         }
-        if ($searchTerm->Maximum) {
-            $max = $searchTerm->Maximum;
+        if ($searchTerm->data['sliderControl'][1]) {
+            $max = $searchTerm->data['sliderControl'][1];
             $query->where(function($query) use ($max){
                 $query->where('expected_pricing', '<=', $max)
                       ->orWhere('expected_rent', '<=', $max);
             });
         }
 
-        if ($searchTerm->Years) {
-            $query = $query->where('buildyear', $searchTerm->Years);
+        if ($searchTerm->data['years']) {
+            $query = $query->where('buildyear', $searchTerm->data['years']);
         }
-
-        if ($searchTerm->property_status== "all") {
+        if ($searchTerm->data['property_status']== "all") {
             $query = $query->orderBy('id', 'desc');
         }
-        if ($searchTerm->property_status== "Recently") {
-            $query = $query->orderBy('id', 'desc')->take(8);
+        if ($searchTerm->data['property_status']== "recently") {
+            $query = $query->orderBy('id', 'desc')->take(6);
         }
-        if ($searchTerm->property_status== "Viewed") {
-            $query = $query->where('view_counter', '>=',1)->orderBy('view_counter', 'desc');
+        if ($searchTerm->data['property_status']== "viewed") {
+            $query = $query->where('view_counter', '>=',5)->orderBy('view_counter', 'desc');
         } 
         if ($searchTerm->amenities) {
             $amenities_data = ProductAmenties::select('product_id')->whereIn('amenties',$searchTerm->amenities)->get();

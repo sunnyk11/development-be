@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\ServiceImgReview;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Image;
 
 class ServiceUserReviewsController extends Controller
 {
@@ -38,7 +43,8 @@ class ServiceUserReviewsController extends Controller
      */
     public function store(Request $request)
     {
-        // return $request->all();
+        
+        // return $db_img_length;
         if($request->user_id){
             ServiceUserReviews::where(['user_id'=> $request->user_id,'s_user_id'=> $request->s_user_id])->update(['stars' =>$request->stars,'content'=>$request->content]);
               return response()->json([
@@ -56,6 +62,33 @@ class ServiceUserReviewsController extends Controller
                 'content' => $request->content,
             ]);
             $review->save();
+            $review_id=$review->id;
+          // return $request->all();
+             $DB_img=ServiceImgReview::where('user_id',$request->user_id)->where('service_id', $request->s_user_id)->get();
+             // dd($DB_img);
+            $db_img_length=count($DB_img);
+            // product images functionalty
+            if($db_img_length<5){
+                $product_image= $request->input('product_image');
+                $Product_img_length=count($product_image); 
+                if($Product_img_length>0){
+                    foreach ($product_image as $value) {                    
+                        $base64_image = $value; // your base64 encoded
+                        @list($type, $file_data) = explode(';', $base64_image);
+                        @list(, $file_data) = explode(',', $file_data);
+                        $imageName = 'product_image_file/IMAGE'.Str::random(30).'.'.'png';
+                        Storage::disk('public')->put($imageName, base64_decode($file_data));
+                            $Product_images_data = [
+                                'user_id' =>Auth::user()->id,
+                                'service_id' => $review_id,
+                                'image' =>$imageName 
+                            ];
+                            // return $Product_images_data;
+                        ServiceImgReview::create($Product_images_data);
+                    }
+                    
+                }
+            }
              return response()->json([
                 'message' => 'Review Submitted',
                 'data'    => $request->s_user_id,

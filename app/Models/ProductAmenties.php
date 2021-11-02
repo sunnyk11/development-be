@@ -13,5 +13,10 @@ class ProductAmenties extends Model
         'product_id',
         'amenties',
     ];
+
+    public function amenties()
+    {
+        return $this->hasOne('App\Models\Amenitie', 'id','amenties');
+    }
     
 }
