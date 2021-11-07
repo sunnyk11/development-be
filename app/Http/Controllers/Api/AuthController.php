@@ -671,7 +671,7 @@ class AuthController extends Controller
             'email'    => $user->email,
             'usertype' => $user->usertype,
         ];
-        return response()->json([
+        $data = [
             'username' => $user->name,
             'id' => $user->id,
             'email'    => $user->email,
@@ -683,6 +683,9 @@ class AuthController extends Controller
             )->toDateTimeString(),
             'misc' => $user,
             'user_data' => $user_data
+        ];
+        return response()->json([
+            'data' => $data
         ]);
     }
 

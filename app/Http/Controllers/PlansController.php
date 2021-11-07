@@ -92,7 +92,10 @@ class PlansController extends Controller
     }
 
     public function get_rent_plans() {
-        return $rent_plans = DB::table('rent_plans')->where('status', 'enabled')->get();
+        $rent_plans = DB::table('rent_plans')->where('status', 'enabled')->get();
+        return response()->json([
+            'data' => $rent_plans
+        ], 200);
     }
 
     public function get_letout_plans() {
