@@ -43,21 +43,23 @@ class WishlistController extends Controller
      */
     public function store(Request $request)
     {
+        $product_id=$request->param['id'];
         // user fetch using databse
         $user_id = Auth::user()->id;
         // fetch details user product db        
-        $Wishlist = Wishlist::where('user_id',$user_id)->where('product_id',$request->product_id)->get();
+        $Wishlist = Wishlist::where('user_id',$user_id)->where('product_id',$product_id)->get();
         $count = count($Wishlist);
 
         if($count==0){
             $Wishlist_data = [
                 'user_id' => $user_id,
-                'product_id' => $request->product_id,
+                'product_id' => $product_id,
             ];
             Wishlist::create($Wishlist_data);
 
         return response()->json([
                 'message' => 'Successfully Add Wishlist',
+                'status'  => 200
             ], 201);
 
         }else{
@@ -113,8 +115,9 @@ class WishlistController extends Controller
     }
      public function delete(Request $request)
     {
+        $product_id=$request->param['id'];
         $user_id = Auth::user()->id;
-        $whereArray = array('user_id'=>$user_id,'product_id'=>$request->product_id);
+        $whereArray = array('user_id'=>$user_id,'product_id'=>$product_id);
       $data= Wishlist::where($whereArray)->delete();
             return response()->json([
                 'message' => 'Wishlist Successfully Deleted ',

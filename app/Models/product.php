@@ -98,7 +98,7 @@ class product extends Model
     {
 
         $user_id = Auth::user()->id;
-        return $this->hasOne('App\Models\Product_Comparision', 'product_id','id')->where('status', '1')->where('user_id', $user_id)->orderBy('id', 'asc')->take(4);
+        return $this->hasOne('App\Models\Product_Comparision', 'product_id','id')->where('status', '1')->where('user_id', $user_id)->orderBy('id', 'asc');
     }
 
     public function Single_wishlist()
@@ -149,6 +149,9 @@ class product extends Model
         }
         if ($searchTerm->data['location']) {
            $query = $query->where('address', 'like', "%" . $searchTerm->data['location'] . "%");
+        }
+        if ($searchTerm->data['city']) {
+           $query = $query->where('city', 'like', "%" . $searchTerm->data['city'] . "%");
         }
         if ($searchTerm->data['area_unit']) {
             $query = $query->where('area_unit', $searchTerm->data['area_unit']);

@@ -17,7 +17,7 @@ class ProductComparisionController extends Controller
     public function index()
     {
         $user_id = Auth::user()->id;
-        $data=Product_Comparision::where('status', '1')->where('user_id',$user_id)->with('productdetails','UserDetail','product_img','amenities')->orderBy('id', 'asc')->take('4')->get();
+        $data=Product_Comparision::where('status', '1')->where('user_id',$user_id)->with('productdetails','amenities')->orderBy('id', 'asc')->take('4')->get();
         return response()->json([
             'data' => $data
         ], 200);
@@ -41,6 +41,7 @@ class ProductComparisionController extends Controller
      */
     public function store(Request $request)
     {
+        $product_id=$request->param['id'];
         // user fetch using databse
         $user_id = Auth::user()->id;
         // fetch details property Comparision minimum 5
@@ -53,7 +54,7 @@ class ProductComparisionController extends Controller
             if($count==0){
                 $product_comp = [
                     'user_id' => $user_id,
-                    'product_id' => $request->product_id,
+                    'product_id' => $product_id,
                 ];
                 Product_Comparision::create($product_comp);
                 $data = Product_Comparision::where('status', '1')->where('user_id',$user_id)->get();
@@ -64,7 +65,7 @@ class ProductComparisionController extends Controller
                 ], 201);
 
             }else{
-                $update_data= Product_Comparision::where(['user_id'=>$user_id,'product_id'=>$request->product_id])->update(['status' => '1']); 
+                $update_data= Product_Comparision::where(['user_id'=>$user_id,'product_id'=>$product_id])->update(['status' => '1']); 
                 $data = Product_Comparision::where('status', '1')->where('user_id',$user_id)->get();
               return response()->json([
                 'data' =>$data,
@@ -128,9 +129,9 @@ class ProductComparisionController extends Controller
     public function delete(Request $request)
     {
         $user_id = Auth::user()->id;
-        $pro_comp_data = array('user_id'=>$user_id,'product_id'=>$request->product_id);
+        $pro_comp_data = array('user_id'=>$user_id,'product_id'=>$request->id);
 
-        $data= Product_Comparision::where(['user_id'=>$user_id,'id'=>$request->product_id])->update(['status' => '0']);
+        $data= Product_Comparision::where(['user_id'=>$user_id,'id'=>$request->id])->update(['status' => '0']);
 
             return response()->json([
                 'message' => 'Property Compare Successfully Deleted ',

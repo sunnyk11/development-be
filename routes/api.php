@@ -125,7 +125,7 @@ Route::group([
 ], function () {
     Route::get('/feature_property', 'App\Http\Controllers\Api\ProductController@feature_property');
     Route::get('/getRecently_viewProperty', 'App\Http\Controllers\Api\ProductController@Recently_view');
-    Route::get('/get_product', 'App\Http\Controllers\Api\ProductController@index');
+    Route::get('/get_product', 'App\Http\Controllers\Api\ProductController@product_city_details');
     Route::get('/get_product_featured', 'App\Http\Controllers\Api\ProductController@index_featured');
     Route::get('/product_list_featured', 'App\Http\Controllers\Api\ProductController@product_list_featured');
     Route::get('/seeto', 'App\Http\Controllers\Api\ProductController@product_index');
@@ -156,13 +156,11 @@ Route::group([
     Route::group([
         'middleware' => 'auth:api'
     ], function () {
-
-        
         Route::post('/product_Rent_update', 'App\Http\Controllers\Api\ProductController@update_Rent_product');
         Route::post('/product_sales_update', 'App\Http\Controllers\Api\ProductController@update_Sales_product');
 
         Route::post('/city_search_login', 'App\Http\Controllers\Api\ProductController@city_search_login_uesr');
-        Route::post('/loginSimilarproperty', 'App\Http\Controllers\Api\ProductController@loginSimilarproperty');
+        Route::post('/loginsimilarproperty', 'App\Http\Controllers\Api\ProductController@loginSimilarproperty');
         Route::post('/requ', 'App\Http\Controllers\Api\RequirementController@create');
         Route::get('/review_index', 'App\Http\Controllers\Api\ReviewsController@review_index');
         Route::post('/post_review', 'App\Http\Controllers\Api\ReviewsController@store');
@@ -193,20 +191,20 @@ Route::group([
         Route::post('/lawyer_create_service', 'App\Http\Controllers\Api\LawyerController@lawyer_create_service');
         Route::get('/lawyer_service', 'App\Http\Controllers\Api\LawyerController@lawyer_service');
         Route::post('/lawyer_service_delete', 'App\Http\Controllers\Api\LawyerController@lawyer_service_delete');
-        Route::post('/product_Searching_login', 'App\Http\Controllers\Api\ProductController@User_propertysearchlist');
+        Route::post('/product_searching_login', 'App\Http\Controllers\Api\ProductController@User_propertysearchlist');
         Route::post('/Propery_get_id', 'App\Http\Controllers\Api\ProductController@Propery_get_id');
-        Route::get('/get_product_wishlist', 'App\Http\Controllers\Api\ProductController@index_featured_wishlist');
+        Route::get('get_product_wishlist', 'App\Http\Controllers\Api\ProductController@index_featured_wishlist');
         Route::get('/product_listing_wishlist', 'App\Http\Controllers\Api\ProductController@product_listing_wishlist');
 
         Route::resource('wishlist', 'App\Http\Controllers\Api\WishlistController');
-        Route::post('wishlistDelete', 'App\Http\Controllers\Api\WishlistController@delete');
+        Route::post('wishlistdelete', 'App\Http\Controllers\Api\WishlistController@delete');
 
-          Route::resource('Product_comp', 'App\Http\Controllers\Api\ProductComparisionController');
+          Route::resource('product_comp', 'App\Http\Controllers\Api\ProductComparisionController');
         Route::post('pro_comp_delete', 'App\Http\Controllers\Api\ProductComparisionController@delete');
 
-         Route::post('User_productCount', 'App\Http\Controllers\Api\UserProductCountController@count_byID');
+         Route::post('recently_product_user', 'App\Http\Controllers\Api\UserProductCountController@count_byID');
        
-        Route::get('User_Recently_pro', 'App\Http\Controllers\Api\UserProductCountController@index');
+        Route::get('user_recently_pro', 'App\Http\Controllers\Api\UserProductCountController@index');
 
         Route::post('/product_login_see', 'App\Http\Controllers\Api\ProductController@product_login_see');
        Route::get('/solid_properties', 'App\Http\Controllers\Api\ProductOrderController@solid_properties');
