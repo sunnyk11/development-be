@@ -257,14 +257,10 @@ class ProductController extends Controller
             return response()->json([
             'data' =>$product,
           ], 201);
-        }
-        
-        
+        }        
     }
 
      public function product_login_see(Request $request){
-
-
         $request->validate([
             'id' => 'required',
         ]);
@@ -274,6 +270,7 @@ class ProductController extends Controller
 
         // $product_id_func = product::find($prod_id)->productid;
          $product = product::where(['delete_flag'=> '0','draft'=> '0','id'=>$prod_id])->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail','Property_Type')->orderBy('id', 'desc')->first();
+
            product::where('id', $request->prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);;
 
             return response()-> json([

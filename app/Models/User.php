@@ -64,5 +64,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function productdetails()
+    {
+        return $this->hasMany('App\Models\product', 'user_id','id')->with('amenities','Property_Type','product_comparision','product_img','Single_wishlist','product_order_status')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0','enabled' => 'yes']);
+    }
+
+
 
 }

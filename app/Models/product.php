@@ -121,7 +121,7 @@ class product extends Model
     }
     public function product_img()
     {
-        return $this->hasMany('App\Models\Product_img', 'product_id','id');
+        return $this->hasMany('App\Models\Product_img', 'product_id','id')->where('status', '1');
     }
     public function Property_Type()
     {
@@ -131,6 +131,11 @@ class product extends Model
     // {
     //     return $this->hasOne('App\Models\product_order', 'product_id','product_uid')->where('transaction_status', 'TXN_SUCCESS');
     // }
+
+    public function product_order()
+    {
+        return $this->hasOne('App\Models\product_order', 'id','product_id')->where(['status'=> '1']);
+    }
  
     public function Pro_order()
      {

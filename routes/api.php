@@ -111,6 +111,8 @@ Route::group([
         
         Route::post('generate_invoice', 'App\Http\Controllers\PlansController@generate_invoice');
         Route::post('generate_rent_invoice', 'App\Http\Controllers\PlansController@generate_rent_invoice');
+
+        Route::post('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');
         
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
@@ -216,8 +218,6 @@ Route::group([
         Route::post('/getarea_user_details', 'App\Http\Controllers\Api\AreaServiceUserController@user_details_byId');
         
         Route::post('/star_ratingbyId', 'App\Http\Controllers\Api\AreaServiceUserController@star_ratingbyId');
-
-
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });
