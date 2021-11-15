@@ -28,10 +28,11 @@ class UserProductCountController extends Controller
 
      public function count_byID(Request $request)
     {
+
         $request->validate([
-            'prod_id' => 'required',
+            'id' => 'required',
         ]);
-            $prod_id = $request->prod_id;
+            $prod_id = $request->id;
             $user_id = Auth::user()->id;
 
             $User_productCount = UserProductCount::where('user_id',$user_id)->where('product_id',$prod_id)->get();

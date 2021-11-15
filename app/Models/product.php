@@ -98,7 +98,7 @@ class product extends Model
     {
 
         $user_id = Auth::user()->id;
-        return $this->hasOne('App\Models\Product_Comparision', 'product_id','id')->where('status', '1')->where('user_id', $user_id)->orderBy('id', 'asc')->take(4);
+        return $this->hasOne('App\Models\Product_Comparision', 'product_id','id')->where('status', '1')->where('user_id', $user_id)->orderBy('id', 'asc');
     }
 
     public function Single_wishlist()
@@ -121,7 +121,7 @@ class product extends Model
     }
     public function product_img()
     {
-        return $this->hasMany('App\Models\Product_img', 'product_id','id');
+        return $this->hasMany('App\Models\Product_img', 'product_id','id')->where('status', '1');
     }
     public function Property_Type()
     {
@@ -131,6 +131,11 @@ class product extends Model
     // {
     //     return $this->hasOne('App\Models\product_order', 'product_id','product_uid')->where('transaction_status', 'TXN_SUCCESS');
     // }
+
+    public function product_order()
+    {
+        return $this->hasOne('App\Models\product_order', 'id','product_id')->where(['status'=> '1']);
+    }
  
     public function Pro_order()
      {
@@ -149,6 +154,9 @@ class product extends Model
         }
         if ($searchTerm->data['location']) {
            $query = $query->where('address', 'like', "%" . $searchTerm->data['location'] . "%");
+        }
+        if ($searchTerm->data['city']) {
+           $query = $query->where('city', 'like', "%" . $searchTerm->data['city'] . "%");
         }
         if ($searchTerm->data['area_unit']) {
             $query = $query->where('area_unit', $searchTerm->data['area_unit']);
