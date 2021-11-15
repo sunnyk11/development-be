@@ -404,7 +404,7 @@ class PaymentController extends Controller
             }
             else {
                 plansRentOrders::where('order_id', $request->ORDERID)->update(['payment_status' => 'FAIL']);
-                $angular_url = env('angular_url').'productlisting?'.'status='.$request->RESPCODE;
+                $angular_url = env('angular_url').'product-listing?'.'status='.$request->RESPCODE;
             }
             
             return response()->redirectTo($angular_url);     

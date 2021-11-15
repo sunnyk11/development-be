@@ -149,6 +149,7 @@ class PlansController extends Controller
     }
 
     public function post_selected_rent_plan(Request $request) {
+
         $request->validate([
             'user_id' => 'required',
             'user_email' => 'required',
