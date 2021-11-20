@@ -14,6 +14,6 @@ class Property_type extends Model
     ];
     public function Product_type_count()
     {
-        return $this->hasMany('App\Models\product', 'type','id')->select('type');
+        return $this->hasMany('App\Models\product', 'type','id')->select('type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes']);
     }
 }

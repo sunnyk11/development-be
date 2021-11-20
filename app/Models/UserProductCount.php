@@ -13,7 +13,7 @@ class UserProductCount extends Model
     ];
      public function productdetails()
     {
-        return $this->hasOne('App\Models\product','id','product_id')->where('delete_flag', 0);
+        return $this->hasOne('App\Models\product','id','product_id')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes']);
     }
     public function UserDetail()
     {

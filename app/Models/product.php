@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ProductAmenties;
+use App\Models\Property_type;
 use Auth;
 
 class product extends Model
@@ -162,8 +163,10 @@ class product extends Model
             $query = $query->where('area_unit', $searchTerm->data['area_unit']);
         }
         if ($searchTerm->data['type']) {
-            $type_value=(int)$searchTerm->data['type'];
-            $query = $query->where('type', $type_value);
+            $type_id = Property_type::where('name','like', "%" .$searchTerm->data['type'] . "%")->first();
+
+            // $type_value=(int)$searchTerm->data['type'];
+            $query = $query->where('type', $type_id['id']);
         }
         if ($searchTerm->data['bathrooms']) {
             $query = $query->where('bathroom', $searchTerm->data['bathrooms']);
@@ -197,7 +200,7 @@ class product extends Model
             $query = $query->orderBy('id', 'desc')->take(6);
         }
         if ($searchTerm->data['property_status']== "viewed") {
-            $query = $query->where('view_counter', '>=',5)->orderBy('view_counter', 'desc');
+            $query = $query->where('view_counter', '>=',10)->orderBy('view_counter', 'desc');
         } 
         if ($searchTerm->amenities) {
             $amenities_data = ProductAmenties::select('product_id')->whereIn('amenties',$searchTerm->amenities)->get();
