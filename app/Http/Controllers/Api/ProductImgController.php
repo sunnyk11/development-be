@@ -108,7 +108,7 @@ class ProductImgController extends Controller
         Product_img::where([ 'user_id'=> $user_id,'product_id'=> $pro_id , 'id'=>$request->product_id ])->delete();
 
         return response()->json([
-            'message' => 'Successfully deleted Product img',
+            'message' => 'Image Successfully deleted',
         ], 201);
 
     }

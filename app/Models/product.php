@@ -163,10 +163,10 @@ class product extends Model
             $query = $query->where('area_unit', $searchTerm->data['area_unit']);
         }
         if ($searchTerm->data['type']) {
-            $type_id = Property_type::where('name','like', "%" .$searchTerm->data['type'] . "%")->first();
+            // $type_id = Property_type::where('name','like', "%" .$searchTerm->data['type'] . "%")->first();
 
-            // $type_value=(int)$searchTerm->data['type'];
-            $query = $query->where('type', $type_id['id']);
+            // $type_value=$searchTerm->data['type'];
+            $query = $query->where('type','like', "%" .$searchTerm->data['type'] . "%");
         }
         if ($searchTerm->data['bathrooms']) {
             $query = $query->where('bathroom', $searchTerm->data['bathrooms']);

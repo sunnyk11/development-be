@@ -128,6 +128,7 @@ Route::group([
     Route::get('/feature_property', 'App\Http\Controllers\Api\ProductController@feature_property');
     Route::get('/getRecently_viewProperty', 'App\Http\Controllers\Api\ProductController@Recently_view');
     Route::get('/get_product', 'App\Http\Controllers\Api\ProductController@product_city_details');
+     Route::get('/property_category', 'App\Http\Controllers\Api\ProductController@product_category_details');
     Route::get('/get_product_featured', 'App\Http\Controllers\Api\ProductController@index_featured');
     Route::get('/product_list_featured', 'App\Http\Controllers\Api\ProductController@product_list_featured');
     Route::get('/seeto', 'App\Http\Controllers\Api\ProductController@product_index');
@@ -158,7 +159,7 @@ Route::group([
     Route::group([
         'middleware' => 'auth:api'
     ], function () {
-        Route::post('/product_Rent_update', 'App\Http\Controllers\Api\ProductController@update_Rent_product');
+        Route::post('/product_rent_update', 'App\Http\Controllers\Api\ProductController@product_rent_update');
         Route::post('/product_sales_update', 'App\Http\Controllers\Api\ProductController@update_Sales_product');
 
         Route::post('/city_search_login', 'App\Http\Controllers\Api\ProductController@city_search_login_uesr');
@@ -194,7 +195,7 @@ Route::group([
         Route::get('/lawyer_service', 'App\Http\Controllers\Api\LawyerController@lawyer_service');
         Route::post('/lawyer_service_delete', 'App\Http\Controllers\Api\LawyerController@lawyer_service_delete');
         Route::post('/product_searching_login', 'App\Http\Controllers\Api\ProductController@User_propertysearchlist');
-        Route::post('/Propery_get_id', 'App\Http\Controllers\Api\ProductController@Propery_get_id');
+        Route::post('/property_get_id', 'App\Http\Controllers\Api\ProductController@property_get_id');
         Route::get('get_product_wishlist', 'App\Http\Controllers\Api\ProductController@index_featured_wishlist');
         Route::get('/product_listing_wishlist', 'App\Http\Controllers\Api\ProductController@product_listing_wishlist');
 
