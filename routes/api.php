@@ -185,7 +185,7 @@ Route::group([
 
          Route::post('/delete_pro_img', 'App\Http\Controllers\Api\ProductImgController@delete_pro_img');
         Route::get('/agent_properties', 'App\Http\Controllers\Api\ProductController@agent_properties');
-        Route::get('/Draft_properties', 'App\Http\Controllers\Api\ProductController@Draft_properties');
+        Route::get('/draft_properties', 'App\Http\Controllers\Api\ProductController@Draft_properties');
 
         Route::post('/insert_product_sale', 'App\Http\Controllers\Api\ProductController@first');
         Route::post('/insert_product_rent', 'App\Http\Controllers\Api\ProductController@second');

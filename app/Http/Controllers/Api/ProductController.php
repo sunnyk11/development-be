@@ -758,6 +758,7 @@ class ProductController extends Controller
         $data->draft=$data4['draft_form_id'];
         $data->rent_cond =1;
         $data->video_link = $video_link;
+        $data->enabled = 'yes';
         $data->save();
         $product_id=$data1['draft_form_id'];
        $user_id = Auth::user()->id;
@@ -845,6 +846,7 @@ class ProductController extends Controller
             'rent_cond' =>1,
             'video_link'=>$video_link,
             'draft' =>$data4['draft_form_id'],
+            'enabled' => 'yes',
             // 'possession_by' => $request->possession_by ,
             // 'brokerage_charges' => $request->brokerage_charges ,
             ]);
@@ -907,13 +909,9 @@ class ProductController extends Controller
     }
 
     public function delete_product (Request $request){
-
-
         $request->validate([
             'product_id' => 'required',
         ]);
-
-
         $product_userid = product::where('id', $request->product_id)->value('user_id');
         $user_id = Auth::user()->id;
 
@@ -1279,7 +1277,7 @@ class ProductController extends Controller
         $product_id=$request->id;
        $user_id = Auth::user()->id;
 
-
+      if($data3['furnishings']== 1){
        // check amenties
        $amenities_check=$request->amenties;
        $length=count($amenities_check);
@@ -1299,6 +1297,33 @@ class ProductController extends Controller
                 }
             }
         }
+
+    }else{
+        if($request->amenties){
+           // uncheck Amenties
+           $amenity_Uncheck=$request->amenties;
+           $Uncheck_length=count($amenity_Uncheck);
+           if($Uncheck_length>0){
+                foreach ($amenity_Uncheck as $uncheck_amen) {
+                    $Uncheck_Amenties = [
+                        'amenties' =>$uncheck_amen,
+                        'user_id' => $user_id,
+                        'product_id' => $product_id
+                    ];
+
+                    $Amenties_uncheck_Count = ProductAmenties::where('user_id',$user_id)->where('product_id',$product_id)->where('amenties',$Uncheck_Amenties['amenties'])->get();
+                    $count = count($Amenties_uncheck_Count);
+                    
+                    if($count>0){
+                    ProductAmenties::where($Uncheck_Amenties)->delete();
+                    }
+                }
+            }   
+        }
+
+    }
+
+
 
 
         return response() -> json([
@@ -1468,17 +1493,12 @@ class ProductController extends Controller
        $user_id = Auth::user()->id;
         //$product = product::where('id', $request->id)->where('user_id',$user_id)->with('amenities','product_img','Property_Type','locality')->first();
         $product = product::where('id', $request->id)->where('user_id',$user_id)->with('amenities','product_img')->first();
-       
-       if($product){
             return response()->json([
                 'data' => $product
             ]);
-       }else{
-            $product=['id'=>0];
             return response()->json([
                 'data' => $product
             ]);
-        }
     }
 
     public function get_product_details(Request $request) {
