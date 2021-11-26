@@ -782,7 +782,7 @@ class ProductController extends Controller
             }
         }
         return response() -> json([
-                'message' => 'Draft Rent Property For Updated',
+                'message' => 'Successfully Updated',
                 'last_id' => $data1['draft_form_id'],
         ]);
       }else{
@@ -901,7 +901,7 @@ class ProductController extends Controller
 
             }
             return response()->json([
-                'message' => 'Rent Property Successfully created',
+                'message' => 'Successfully created',
                 'last_id' => $lastid,
             ], 201);
       }
@@ -1252,8 +1252,13 @@ class ProductController extends Controller
         $data->furnishing_status = $data3['furnishings'];
         $data->month_of_notice = $data3['notice_month'];
         $data->additional_parking_status = $data3['reserved_parking'];
-        $data->parking_covered_count = $data3['parking_covered_count'];
-        $data->parking_open_count = $data3['parking_open_count'];
+        if($data3['reserved_parking'] == 1){
+            $data->parking_covered_count = $data3['parking_covered_count'];
+            $data->parking_open_count = $data3['parking_open_count']; 
+        }else{
+            $data->parking_covered_count =null;
+            $data->parking_open_count =null;
+        }
         $data->total_floors = $data3['total_floors'];
         $data->property_on_floor = $data3['property_floor'];
         $data->willing_to_rent_out_to = $data3['willing_to_rent'];
@@ -1264,10 +1269,19 @@ class ProductController extends Controller
         $data->expected_rent = $data4['expected_rent'];
         $data->rent_availability =1;
         $data->maintenance_charge_status = $data4['maintenance_charge_status'];
-        $data->maintenance_charge = $data4['maintenance_charge'];
-        $data->maintenance_charge_condition =$data4['maintenance_charge_condition'];
-        $data->price_negotiable =$data4['price_negotiable'];
+        if($data4['maintenance_charge_status'] == 1){
+            $data->maintenance_charge = $data4['maintenance_charge'];
+            $data->maintenance_charge_condition =$data4['maintenance_charge_condition'];
+        }else{
+            $data->maintenance_charge_condition =null;
+            $data->maintenance_charge =null;
+        }
         $data->negotiable_status=$data4['price_negotiable_status'];
+        if($data4['price_negotiable_status'] == 1){
+        $data->price_negotiable =$data4['price_negotiable'];
+        }else{
+           $data->price_negotiable =null;
+        }
         $data->security_deposit=$data4['security_deposit'];
         $data->tax_govt_charge = $data4['tax_govt_charge'];
         $data->draft=$data4['draft_form_id'];
@@ -1322,12 +1336,8 @@ class ProductController extends Controller
         }
 
     }
-
-
-
-
         return response() -> json([
-            'message' => 'Rent Property Successfully Updated',
+            'message' => 'Successfully Updated',
             'data' => $data
         ]);
 
