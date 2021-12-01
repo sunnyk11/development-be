@@ -101,6 +101,17 @@ class PlansController extends Controller
     public function get_letout_plans() {
         return $letout_plans = DB::table('let_out_plans')->get();
     }
+    public function getLetOutPlans_Features() {
+         $letout_plans = DB::table('let_out_plans')->get();
+
+         $letout_features = DB::table('let_out_features')->orderBy('id')->select(DB::raw('feature_name, group_concat(feature_details) as feature_details'))->groupBy('feature_name')->get();
+         return response()->json([
+            'letout_plans' =>$letout_plans,
+            'letout_features' =>$letout_features,
+          ], 201);
+
+    }
+    
 
     public function get_rent_features() {
         //return $rent_features = DB::table('rent_features')->groupBy('feature_name')->get();
@@ -114,6 +125,7 @@ class PlansController extends Controller
     }
 
     public function post_selected_plan(Request $request) {
+        // return $request->all();
         $request->validate([
             'user_id' => 'required',
             'user_email' => 'required',
@@ -198,6 +210,7 @@ class PlansController extends Controller
     }
 
     public function get_order_details($orderID) {
+         // $orderID = $request->input('orderID');
         return $order_details = DB::table('plans_orders')->where('order_id', $orderID)->get();
     }
 
@@ -209,6 +222,17 @@ class PlansController extends Controller
         return $order_details = DB::table('invoices')->where('invoice_no', $invoiceID)->get();
     }
 
+    public function product_invoice_Details(request $request) {
+        $productID = $request->input('productID');
+        $invoiceID = $request->input('invoiceID');
+       $order_details = DB::table('invoices')->where('invoice_no', $invoiceID)->first();
+
+       $property_details = DB::table('products')->where('product_uid', $productID)->first();
+        return response()->json([
+            'order_details' =>$order_details,
+            'property_details' =>$property_details,
+          ], 201);
+    }
     public function get_user_invoices($emailID) {
         return $invoice_details = DB::table('invoices')->where([
             ['user_email', $emailID],
@@ -244,8 +268,9 @@ class PlansController extends Controller
     }
 
     public function update_invoice_details(Request $request) {
-        
-        invoices::where('invoice_no', $request->invoice_no)->update(['plan_status' => 'used', 'property_uid' => $request->product_id, 'property_amount' => $request->product_price]);
+
+        product::where('product_uid', $request->product_id)->update(['enabled' => 'yes']);        
+        invoices::where('invoice_no', $request->invoice_id)->update(['plan_status' => 'used', 'property_uid' => $request->product_id, 'property_amount' => $request->product_price]);
 
         return response()->json([
             'message' => 'Invoice details updated'

@@ -36,10 +36,10 @@ class ProductController extends Controller
     }
     public function product_city_details()
     {
-        $product_data=product::where('delete_flag', '0')->orderBy('id', 'asc')->get(); 
+        $product_data=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
         $grouped = $product_data->groupBy('city')->map(function ($row) {return $row->count();});
 
-      $data=product::select('id','city')->where('delete_flag', '0')->groupBy('city')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
+      $data=product::select('id','city')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('city')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
 
         $city_data=[];
         foreach ($data as $key => $value) {
@@ -54,10 +54,10 @@ class ProductController extends Controller
 
     public function product_category_details()
     {
-        $product_data=product::where('delete_flag', '0')->orderBy('id', 'asc')->get(); 
+        $product_data=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
         $grouped = $product_data->groupBy('type')->map(function ($row) {return $row->count();});
 
-      $data=product::select('id','type')->where('delete_flag', '0')->groupBy('type')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
+      $data=product::select('id','type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('type')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
 
         $category_data=[];
         foreach ($data as $key => $value) {
@@ -247,6 +247,7 @@ class ProductController extends Controller
     }
     public function User_propertysearchlist(Request $request)
     {
+      // return $request->data['bedrooms'];
        $user_id = Auth::user()->id;
         $product = product::with('UserDetail','amenities','product_img','product_comparision')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->orderBy('id', 'desc')->get();
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
@@ -424,19 +425,23 @@ class ProductController extends Controller
     }
 
     public function first(Request $request){
-      if($request->draft_form_id){
-        $product = product::where('id', $request->draft_form_id)->with('amenities')->first();
+     
+      $data1=$request->form_step1;
+      $data2=$request->form_step2;
+      $data3=$request->form_step3;
+      $data4=$request->form_step4;
 
-        $data = product::find($request->draft_form_id);
+      if($data1['draft_form_id']>0){
+        $product = product::where('id', $data1['draft_form_id'])->with('amenities')->first();
+        $data = product::find($data1['draft_form_id']);
 
         $usertype = Auth::user()->usertype;
-
-        $product_id=$request->draft_form_id;
-        $user_id = Auth::user()->id;
-        $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
-      
-         $additional_rooms=implode(',',$request->additional_rooms);
-         // return $additional_rooms;
+            
+        $product_id=$data1['draft_form_id'];
+       $user_id = Auth::user()->id;
+        $video_link=str_replace("https://www.youtube.com/watch?v=","",$data4['video_link']);
+         $addtional_room=implode(',',$request->rooms);
+          $product_uid= rand (1000,9999).time();
         // inserted images functionalty
         $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
             $product_id)->get();
@@ -444,7 +449,7 @@ class ProductController extends Controller
 
        // product images functionalty
         if($db_img_length<5){
-            $product_image= $request->input('product_image');
+            $product_image= $request->input('images');
             $Product_img_length=count($product_image);   
             if($Product_img_length>0){
                 foreach ($product_image as $value) {
@@ -464,68 +469,71 @@ class ProductController extends Controller
                 
             }
         }
-        // $product_uid= rand (10,100).time();
 
         // $data->product_uid= $product_uid;
-        $data->address = $request->address;
-        $data->city = $request->city;
-        $data->rent_cond = $request->rent_cond;
-        $data->possession_by = $request->possession_by;
-        $data->locality = $request->locality;
-        $data->display_address = $request->display_address;
-        $data->ownership = $request->ownership;
-        $data->expected_pricing = $request->expected_pricing;
-        $data->inclusive_pricing_details = $request->inclusive_pricing_details;
-        $data->tax_govt_charge = $request->tax_govt_charge;
-        $data->price_negotiable = $request->price_negotiable;
-        $data->maintenance_charge_status = $request->maintenance_charge_status;
-        $data->maintenance_charge = $request->maintenance_charge;
-        $data->maintenance_charge_condition = $request->maintenance_charge_condition;
-        $data->deposit = $request->deposit;
-        $data->brokerage_charges = $request->brokerage_charges;
-        $data->type = $request->type;
-        $data->bedroom = $request->bedroom;
-        $data->bathroom = $request->bathroom;
-        $data->balconies = $request->balconies;
-        $data->additional_rooms =$additional_rooms;
-        $data->additional_rooms_status=$request->additional_rooms_status;
-        $data->furnishing_status = $request->furnishing_status;
-        $data->furnishings = $request->furnishings;
-        $data->total_floors = $request->total_floors;
-        $data->property_on_floor = $request->property_on_floor;
-        $data->rera_registration_status = $request->rera_registration_status;
-        // $data->amenities = $request->amenities;
-        $data->facing_towards = $request->facing_towards;
-        $data->additional_parking_status = $request->additional_parking_status;
-        // $data->description = $request->description;
-        $data->parking_covered_count = $request->parking_covered_count;
-        $data->parking_open_count = $request->parking_open_count;
-        $data->availability_condition = $request->availability_condition;
-        $data->buildyear = $request->buildyear;
-        $data->month_of_notice = $request->month_of_notice;
-        $data->equipment = $request->equipment;
-        $data->features = $request->features;
-        $data->nearby_places = $request->nearby_places;
-        $data->area = $request->area;
-        $data->area_unit = $request->area_unit;
-        $data->carpet_area = $request->carpet_area;
-        $data->property_detail = $request->property_detail;
-        $data->build_name = $request->build_name;
-        $data->nearest_landmark = $request->nearest_landmark;
-        $data->map_latitude = $request->map_latitude;
-        $data->map_longitude = $request->map_longitude;
+        // $data->user_id= $user_id;
+        $data->build_name = $data1['property_name'];
+        $data->type = $data1['property_type'];
+        $data->bedroom = $data1['bedrooms'];
+        $data->bathroom = $data1['bathrooms'];
+        $data->balconies =  $data1['balconies'];
+        $data->area = $data1['property_area'];
+        $data->area_unit =$data1['area_unit'];
+        $data->property_detail = $data1['property_desc'];
+
+        // step 2
+        $data->address = $data2['address'];
+        $data->city = $data2['city'];
+        $data->locality =$data2['locality'];
+        $data->nearest_landmark = $data2['nearest_place'];
+        $data->map_latitude = $data2['map_latitude'];
+        $data->map_longitude = $data2['map_longitude'];
+        $data->pincode= $data2['pincode'];
+
+        // step 3
+        $data->additional_rooms=$addtional_room;
+        $data->additional_rooms_status=$data3['additional_rooms'];
+        $data->agreement_type=$data3['agreement_type'];
+        $data->duration_of_rent_aggreement=$data3['agreement_duration'];
+        $data->availability_condition = $data3['availability_condition'];
+        $data->available_for = $data3['available_date'];
+        $data->rera_registration_status = $data3['rera_registration_status'];
+        $data->facing_towards = $data3['facing_towards'];
+        $data->furnishing_status = $data3['furnishings'];
+        $data->month_of_notice = $data3['notice_month'];
+        $data->additional_parking_status = $data3['reserved_parking'];
+        $data->parking_covered_count = $data3['parking_covered_count'];
+        $data->parking_open_count = $data3['parking_open_count'];
+        $data->total_floors = $data3['total_floors'];
+        $data->property_on_floor = $data3['property_floor'];
+        $data->willing_to_rent_out_to = $data3['willing_to_rent'];
+        $data->buildyear = $data3['year_built'];
+        $data->possession_by = $data3['possession_by'];
+
+        // step 4
+        $data->inc_electricity_and_water_bill = $data4['electricity_water'];
+        $data->expected_pricing = $data4['expected_pricing'];
+        $data->sale_availability =1;
+        $data->maintenance_charge_status = $data4['maintenance_charge_status'];
+        $data->maintenance_charge = $data4['maintenance_charge'];
+        $data->maintenance_charge_condition =$data4['maintenance_charge_condition'];
+        $data->price_negotiable =$data4['price_negotiable'];
+        $data->negotiable_status=$data4['price_negotiable_status'];
+        $data->ownership=$data4['ownership'];
+        $data->tax_govt_charge = $data4['tax_govt_charge'];
+        $data->draft=$data4['draft_form_id'];
         $data->video_link = $video_link;
-        $data->pincode=$request->pincode;
-        $data->negotiable_status=$request->negotiable_status;
-        $data->draft=$request->draft;
+        $data->enabled = 'yes';
         $data->save();
-       // check amenties
-       $amenities=$request->amenities;
-       $length=count($amenities);
+        $product_id=$data1['draft_form_id'];
+       $user_id = Auth::user()->id;
+       // check amenties 
+       $amenities_check=$request->amenties;
+       $length=count($amenities_check);
        if($length>0){
-           for($i=0; $i<$length;$i++){
+            foreach ($amenities_check as $Check_amenities) {
                 $ProductAmenties = [
-                    'amenties' =>$amenities[$i],
+                    'amenties' =>$Check_amenities,
                     'user_id' => $user_id,
                     'product_id' => $product_id
                 ];
@@ -539,79 +547,86 @@ class ProductController extends Controller
             }
         }
         return response() -> json([
-                'message' => 'Sales Property Draft Updated',
-                'last_id' => $request->draft_form_id,
+                'message' => 'Successfully Updated',
+                'last_id' => $data1['draft_form_id'],
         ]);
-        }else{
-           $user_id = Auth::user()->id;
-        $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
-         $addtional_room=implode(',',$request->additional_rooms);
+      }else{
+        $user_id = Auth::user()->id;
+        $video_link=str_replace("https://www.youtube.com/watch?v=","",$data4['video_link']);
 
-        $product_uid= rand (1000,9999).time();
+         $addtional_room=implode(',',$request->rooms);
+           
+         $product_uid= rand (1000,9999).time();
 
-        $product_data = new Product([
+            $product_data = new Product([
+            'user_id' => $user_id ,
             'product_uid' => $product_uid,
-            'user_id' => $user_id,
-            'build_name' => $request->build_name,
-            'type' => $request->type,
-            'address' => $request->address,
-            'city' => $request->city,
-            'locality' => json_encode($request->locality),
-            'pincode' => $request->pincode,
-            'property_detail' => $request->property_detail,
-            'nearest_landmark' => $request->nearest_landmark,
-            'map_latitude' => $request->map_latitude,
-            'map_longitude' => $request->map_longitude,
-            'display_address' => $request->display_address,
-            'area' => $request->area,
-            'area_unit' => $request->area_unit,
-            'carpet_area' => $request->carpet_area,
-            'bedroom' => $request->bedroom,
-            'bathroom' => $request->bathroom,
-            'balconies' => $request->balconies,
-            'additional_rooms_status'=>$request->additional_rooms_status,
-            'additional_rooms' => $addtional_room,
-            'furnishing_status' => $request->furnishing_status,
-            'furnishings' => json_encode($request->furnishings),
-            'total_floors' => $request->total_floors,
-            'property_on_floor' => $request->property_on_floor,
-            'rera_registration_status' => $request->rera_registration_status,
-            'additional_parking_status' => $request->additional_parking_status,
-            'parking_covered_count' => $request->parking_covered_count,
-            'parking_open_count' => $request->parking_open_count,
-            'sale_availability' => $request->sale_availability,
-            'possession_by' => $request->possession_by,
-            'ownership' => $request->ownership,
-            'expected_pricing' => $request->expected_pricing,
-            'inclusive_pricing_details' => $request->inclusive_pricing_details,
-            'tax_govt_charge' => $request->tax_govt_charge,
-            'price_negotiable' => $request->price_negotiable,
-            'negotiable_status' => $request->negotiable_status,
-            'maintenance_charge_status' => $request->maintenance_charge_status,
-            'maintenance_charge' => $request->maintenance_charge,
-            'maintenance_charge_condition' => $request->maintenance_charge_condition,
-            'deposit' => $request->deposit,
-            'brokerage_charges' => $request->brokerage_charges,
-            'facing_towards' => $request->facing_towards,
-            'availability_condition' => $request->availability_condition,
-            // 'amenities' => json_encode($request->amenities),
-            'buildyear' => $request->buildyear,
-            // 'description' => $request->description,
-            'equipment' => $request->equipment,
-            'features' => $request->features,
-            'nearby_places' => $request->nearby_places,
-            'video_link'=>$video_link,
-            'draft' => $request->draft,
-        ]);
-        $user_type = Auth::user()->usertype;
+            'build_name' =>$data1['property_name'],
+            'type' =>$data1['property_type'],
+            'bedroom' => $data1['bedrooms'],
+            'bathroom' => $data1['bathrooms'],
+            'balconies' => $data1['balconies'],
+            'area' => $data1['property_area'],
+            'area_unit' => $data1['area_unit'],
+            'property_detail' =>$data1['property_desc'],
 
-        if ($user_type == 1)
-            return response()->json([
-                'message' => 'Unauthorised User',
-            ], 401); 
-        $product_data->save();
-        $lastid=$product_data->id;
-        eventtracker::create(['symbol_code' => '8', 'event' => Auth::user()->name.' created a new property listing for sale.']);
+            // step 2
+            'address' => $data2['address'],
+            'city' => $data2['city'],
+            'locality' =>  $data2['locality'],
+            'nearest_landmark' =>  $data2['nearest_place'],
+            'map_latitude' => $data2['map_latitude'],
+            'map_longitude' => $data2['map_longitude'],
+            'pincode' =>  $data2['pincode'],
+
+            // step 3
+            'additional_rooms_status' => $data3['additional_rooms'],
+            'additional_rooms' => $addtional_room,
+            'agreement_type' =>$data3['agreement_type'],
+            'duration_of_rent_aggreement' =>$data3['agreement_duration'] ,
+            'availability_condition' => $data3['availability_condition'],
+            'available_for' =>$data3['available_date'],
+            'rera_registration_status' =>$data3['rera_registration_status'],
+            'facing_towards'=>$data3['facing_towards'],
+            'furnishing_status'=>$data3['furnishings'],
+            'month_of_notice'=>$data3['notice_month'],
+            'additional_parking_status' =>$data3['reserved_parking'],
+            'parking_covered_count' => $data3['parking_covered_count'],
+            'parking_open_count' =>$data3['parking_open_count'],
+            'property_on_floor' =>$data3['property_floor'],
+            'total_floors' =>$data3['total_floors'],
+            'willing_to_rent_out_to' =>$data3['willing_to_rent'],
+            'buildyear' =>$data3['year_built'],
+            'possession_by' =>$data3['possession_by'],
+
+            // step 4
+            'inc_electricity_and_water_bill' => $data4['electricity_water'],
+            'expected_pricing' =>$data4['expected_pricing'],
+            'sale_availability' =>1,
+            'maintenance_charge_status' =>$data4['maintenance_charge_status'],
+            'maintenance_charge' =>$data4['maintenance_charge'],
+            'maintenance_charge_condition' =>$data4['maintenance_charge_condition'],
+            'price_negotiable' =>$data4['price_negotiable'],
+            'negotiable_status' =>$data4['price_negotiable_status'],
+            'ownership' =>$data4['ownership'],
+            'tax_govt_charge' =>$data4['tax_govt_charge'],
+            'video_link'=>$video_link,
+            'draft' =>$data4['draft_form_id'],
+            'enabled' => 'yes',
+            // 'possession_by' => $request->possession_by ,
+            // 'brokerage_charges' => $request->brokerage_charges ,
+            ]);
+
+            $user_type = Auth::user()->usertype;
+
+            if ($user_type == 1)
+                return response()->json([
+                    'message' => 'Unauthorised User',
+                ], 201);
+
+            $product_data->save();
+            $lastid=$product_data->id;
+            eventtracker::create(['symbol_code' => '8', 'event' => Auth::user()->name.' created a new property listing for rent.']);
 
        
          $product_id=$product_data->id;
@@ -619,10 +634,9 @@ class ProductController extends Controller
         $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
             $product_id)->get();
         $db_img_length=count($DB_img);
-         
         // product images functionalty
         if($db_img_length<5){
-           $product_image= $request->input('product_image');
+           $product_image= $request->input('images');
            $Product_img_length=count($product_image);   
             if($Product_img_length>0){
                 foreach ($product_image as $value) {   
@@ -641,8 +655,7 @@ class ProductController extends Controller
             }
         }
 
-           $user_id = Auth::user()->id;
-           $amenities=$request->amenities;
+           $amenities=$request->amenties;
            $length=count($amenities);
             foreach ($amenities as $amenties_value) {   
              $ProductAmenties = [
@@ -651,13 +664,14 @@ class ProductController extends Controller
                     'product_id' => $product_id
                 ];
                 ProductAmenties::create($ProductAmenties);
+
             }
-        return response()->json([
-                'message' => 'Sales Property Successfully created',
+            return response()->json([
+                'message' => 'Successfully created',
                 'last_id' => $lastid,
             ], 201);
-         
-        }
+      }
+
     }
 
     public function second(Request $request)
@@ -758,7 +772,6 @@ class ProductController extends Controller
         $data->draft=$data4['draft_form_id'];
         $data->rent_cond =1;
         $data->video_link = $video_link;
-        $data->enabled = 'yes';
         $data->save();
         $product_id=$data1['draft_form_id'];
        $user_id = Auth::user()->id;
@@ -846,7 +859,6 @@ class ProductController extends Controller
             'rent_cond' =>1,
             'video_link'=>$video_link,
             'draft' =>$data4['draft_form_id'],
-            'enabled' => 'yes',
             // 'possession_by' => $request->possession_by ,
             // 'brokerage_charges' => $request->brokerage_charges ,
             ]);
@@ -990,67 +1002,32 @@ class ProductController extends Controller
             'wishlist_count'  =>$wishlist_data,
         ], 200);
     }
- public function update_Sales_product(Request $request){
+    public function update_Sales_product(Request $request){
+      $data1=$request->form_step1;
+      $data2=$request->form_step2;
+      $data3=$request->form_step3;
+      $data4=$request->form_step4;
         $request -> validate([
-            'id' => 'required',
-            // 'address' => 'required',
-            // 'city' => 'required',
-            // 'possession_by' => 'required',
-            // 'locality' => 'required',
-            // 'display_address' => 'required',
-            // 'tax_govt_charge' => 'required',
-            // 'price_negotiable' => 'required',
-            // 'type' => 'required',
-            // 'bedroom' => 'required',
-            // 'bathroom' => 'required',
-            // 'balconies' => 'required',
-            // 'additional_rooms' => 'required',
-            // 'total_floors' => 'required',
-            // 'property_on_floor' => 'required',
-            // 'rera_registration_status' => 'required',
-            // 'facing_towards' => 'required',
-            // 'additional_parking_status' => 'required',
-            // // 'description' => 'required',
-            // 'availability_condition' => 'required',
-            // 'buildyear' => 'required',
-            // 'equipment' => 'required',
-            // 'features' => 'required',
-            // 'area' => 'required',
-            // 'area_unit' => 'required',
-            // 'carpet_area' => 'required',
-            // 'property_detail' => 'required',
-            // 'build_name' => 'required',
-            // 'nearest_landmark' => 'required',
+            'id' => 'required'
         ]);
         $product = product::where('id', $request->id)->with('amenities')->first();
 
-        
-
         $data = product::find($request->id);
-
         $usertype = Auth::user()->usertype;
-
-        // if($usertype <6 ){
-        //     return response()->json([
-        //         'unauthorised',
-        //     ], 401);
-        // }
-
-
+            
         $product_id=$request->id;
        $user_id = Auth::user()->id;
-        $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
-      
-         $additional_rooms=implode(',',$request->additional_rooms);
+        $video_link=str_replace("https://www.youtube.com/watch?v=","",$data4['video_link']);
+       
+         $addtional_room=implode(',',$request->rooms);
          // return $additional_rooms;
         // inserted images functionalty
-        $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
-            $product_id)->get();
+        $DB_img=Product_img::where('user_id', $user_id)->where('product_id', $product_id)->get();
         $db_img_length=count($DB_img);
 
        // product images functionalty
         if($db_img_length<5){
-            $product_image= $request->input('product_image');
+            $product_image= $request->input('images');
             $Product_img_length=count($product_image);   
             if($Product_img_length>0){
                 foreach ($product_image as $value) {
@@ -1071,90 +1048,85 @@ class ProductController extends Controller
             }
         }
 
-        $data->address = $request->address;
-        $data->city = $request->city;
-        $data->rent_cond = $request->rent_cond;
-        $data->possession_by = $request->possession_by;
-        $data->locality = $request->locality;
-        $data->display_address = $request->display_address;
-        $data->ownership = $request->ownership;
-        $data->expected_pricing = $request->expected_pricing;
-        $data->inclusive_pricing_details = $request->inclusive_pricing_details;
-        $data->tax_govt_charge = $request->tax_govt_charge;
-        $data->price_negotiable = $request->price_negotiable;
-        $data->maintenance_charge_status = $request->maintenance_charge_status;
-        $data->maintenance_charge = $request->maintenance_charge;
-        $data->maintenance_charge_condition = $request->maintenance_charge_condition;
-        $data->deposit = $request->deposit;
-        $data->brokerage_charges = $request->brokerage_charges;
-        $data->type = $request->type;
-        $data->bedroom = $request->bedroom;
-        $data->bathroom = $request->bathroom;
-        $data->balconies = $request->balconies;
-        $data->additional_rooms =$additional_rooms;
-        $data->additional_rooms_status=$request->additional_rooms_status;
-        $data->furnishing_status = $request->furnishing_status;
-        $data->furnishings = $request->furnishings;
-        $data->total_floors = $request->total_floors;
-        $data->property_on_floor = $request->property_on_floor;
-        $data->rera_registration_status = $request->rera_registration_status;
-        // $data->amenities = $request->amenities;
-        $data->facing_towards = $request->facing_towards;
-        $data->additional_parking_status = $request->additional_parking_status;
-        // $data->description = $request->description;
-        $data->parking_covered_count = $request->parking_covered_count;
-        $data->parking_open_count = $request->parking_open_count;
-        $data->availability_condition = $request->availability_condition;
-        $data->buildyear = $request->buildyear;
-        $data->month_of_notice = $request->month_of_notice;
-        $data->equipment = $request->equipment;
-        $data->features = $request->features;
-        $data->nearby_places = $request->nearby_places;
-        $data->area = $request->area;
-        $data->area_unit = $request->area_unit;
-        $data->carpet_area = $request->carpet_area;
-        $data->property_detail = $request->property_detail;
-        $data->build_name = $request->build_name;
-        $data->nearest_landmark = $request->nearest_landmark;
-        $data->map_latitude = $request->map_latitude;
-        $data->map_longitude = $request->map_longitude;
-        $data->video_link = $video_link;
-        $data->pincode=$request->pincode;
-        $data->negotiable_status=$request->negotiable_status;
-        $data->draft=$request->draft;
+        // $data->product_uid= $product_uid;
+        // $data->user_id= $user_id;
+        $data->build_name = $data1['property_name'];
+        $data->type = $data1['property_type'];
+        $data->bedroom = $data1['bedrooms'];
+        $data->bathroom = $data1['bathrooms'];
+        $data->balconies =  $data1['balconies'];
+        $data->area = $data1['property_area'];
+        $data->area_unit =$data1['area_unit'];
+        $data->property_detail = $data1['property_desc'];
 
-        $data->save();
+        // step 2
+        $data->address = $data2['address'];
+        $data->city = $data2['city'];
+        $data->locality =$data2['locality'];
+        $data->nearest_landmark = $data2['nearest_place'];
+        $data->map_latitude = $data2['map_latitude'];
+        $data->map_longitude = $data2['map_longitude'];
+        $data->pincode= $data2['pincode'];
 
-
-
-       // uncheck Amenties
-       $amenity_Uncheck=$request->amenity_Uncheck;
-       $Uncheck_length=count($amenity_Uncheck);
-       if($Uncheck_length>0){
-           for($i=0; $i<$Uncheck_length;$i++){
-                $Uncheck_Amenties = [
-                    'amenties' =>$amenity_Uncheck[$i],
-                    'user_id' => $user_id,
-                    'product_id' => $product_id
-                ];
-
-                $Amenties_uncheck_Count = ProductAmenties::where('user_id',$user_id)->where('product_id',$product_id)->where('amenties',$Uncheck_Amenties['amenties'])->get();
-                $count = count($Amenties_uncheck_Count);
-                
-                if($count>0){
-                ProductAmenties::where($Uncheck_Amenties)->delete();
-                }
-            }
+        // step 3
+        $data->additional_rooms=$addtional_room;
+        $data->additional_rooms_status=$data3['additional_rooms'];
+        $data->agreement_type=$data3['agreement_type'];
+        $data->duration_of_rent_aggreement=$data3['agreement_duration'];
+        $data->availability_condition = $data3['availability_condition'];
+        $data->rera_registration_status = $data3['rera_registration_status'];
+        $data->available_for = $data3['available_date'];
+        $data->facing_towards = $data3['facing_towards'];
+        $data->furnishing_status = $data3['furnishings'];
+        $data->month_of_notice = $data3['notice_month'];
+        $data->additional_parking_status = $data3['reserved_parking'];
+        if($data3['reserved_parking'] == 1){
+            $data->parking_covered_count = $data3['parking_covered_count'];
+            $data->parking_open_count = $data3['parking_open_count']; 
+        }else{
+            $data->parking_covered_count =null;
+            $data->parking_open_count =null;
         }
+        $data->total_floors = $data3['total_floors'];
+        $data->property_on_floor = $data3['property_floor'];
+        $data->willing_to_rent_out_to = $data3['willing_to_rent'];
+        $data->buildyear = $data3['year_built'];
+        $data->possession_by = $data3['possession_by'];
 
+        // step 4
+        $data->inc_electricity_and_water_bill = $data4['electricity_water'];
+        $data->expected_pricing = $data4['expected_pricing'];
+        $data->sale_availability =1;
+        $data->maintenance_charge_status = $data4['maintenance_charge_status'];
+        if($data4['maintenance_charge_status'] == 1){
+            $data->maintenance_charge = $data4['maintenance_charge'];
+            $data->maintenance_charge_condition =$data4['maintenance_charge_condition'];
+        }else{
+            $data->maintenance_charge_condition =null;
+            $data->maintenance_charge =null;
+        }
+        $data->negotiable_status=$data4['price_negotiable_status'];
+        if($data4['price_negotiable_status'] == 1){
+        $data->price_negotiable =$data4['price_negotiable'];
+        }else{
+           $data->price_negotiable =null;
+        }
+        $data->ownership=$data4['ownership'];
+        $data->tax_govt_charge = $data4['tax_govt_charge'];
+        $data->draft=$data4['draft_form_id'];
+        $data->video_link = $video_link;
+        $data->save();
+        $product_id=$request->id;
+       $user_id = Auth::user()->id;
 
+      if($data3['furnishings']== 1){
        // check amenties
-       $amenities=$request->amenities;
-       $length=count($amenities);
+       $amenities_check=$request->amenties;
+       $length=count($amenities_check);
        if($length>0){
-           for($i=0; $i<$length;$i++){
+            foreach ($amenities_check as $Check_amenities) {
                 $ProductAmenties = [
-                    'amenties' =>$amenities[$i],
+                    'amenties' =>$Check_amenities,
                     'user_id' => $user_id,
                     'product_id' => $product_id
                 ];
@@ -1168,10 +1140,35 @@ class ProductController extends Controller
             }
         }
 
+    }else{
+        if($request->amenties){
+           // uncheck Amenties
+           $amenity_Uncheck=$request->amenties;
+           $Uncheck_length=count($amenity_Uncheck);
+           if($Uncheck_length>0){
+                foreach ($amenity_Uncheck as $uncheck_amen) {
+                    $Uncheck_Amenties = [
+                        'amenties' =>$uncheck_amen,
+                        'user_id' => $user_id,
+                        'product_id' => $product_id
+                    ];
 
+                    $Amenties_uncheck_Count = ProductAmenties::where('user_id',$user_id)->where('product_id',$product_id)->where('amenties',$Uncheck_Amenties['amenties'])->get();
+                    $count = count($Amenties_uncheck_Count);
+                    
+                    if($count>0){
+                    ProductAmenties::where($Uncheck_Amenties)->delete();
+                    }
+                }
+            }   
+        }
+
+    }
         return response() -> json([
+            'message' => 'Successfully Updated',
             'data' => $data
         ]);
+
 
     }
      public function product_rent_update(Request $request)
@@ -1563,5 +1560,18 @@ class ProductController extends Controller
     public function destroy(product $product)
     {
         //
+    }
+     public function delete_video(Request $request){
+
+        $request->validate([
+            'product_id' => 'required',
+            'video'=>'required',
+        ]);
+        product::where([ 'video_link'=> $request->video,'id'=>$request->product_id ])->update(['video_link' => '']);
+
+        return response()->json([
+            'message' => 'Video Successfully deleted',
+        ], 201);
+
     }
 }

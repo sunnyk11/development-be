@@ -1010,7 +1010,7 @@ class AuthController extends Controller
         }
     }
 
-    public function user_fetch_details(Request $request){
+    public function user_fetch_details1(Request $request){
         if($request->mobile_no != null){
             $request->validate([
                 'mobile_no' => 'required|integer|digits:10',
@@ -1025,6 +1025,33 @@ class AuthController extends Controller
             $data=[];
              $data['mobile_no'] = $request->mobile_no;
              $data['email'] = $request->email;
+
+            $data = user::where(['other_mobile_number'=>$data['mobile_no']])->orwhere(['email'=> $data['email']])->with('productdetails')->get();
+            return response()->json([
+            'data' =>$data,
+          ], 201);
+
+        }catch (\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+     public function user_fetch_details(Request $request){
+        $mobile_no = $request->input('mobile_no');
+        $email = $request->input('email');
+        if($mobile_no != null){
+            $request->validate([
+                'mobile_no' => 'required|integer|digits:10',
+            ]);
+        }
+        if($email != null){
+            $request->validate([
+                'email' => 'required|email|min:7',
+            ]);
+        }
+        try{
+            $data=[];
+             $data['mobile_no'] = $mobile_no;
+             $data['email'] = $email;
 
             $data = user::where(['other_mobile_number'=>$data['mobile_no']])->orwhere(['email'=> $data['email']])->with('productdetails')->get();
             return response()->json([
