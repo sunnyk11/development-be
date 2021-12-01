@@ -70,33 +70,30 @@ class AmenitiesSeeder extends Seeder
           ['id' => 23,'name' => 'Stove','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
 
-          ['id' => 24,'name' => 'Microwave','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+          ['id' => 24,'name' => 'Exhaust Fan','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
 
-          ['id' => 25,'name' => 'Exhaust Fan','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+          ['id' => 25,'name' => 'Geyser','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
 
-          ['id' => 26,'name' => 'Geyser','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+          ['id' => 26,'name' => 'Washing Machine','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
 
-          ['id' => 27,'name' => 'Washing Machine','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+          ['id' => 27,'name' => 'Curtains','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
 
-          ['id' => 28,'name' => 'Curtains','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+          ['id' => 28,'name' => 'Sofa','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
 
-          ['id' => 29,'name' => 'Sofa','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+          ['id' => 29,'name' => 'Tv','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
 
-          ['id' => 30,'name' => 'Tv','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+          ['id' => 30,'name' => 'Water Purified','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
 
-          ['id' => 31,'name' => 'Water Purified','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+          ['id' => 31,'name' => 'Chimney','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
-
-          ['id' => 32,'name' => 'Chimney','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
-
-          ['id' => 33,'name' => 'Dinning Table','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
+          ['id' => 32,'name' => 'Dinning Table','created_at' => date('Y-m-d H:m:s'),'updated_at' => date('Y-m-d H:m:s')],
 
        ];
 

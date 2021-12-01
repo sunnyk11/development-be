@@ -33,6 +33,7 @@ Route::middleware('auth:api')->delete('posts/delete/{slug}', 'App\Http\Controlle
 
 Route::get('get_rent_plans', 'App\Http\Controllers\PlansController@get_rent_plans');
 Route::get('get_letout_plans', 'App\Http\Controllers\PlansController@get_letout_plans');
+Route::get('getLetOutPlans_Features', 'App\Http\Controllers\PlansController@getLetOutPlans_Features');
 Route::get('get_rent_features', 'App\Http\Controllers\PlansController@get_rent_features');
 Route::get('get_letout_features', 'App\Http\Controllers\PlansController@get_letout_features');
 Route::post('get_product_details', 'App\Http\Controllers\Api\ProductController@get_product_details');
@@ -97,6 +98,7 @@ Route::group([
         Route::get('get_order_details/{id}', 'App\Http\Controllers\PlansController@get_order_details');
         Route::get('get_rent_order_details/{id}', 'App\Http\Controllers\PlansController@get_rent_order_details');
         Route::get('get_invoice_details/{id}', 'App\Http\Controllers\PlansController@get_invoice_details');
+        Route::get('product_invoice_Details', 'App\Http\Controllers\PlansController@product_invoice_Details');
         Route::get('get_user_invoices/{id}', 'App\Http\Controllers\PlansController@get_user_invoices');
         Route::get('get_all_user_invoices/{id}', 'App\Http\Controllers\PlansController@get_all_user_invoices');
         Route::get('get_rented_properties/{id}', 'App\Http\Controllers\PlansController@get_rented_properties');
@@ -112,7 +114,8 @@ Route::group([
         Route::post('generate_invoice', 'App\Http\Controllers\PlansController@generate_invoice');
         Route::post('generate_rent_invoice', 'App\Http\Controllers\PlansController@generate_rent_invoice');
 
-        Route::post('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');
+        Route::post('/user_fetch_details1', 'App\Http\Controllers\Api\AuthController@user_fetch_details1');
+        Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');
         
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
@@ -182,6 +185,8 @@ Route::group([
         Route::get('/views', 'App\Http\Controllers\Api\ProductController@dashboard_indexer');
 
         Route::post('/delete_product', 'App\Http\Controllers\Api\ProductController@delete_product');
+
+        Route::post('/delete_video', 'App\Http\Controllers\Api\ProductController@delete_video');
 
          Route::post('/delete_pro_img', 'App\Http\Controllers\Api\ProductImgController@delete_pro_img');
         Route::get('/agent_properties', 'App\Http\Controllers\Api\ProductController@agent_properties');

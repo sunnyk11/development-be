@@ -273,7 +273,7 @@ class PaymentController extends Controller
                 } */
                 
                 //$angular_url = env('angular_url').'invoice?'.'invoice_no='.$invoice_id;
-                $angular_url = env('angular_url').'myproperties';
+                $angular_url = env('angular_url').'agent/my-properties';
             }
             else {
                 plansOrders::where('order_id', $request->ORDERID)->update(['payment_status' => 'FAIL']);
