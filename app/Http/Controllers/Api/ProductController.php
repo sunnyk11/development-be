@@ -423,6 +423,7 @@ class ProductController extends Controller
         ]);
 
     }
+    
 
     public function first(Request $request){
      
@@ -493,20 +494,15 @@ class ProductController extends Controller
         // step 3
         $data->additional_rooms=$addtional_room;
         $data->additional_rooms_status=$data3['additional_rooms'];
-        $data->agreement_type=$data3['agreement_type'];
-        $data->duration_of_rent_aggreement=$data3['agreement_duration'];
         $data->availability_condition = $data3['availability_condition'];
-        $data->available_for = $data3['available_date'];
         $data->rera_registration_status = $data3['rera_registration_status'];
         $data->facing_towards = $data3['facing_towards'];
         $data->furnishing_status = $data3['furnishings'];
-        $data->month_of_notice = $data3['notice_month'];
         $data->additional_parking_status = $data3['reserved_parking'];
         $data->parking_covered_count = $data3['parking_covered_count'];
         $data->parking_open_count = $data3['parking_open_count'];
         $data->total_floors = $data3['total_floors'];
         $data->property_on_floor = $data3['property_floor'];
-        $data->willing_to_rent_out_to = $data3['willing_to_rent'];
         $data->buildyear = $data3['year_built'];
         $data->possession_by = $data3['possession_by'];
 
@@ -582,20 +578,15 @@ class ProductController extends Controller
             // step 3
             'additional_rooms_status' => $data3['additional_rooms'],
             'additional_rooms' => $addtional_room,
-            'agreement_type' =>$data3['agreement_type'],
-            'duration_of_rent_aggreement' =>$data3['agreement_duration'] ,
             'availability_condition' => $data3['availability_condition'],
-            'available_for' =>$data3['available_date'],
             'rera_registration_status' =>$data3['rera_registration_status'],
             'facing_towards'=>$data3['facing_towards'],
             'furnishing_status'=>$data3['furnishings'],
-            'month_of_notice'=>$data3['notice_month'],
             'additional_parking_status' =>$data3['reserved_parking'],
             'parking_covered_count' => $data3['parking_covered_count'],
             'parking_open_count' =>$data3['parking_open_count'],
             'property_on_floor' =>$data3['property_floor'],
             'total_floors' =>$data3['total_floors'],
-            'willing_to_rent_out_to' =>$data3['willing_to_rent'],
             'buildyear' =>$data3['year_built'],
             'possession_by' =>$data3['possession_by'],
 
@@ -1071,14 +1062,10 @@ class ProductController extends Controller
         // step 3
         $data->additional_rooms=$addtional_room;
         $data->additional_rooms_status=$data3['additional_rooms'];
-        $data->agreement_type=$data3['agreement_type'];
-        $data->duration_of_rent_aggreement=$data3['agreement_duration'];
         $data->availability_condition = $data3['availability_condition'];
         $data->rera_registration_status = $data3['rera_registration_status'];
-        $data->available_for = $data3['available_date'];
         $data->facing_towards = $data3['facing_towards'];
         $data->furnishing_status = $data3['furnishings'];
-        $data->month_of_notice = $data3['notice_month'];
         $data->additional_parking_status = $data3['reserved_parking'];
         if($data3['reserved_parking'] == 1){
             $data->parking_covered_count = $data3['parking_covered_count'];
@@ -1089,7 +1076,6 @@ class ProductController extends Controller
         }
         $data->total_floors = $data3['total_floors'];
         $data->property_on_floor = $data3['property_floor'];
-        $data->willing_to_rent_out_to = $data3['willing_to_rent'];
         $data->buildyear = $data3['year_built'];
         $data->possession_by = $data3['possession_by'];
 
