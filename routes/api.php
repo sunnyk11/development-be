@@ -244,6 +244,8 @@ Route::group([
         Route::post('/user_page', 'App\Http\Controllers\Api\AdminController@user_check');
         Route::post('/user_update', 'App\Http\Controllers\Api\AdminController@user_update');
         Route::post('/user_update_new', 'App\Http\Controllers\Api\AdminController@user_update_new');
+		Route::post('/profile_username_update', 'App\Http\Controllers\Api\AdminController@profile_username_update');
+        Route::post('/profile_mobile_update', 'App\Http\Controllers\Api\AdminController@profile_mobile_update');
         Route::post('/admin_loans', 'App\Http\Controllers\Api\LoansController@first');
         Route::post('/loan_delete', 'App\Http\Controllers\Api\LoansController@loan_delete');
         Route::get('/user_index', 'App\Http\Controllers\Api\AdminController@user_index_admin');

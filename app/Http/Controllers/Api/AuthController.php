@@ -898,7 +898,8 @@ class AuthController extends Controller
         User::where('id', $request['id'])->update(['profile_pic' => $newPostImageName]);
 
         return response() -> json ([
-            'message' => 'The profile picture has been updated'
+            'message' => 'The profile picture has been updated',
+			'data' => $newPostImageName
         ], 201); 
     }													  
     public function change_password(Request $request)

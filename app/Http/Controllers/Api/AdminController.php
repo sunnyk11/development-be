@@ -147,6 +147,53 @@ class AdminController extends Controller
         ], 201);
     } */
 
+    public function profile_username_update(Request $request) {
+        $request -> validate([
+            'id' => 'required' ,
+            'name' => 'required' 
+            ]);
+
+        $data = user::find($request->id);   
+        $data->name = $request->name;
+        $data->save();
+        $updated_data = user::find($request->id);
+
+        return response()->json([
+            'data' => $data,
+            'update_data' => $updated_data,
+            'message' => "Successfully Updated"
+        ], 201);
+    }
+
+    public function profile_mobile_update(Request $request) {
+        $request -> validate([
+            'id' => 'required' ,
+            'other_mobile_number' => 'unique:users'
+            ]);
+
+        $data = user::find($request->id);  
+        $data->other_mobile_number = $request->other_mobile_number;    
+        $data->phone_number_verification_status = 0;
+
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $twilio->verify->v2->services($twilio_verify_sid)
+            ->verifications
+            ->create("+91".$request->other_mobile_number, "sms");  
+
+        $data->save();    
+
+        $updated_data = user::find($request->id);
+
+        return response()->json([
+            'data' => $data,
+            'update_data' => $updated_data,
+            'message' => "Successfully Updated"
+        ], 201);    
+    }
+
     public function user_update_new(Request $request)
     {
         $usertype = Auth::user()->usertype;
@@ -154,7 +201,7 @@ class AdminController extends Controller
         $request -> validate([
         'id' => 'required' ,
         'name' => '' ,
-        'other_mobile_number' => 'unique:users'
+        'other_mobile_number' => 'required|unique:users'
         ]);
 
         $data = user::find($request->id);

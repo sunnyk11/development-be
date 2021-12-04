@@ -680,7 +680,6 @@ class ProductController extends Controller
       $data2=$request->form_step2;
       $data3=$request->form_step3;
       $data4=$request->form_step4;
-
       if($data1['draft_form_id']>0){
         $product = product::where('id', $data1['draft_form_id'])->with('amenities')->first();
         $data = product::find($data1['draft_form_id']);
@@ -821,7 +820,7 @@ class ProductController extends Controller
             // step 2
             'address' => $data2['address'],
             'city' => $data2['city'],
-            'locality' =>  $data2['locality'],
+            'locality' =>  json_encode($data2['locality']),
             'nearest_landmark' =>  $data2['nearest_place'],
             'map_latitude' => $data2['map_latitude'],
             'map_longitude' => $data2['map_longitude'],
