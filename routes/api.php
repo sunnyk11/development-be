@@ -39,6 +39,12 @@ Route::get('get_letout_features', 'App\Http\Controllers\PlansController@get_leto
 Route::post('get_product_details', 'App\Http\Controllers\Api\ProductController@get_product_details');
 
 Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
+Route::get('check_email/{email}', 'App\Http\Controllers\Api\AuthController@check_email');
+Route::post('reset_password_send_otp', 'App\Http\Controllers\Api\AuthController@reset_password_send_otp');
+Route::post('reset_password_verify_otp', 'App\Http\Controllers\Api\AuthController@reset_password_verify_otp');
+Route::post('reset_password', 'App\Http\Controllers\Api\AuthController@reset_password');
+Route::post('reset_send_otp_email', 'App\Http\Controllers\Api\AuthController@reset_send_otp_email');
+Route::post('rp_verify_otp_email', 'App\Http\Controllers\Api\AuthController@rp_verify_otp_email');
 
 Route::group([
     'prefix' => 'auth'

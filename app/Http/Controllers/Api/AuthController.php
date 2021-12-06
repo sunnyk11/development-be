@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use DB;
 use Illuminate\Support\Facades\Http;
+use Mail;
+use Illuminate\Support\Facades\Crypt;
 
 class AuthController extends Controller
 {
@@ -136,6 +138,131 @@ class AuthController extends Controller
             ->create("+91".$request->other_mobile_number, "sms");
 
     } 
+
+    public function reset_password_send_otp(Request $request) {
+
+        $data = $request->validate([
+            'phone_number' => ['required', 'numeric']
+        ]);
+
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $twilio->verify->v2->services($twilio_verify_sid)
+            ->verifications
+            ->create("+91".$data['phone_number'], "sms");
+
+        return response()->json([
+            'message' => 'OTP Sent',
+            'status' => 'Success'
+        ], 201);
+    }
+
+    public function reset_password_verify_otp(Request $request) {
+
+        $data = $request->validate([
+            'verification_code' => ['required', 'numeric'],
+            'phone_number' => ['required', 'numeric']
+        ]);
+
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $verification = $twilio->verify->v2->services($twilio_verify_sid)
+            ->verificationChecks
+            ->create($data['verification_code'], array('to' => "+91".$data['phone_number']));
+
+        if ($verification->valid) {
+            return response()->json([
+                'message' => 'OTP Verified',
+                'status' => 'Success'
+            ], 201);
+        }
+        return response()->json([
+            'message' => 'verification error'
+        ], 401);
+    }
+
+    public function reset_password(Request $request) {
+
+        $request->validate([
+            'new_password' => 'required|min:6',
+            'confirm_password' => 'required|same:new_password',
+            'email' => 'required'			
+        ]);
+
+        User::where('email', $request->email)->update(['password' => bcrypt($request->new_password)]);
+
+        return response()->json([
+            'message' => 'Password Reset Successful',
+            'status' => 'Success'
+        ], 201);
+    }
+
+    public function reset_send_otp_email(Request $request) {
+
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $sid = getenv("TWILIO_SID");
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($sid, $token);
+
+        $verification = $twilio->verify->v2->services($twilio_verify_sid)
+                                   ->verifications
+                                   ->create($request->email, "email");   
+        
+         return response() -> json([
+             'message' => 'The email has been sent'
+         ], 201); 
+
+        // $otp = random_int(100000, 999999);
+        // $data = [
+        //     'otp' => $otp
+        //   ];
+
+        // Mail::send('otp', $data, function($message) use ($request) {
+        //     $message->from('support@housingstreet.com');
+        //     $message->to($request->email)->subject('OTP Verification');
+        // });
+
+        // return response() -> json ([
+        //     'message' => 'The email has been sent'
+        // ], 201); 
+
+    }
+
+    public function rp_verify_otp_email(Request $request) {
+
+        $data = $request->validate([
+            'verification_code' => ['required', 'numeric'],
+            'email' => ['required']
+        ]);
+
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $verification_check = $twilio->verify->v2->services($twilio_verify_sid)
+                                         ->verificationChecks
+                                         ->create($data['verification_code'],
+                                                  ["to" => $data['email']]
+                                         );
+
+        if ($verification_check->valid) {
+            return response()->json([
+                'message' => 'OTP Verified',
+                'status' => 'Success'
+            ], 201);
+        }
+        return response()->json([
+            'message' => 'verification error'
+        ], 401);
+    }
 
     /* Code added by Radhika Start */
 
@@ -901,7 +1028,20 @@ class AuthController extends Controller
             'message' => 'The profile picture has been updated',
 			'data' => $newPostImageName
         ], 201); 
-    }													  
+    }		
+    
+    public function check_email($email) {
+        //$phone = DB::table('users')->where('email', $email)->value('other_mobile_number');
+        if(DB::table('users')->where('email', $email)->exists()) {
+            $phone = DB::table('users')->where('email', $email)->value('other_mobile_number');
+            return $phone;
+        }
+        else {
+            return 0;
+        }
+        
+    }
+    
     public function change_password(Request $request)
     {
         $input = $request->all();
