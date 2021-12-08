@@ -66,7 +66,7 @@ class User extends Authenticatable
 
     public function productdetails()
     {
-        return $this->hasMany('App\Models\product', 'user_id','id')->with('amenities','product_comparision','product_img','Single_wishlist','product_order')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0','enabled' => 'yes']);
+        return $this->hasMany('App\Models\product', 'user_id','id')->with('amenities','product_comp','product_img','product_wishlist_crm','product_order')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0','enabled' => 'yes']);
     }
 
 

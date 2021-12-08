@@ -998,7 +998,7 @@ class AuthController extends Controller
     }
 
     public function get_pincodebyid(Request $request) {
-         $data = DB::table('areas')->select('area','pincode','id')->where('id', $request->id)->first();
+         $data = DB::table('areas')->select('area','pincode','id')->where('area', $request->id)->first();
         return response()->json([
             'data' =>$data,
         ], 200);
@@ -1150,32 +1150,6 @@ class AuthController extends Controller
             //     ]);
         }
     }
-
-    public function user_fetch_details1(Request $request){
-        if($request->mobile_no != null){
-            $request->validate([
-                'mobile_no' => 'required|integer|digits:10',
-            ]);
-        }
-        if($request->email != null){
-            $request->validate([
-                'email' => 'required|email|min:7',
-            ]);
-        }
-        try{
-            $data=[];
-             $data['mobile_no'] = $request->mobile_no;
-             $data['email'] = $request->email;
-
-            $data = user::where(['other_mobile_number'=>$data['mobile_no']])->orwhere(['email'=> $data['email']])->with('productdetails')->get();
-            return response()->json([
-            'data' =>$data,
-          ], 201);
-
-        }catch (\Exception $e) {
-            return $this->getExceptionResponse($e);
-        }
-    }
      public function user_fetch_details(Request $request){
         $mobile_no = $request->input('mobile_no');
         $email = $request->input('email');
@@ -1190,16 +1164,27 @@ class AuthController extends Controller
             ]);
         }
         try{
-            $data=[];
-             $data['mobile_no'] = $mobile_no;
-             $data['email'] = $email;
+            $token  = $request->header('authorization');
+            $webToken = date('d:m:Y') . '-housingstreet';
+            $test2 = Crypt::encryptString($webToken);
+           // algorithm
+                $ciphering ="AES-256-CBC";
+                $option=0;
+                $decryption_key="";
+                $decryption_iv="12345678912345678912345678912345";
+                $token_decrypted =openssl_decrypt(str_replace("Bearer ","",$token), $ciphering,$decryption_iv,$option,$decryption_key);
+            // algorithm
+            if($webToken == $token_decrypted){
+                // return ['e'=>$email,'mobile_no'=>$mobile_no];
+                 $data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
+                    return response()->json([
+                    'data' =>$data,
+                  ], 201);
 
-            $data = user::where(['other_mobile_number'=>$data['mobile_no']])->orwhere(['email'=> $data['email']])->with('productdetails')->get();
-            return response()->json([
-            'data' =>$data,
-          ], 201);
-
-        }catch (\Exception $e) {
+            }else{
+                return 'Unauthication';
+            }
+        }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
         }
     }

@@ -22,7 +22,8 @@ use Illuminate\Support\Facades\Route;
 //Route::resource('/blog', PostsController::class);
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
 Route::resource('property_type', 'App\Http\Controllers\Api\PropertyTypeController');
-Route::post('contact-form', 'App\Http\Controllers\ContactController@store');																			
+Route::post('contact-form', 'App\Http\Controllers\ContactController@store');
+Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');																			
 Route::middleware('auth:api')->post('posts', 'App\Http\Controllers\PostController@store');
 Route::get('posts', 'App\Http\Controllers\PostController@index');
 Route::get('posts_latest', 'App\Http\Controllers\PostController@index_latest');
@@ -120,9 +121,7 @@ Route::group([
         Route::post('generate_invoice', 'App\Http\Controllers\PlansController@generate_invoice');
         Route::post('generate_rent_invoice', 'App\Http\Controllers\PlansController@generate_rent_invoice');
 
-        Route::post('/user_fetch_details1', 'App\Http\Controllers\Api\AuthController@user_fetch_details1');
-        Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');
-        
+       
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });

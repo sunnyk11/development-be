@@ -108,6 +108,15 @@ class product extends Model
         $user_id = Auth::user()->id;
         return $this->hasOne('App\Models\Wishlist', 'product_id','id')->where('user_id', $user_id)->where('status', '1');
     }
+    
+    public function product_wishlist_crm()
+    {
+        return $this->hasOne('App\Models\Wishlist', 'product_id','user_id')->where('status', '1');
+    }
+    public function product_comp()
+    {
+        return $this->hasOne('App\Models\Product_Comparision', 'product_id','user_id')->where('status', '1')->orderBy('id', 'asc');
+    }
     public function wishlist()
     {
         return $this->hasMany('App\Models\Wishlist', 'product_id','id');
@@ -202,6 +211,10 @@ class product extends Model
         if ($searchTerm->data['property_status']== "viewed") {
             $query = $query->where('view_counter', '>=',10)->orderBy('view_counter', 'desc');
         } 
+        if ($searchTerm->data['locality']) {
+
+            $query = $query->where('locality', $searchTerm->data['locality']);
+        }
         if ($searchTerm->amenities) {
             $amenities_data = ProductAmenties::select('product_id')->whereIn('amenties',$searchTerm->amenities)->get();
              $amenitiesID=json_decode(json_encode($amenities_data), true);

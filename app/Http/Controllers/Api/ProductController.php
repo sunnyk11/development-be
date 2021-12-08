@@ -36,6 +36,11 @@ class ProductController extends Controller
     }
     public function product_city_details()
     {
+      // Chattarpur location data
+      $locality_data=product::where(['locality' =>'Chattarpur', 'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
+        $Chattarpur_data = $locality_data->groupBy('locality')->map(function ($row) {return $row->count();});
+
+      // all data for delhi location 
         $product_data=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
         $grouped = $product_data->groupBy('city')->map(function ($row) {return $row->count();});
 
@@ -48,7 +53,8 @@ class ProductController extends Controller
                 array_push($city_data,$count);
         }
         return response()->json([
-            'data'=>$city_data 
+            'data'=>$city_data,
+            'Chattarpur_data'=>$Chattarpur_data 
         ], 200);
     }
 
@@ -671,6 +677,7 @@ class ProductController extends Controller
       $data2=$request->form_step2;
       $data3=$request->form_step3;
       $data4=$request->form_step4;
+
       if($data1['draft_form_id']>0){
         $product = product::where('id', $data1['draft_form_id'])->with('amenities')->first();
         $data = product::find($data1['draft_form_id']);
@@ -735,7 +742,6 @@ class ProductController extends Controller
         $data->additional_rooms_status=$data3['additional_rooms'];
         $data->agreement_type=$data3['agreement_type'];
         $data->duration_of_rent_aggreement=$data3['agreement_duration'];
-        $data->availability_condition = $data3['availability_condition'];
         $data->available_for = $data3['available_date'];
         $data->facing_towards = $data3['facing_towards'];
         $data->furnishing_status = $data3['furnishings'];
@@ -758,7 +764,7 @@ class ProductController extends Controller
         $data->price_negotiable =$data4['price_negotiable'];
         $data->negotiable_status=$data4['price_negotiable_status'];
         $data->security_deposit=$data4['security_deposit'];
-        $data->tax_govt_charge = $data4['tax_govt_charge'];
+        // $data->tax_govt_charge = $data4['tax_govt_charge'];
         $data->draft=$data4['draft_form_id'];
         $data->rent_cond =1;
         $data->video_link = $video_link;
@@ -811,7 +817,7 @@ class ProductController extends Controller
             // step 2
             'address' => $data2['address'],
             'city' => $data2['city'],
-            'locality' =>  json_encode($data2['locality']),
+            'locality' =>  $data2['locality'],
             'nearest_landmark' =>  $data2['nearest_place'],
             'map_latitude' => $data2['map_latitude'],
             'map_longitude' => $data2['map_longitude'],
@@ -822,7 +828,6 @@ class ProductController extends Controller
             'additional_rooms' => $addtional_room,
             'agreement_type' =>$data3['agreement_type'],
             'duration_of_rent_aggreement' =>$data3['agreement_duration'] ,
-            'availability_condition' => $data3['availability_condition'],
             'available_for' =>$data3['available_date'],
             'facing_towards'=>$data3['facing_towards'],
             'furnishing_status'=>$data3['furnishings'],
@@ -845,7 +850,7 @@ class ProductController extends Controller
             'price_negotiable' =>$data4['price_negotiable'],
             'negotiable_status' =>$data4['price_negotiable_status'],
             'security_deposit' =>$data4['security_deposit'],
-            'tax_govt_charge' =>$data4['tax_govt_charge'],
+            // 'tax_govt_charge' =>$data4['tax_govt_charge'],
             'rent_cond' =>1,
             'video_link'=>$video_link,
             'draft' =>$data4['draft_form_id'],
@@ -1228,7 +1233,7 @@ class ProductController extends Controller
         $data->additional_rooms_status=$data3['additional_rooms'];
         $data->agreement_type=$data3['agreement_type'];
         $data->duration_of_rent_aggreement=$data3['agreement_duration'];
-        $data->availability_condition = $data3['availability_condition'];
+        // $data->availability_condition = $data3['availability_condition'];
         $data->available_for = $data3['available_date'];
         $data->facing_towards = $data3['facing_towards'];
         $data->furnishing_status = $data3['furnishings'];
@@ -1265,7 +1270,7 @@ class ProductController extends Controller
            $data->price_negotiable =null;
         }
         $data->security_deposit=$data4['security_deposit'];
-        $data->tax_govt_charge = $data4['tax_govt_charge'];
+        // $data->tax_govt_charge = $data4['tax_govt_charge'];
         $data->draft=$data4['draft_form_id'];
         $data->rent_cond =1;
         $data->video_link = $video_link;
