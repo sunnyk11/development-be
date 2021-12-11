@@ -1165,17 +1165,8 @@ class AuthController extends Controller
         }
         try{
             $token  = $request->header('authorization');
-            $webToken = date('d:m:Y') . '-housingstreet';
-            $test2 = Crypt::encryptString($webToken);
-           // algorithm
-                $ciphering ="AES-256-CBC";
-                $option=0;
-                $decryption_key="";
-                $decryption_iv="12345678912345678912345678912345";
-                $token_decrypted =openssl_decrypt(str_replace("Bearer ","",$token), $ciphering,$decryption_iv,$option,$decryption_key);
-            // algorithm
-            if($webToken == $token_decrypted){
-                // return ['e'=>$email,'mobile_no'=>$mobile_no];
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
                  $data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
                     return response()->json([
                     'data' =>$data,
