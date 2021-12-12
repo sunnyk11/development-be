@@ -4,31 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\ServiceProvider;
-use App\Models\localarea;
 
-class AreaServiceUser extends Model
+class service_userlist extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','user_name', 'contact', 'service_id','status'];
-   
+    protected $fillable = ['user_id','user_name', 'contact','status'];
 
     public function service()
     {
-        return $this->hasOne('App\Models\AreaService', 'service_id','service_id');
+        return $this->hasOne('App\Models\User_service_mapping', 'user_id','user_id')->with('service');
     }
+    
     public function user_review()
     {
         return $this->hasMany('App\Models\ServiceUserReviews', 's_user_id','user_id');
     }
     public function user_service()
     {
-        return $this->hasMany('App\Models\AreaService', 'service_id','service_id');
+        return $this->hasMany('App\Models\User_service_mapping', 'user_id','user_id')->with('service');
     }
     public function user_local_area()
     {
         return $this->hasMany('App\Models\ServiceUserReviews', 'user_id','user_id');
+    }
+    public function local_area_user()
+    {
+        return $this->hasone('App\Models\user_service_provider', 'user_id','user_id')->with('area_user');
     }
 
     public function scopeSearch($query, $searchTerm) {

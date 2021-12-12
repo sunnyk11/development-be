@@ -4,16 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\ServiceProvider;
-use App\Models\localarea;
 
-class AreaServiceUser extends Model
+class User_service_mapping extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','user_name', 'contact', 'service_id','status'];
-   
-
+    protected $fillable = ['user_id','service_id','status'];
     public function service()
     {
         return $this->hasOne('App\Models\AreaService', 'service_id','service_id');
@@ -22,9 +18,9 @@ class AreaServiceUser extends Model
     {
         return $this->hasMany('App\Models\ServiceUserReviews', 's_user_id','user_id');
     }
-    public function user_service()
+    public function service_user()
     {
-        return $this->hasMany('App\Models\AreaService', 'service_id','service_id');
+        return $this->hasOne('App\Models\service_userlist', 'user_id','user_id');
     }
     public function user_local_area()
     {
@@ -41,7 +37,7 @@ class AreaServiceUser extends Model
             for($i=0; $i<$length; $i++){
                 array_push($area_id,$AreaId[$i]['loc_area_id']);
             }
-            $LocalArea = ServiceProvider::whereIn('loc_area_id', $area_id)->get();
+            $LocalArea = user_service_provider::whereIn('loc_area_id', $area_id)->get();
             $LocalAreaId=json_decode(json_encode($LocalArea), true);
             $LocalArea_length=count($LocalAreaId);
               $array=[]; 
@@ -52,7 +48,7 @@ class AreaServiceUser extends Model
         }
 
         if ($searchTerm->LocalArea) {
-            $LocalArea = ServiceProvider::where('loc_area_id', $searchTerm->LocalArea)->get();
+            $LocalArea = user_service_provider::where('loc_area_id', $searchTerm->LocalArea)->get();
             $LocalAreaId=json_decode(json_encode($LocalArea), true);
              $length=count($LocalAreaId);
               $array=[]; 
@@ -67,4 +63,5 @@ class AreaServiceUser extends Model
         }
         return $query;  
     }
+    
 }

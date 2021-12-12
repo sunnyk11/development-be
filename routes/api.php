@@ -148,11 +148,17 @@ Route::group([
     Route::get('/agent_properties', 'App\Http\Controllers\Api\ProductController@agent_properties');
 
     Route::get('/getlocalArea', 'App\Http\Controllers\Api\LocalareaController@index');
-    Route::post('/get_localareaby_id', 'App\Http\Controllers\Api\LocalareaController@get_localareaby_id');
+    Route::get('/get_localareaby_id', 'App\Http\Controllers\Api\LocalareaController@get_localareaby_id');
     Route::get('/getarea_service', 'App\Http\Controllers\Api\AreaServiceController@index');
-    Route::post('/get_service_id', 'App\Http\Controllers\Api\AreaServiceController@get_service_By_id');
+    Route::get('/delete_service', 'App\Http\Controllers\Api\AreaServiceController@delete'); 
+    Route::get('/get_service_id', 'App\Http\Controllers\Api\AreaServiceController@get_service_By_id');
+    Route::get('/update_service_id', 'App\Http\Controllers\Api\AreaServiceController@update_service_id');
+    Route::post('/service_update', 'App\Http\Controllers\Api\AreaServiceController@service_update');
     
-    Route::post('/local_service', 'App\Http\Controllers\Api\AreaServiceUserController@search_data'); 
+    Route::get('/service_user_list', 'App\Http\Controllers\Api\ServiceUserlistController@show');
+    Route::get('/delete_service_user', 'App\Http\Controllers\Api\ServiceUserlistController@delete'); 
+    Route::get('/sevice_user_get_id', 'App\Http\Controllers\Api\ServiceUserlistController@sevice_user_get_id');  
+    Route::get('/local_service', 'App\Http\Controllers\Api\UserServiceMappingController@search_data'); 
 
     Route::get('/lawyer_service_index', 'App\Http\Controllers\Api\LawyerController@lawyer_index');
     Route::post('/lawyer_page', 'App\Http\Controllers\Api\LawyerController@lawyer_check');
@@ -225,10 +231,14 @@ Route::group([
        Route::get('/user_order_product', 'App\Http\Controllers\Api\ProductOrderController@property_all_orders');
 
         Route::post('/service_user_reviews', 'App\Http\Controllers\Api\ServiceUserReviewsController@store');
+        Route::post('/service_created', 'App\Http\Controllers\Api\AreaServiceController@store');
         
-        Route::post('/getarea_user_details', 'App\Http\Controllers\Api\AreaServiceUserController@user_details_byId');
+        Route::post('/service_user_create', 'App\Http\Controllers\Api\ServiceUserlistController@store');
+        Route::post('/service_user_update', 'App\Http\Controllers\Api\ServiceUserlistController@service_user_update');
+        Route::get('/getarea_user_details', 'App\Http\Controllers\Api\ServiceUserlistController@user_details_byId');
+        Route::get('/getservice_user', 'App\Http\Controllers\Api\AreaServiceUserController@index');
         
-        Route::post('/star_ratingbyId', 'App\Http\Controllers\Api\AreaServiceUserController@star_ratingbyId');
+        Route::get('/star_ratingbyId', 'App\Http\Controllers\Api\AreaServiceUserController@star_ratingbyId');
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });

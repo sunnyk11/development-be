@@ -9,6 +9,7 @@ use App\Models\ServiceProvider;
 use App\Models\ServiceUserReviews;
 use Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AreaServiceUserController extends Controller
 {
@@ -19,7 +20,12 @@ class AreaServiceUserController extends Controller
      */
     public function index()
     {
-        //
+        $user_data=AreaServiceUser::groupBy('user_name')->where('status', '1')->with('user_service')->orderBy('id', 'desc')->get();
+        $grouped = $user_data->groupBy('user_name')->map(function ($row) {return $row->count();});
+        return $user_data;
+        return response()->json([
+            'data' => $data
+        ], 200);
     }
 
     /**
@@ -40,7 +46,36 @@ class AreaServiceUserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user_db=AreaServiceUser::select('user_id')->where('status', '1')->orderBy('id', 'desc')->first();
+         if($user_db){
+            // user entery multiple services
+            foreach ($request['data']['service'] as $key => $value) {
+                $user_db=AreaServiceUser::select('user_id')->where('status', '1')->orderBy('id', 'desc')->first();
+                $user_id = number_format(str_replace("u","",$user_db['user_id'])+1);
+                    $user_data = [
+                        'user_id' =>'u'.$user_id,
+                        'user_name' => $request['data']['user'],
+                        'contact' => $request['data']['contact'],
+                        'service_id' =>$value['service_id']
+                    ];
+                    // return $user_data;
+                AreaServiceUser::create($user_data);
+            }
+            
+            //  service provider entery 
+            $user_db_provider=AreaServiceUser::select('user_id')->where('status', '1')->orderBy('id', 'desc')->first();
+            $user_id_provider = number_format(str_replace("u","",$user_db_provider['user_id']));
+            $user_service_provider = [
+                'loc_area_id' => $request['data']['LocalArea'],
+                'user_id' => 'u'.$user_id_provider
+            ];
+            ServiceProvider::create($user_service_provider);
+            //  service provider entery 
+
+            return response() -> json([
+                'message' => 'User Successfully Created',
+            ]);
+       }
     }
 
     /**
@@ -55,7 +90,7 @@ class AreaServiceUserController extends Controller
     }
     public function search_data(Request $request){
         // return $request->all();
-       $data = AreaServiceUser::where(['status'=> '1'])->with('service')->search($request)->with('user_review')->get();
+       $data = AreaServiceUser::where(['status'=> '1'])->with('service','user_review')->search($request)->orderby('id','desc')->get();
        // return $data[0]['user_review'][1];
         return response()->json([
             'data' =>$data,
