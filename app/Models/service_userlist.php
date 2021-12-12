@@ -18,7 +18,7 @@ class service_userlist extends Model
     
     public function user_review()
     {
-        return $this->hasMany('App\Models\ServiceUserReviews', 's_user_id','user_id');
+        return $this->hasMany('App\Models\backend_reviews_user', 's_user_id','user_id');
     }
     public function user_service()
     {
@@ -26,7 +26,7 @@ class service_userlist extends Model
     }
     public function user_local_area()
     {
-        return $this->hasMany('App\Models\ServiceUserReviews', 'user_id','user_id');
+        return $this->hasMany('App\Models\backend_reviews_user', 'user_id','user_id');
     }
     public function local_area_user()
     {

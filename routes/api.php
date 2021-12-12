@@ -230,15 +230,15 @@ Route::group([
        Route::get('/purchased_properties', 'App\Http\Controllers\Api\ProductOrderController@purchase_properties');
        Route::get('/user_order_product', 'App\Http\Controllers\Api\ProductOrderController@property_all_orders');
 
-        Route::post('/service_user_reviews', 'App\Http\Controllers\Api\ServiceUserReviewsController@store');
+        Route::post('/service_user_reviews', 'App\Http\Controllers\Api\BackendReviewsUserController@store');
         Route::post('/service_created', 'App\Http\Controllers\Api\AreaServiceController@store');
         
         Route::post('/service_user_create', 'App\Http\Controllers\Api\ServiceUserlistController@store');
         Route::post('/service_user_update', 'App\Http\Controllers\Api\ServiceUserlistController@service_user_update');
         Route::get('/getarea_user_details', 'App\Http\Controllers\Api\ServiceUserlistController@user_details_byId');
-        Route::get('/getservice_user', 'App\Http\Controllers\Api\AreaServiceUserController@index');
+        Route::get('/getservice_user', 'App\Http\Controllers\Api\ServiceUserlistController@index');
         
-        Route::get('/star_ratingbyId', 'App\Http\Controllers\Api\AreaServiceUserController@star_ratingbyId');
+        Route::get('/star_ratingbyId', 'App\Http\Controllers\Api\ServiceUserlistController@star_ratingbyId');
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });

@@ -61,6 +61,7 @@ class ServiceUserReviewsController extends Controller
                     'stars' => $request['data']['stars'],
                     'content' => $request['data']['content'],
                 ]);
+                return $review;
                 $review->save();
                 $review_id=$review->id;
             // return $request->all();

@@ -16,7 +16,7 @@ class User_service_mapping extends Model
     }
     public function user_review()
     {
-        return $this->hasMany('App\Models\ServiceUserReviews', 's_user_id','user_id');
+        return $this->hasMany('App\Models\backend_reviews_user', 's_user_id','user_id');
     }
     public function service_user()
     {

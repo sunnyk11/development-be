@@ -6,7 +6,7 @@ use App\Models\service_userlist;
 use App\Http\Controllers\Controller;
 use App\Models\user_service_provider;
 use App\Models\User_service_mapping;
-use App\Models\ServiceUserReviews;
+use App\Models\backend_reviews_user;
 use Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -134,10 +134,10 @@ class ServiceUserlistController extends Controller
     public function user_details_byId(Request $request){
         try{
             $user_id = Auth::user()->id;
-            $user_data = service_userlist::where(['status'=> '1','user_id'=>$request->user_id])->with('service')->first();
-            $review_data = ServiceUserReviews::where(['status'=> '1','s_user_id'=>$request->user_id])->with('UserDetail')->get();
-            $user_review =ServiceUserReviews::where(['status'=> '1','s_user_id'=>$request->user_id,'user_id'=>$user_id])->first();
-            $avg_reviews =ServiceUserReviews::where(['status'=> '1','s_user_id'=>$request->user_id])->select('stars', DB::raw('count(*) as users'))->groupBy('stars')->get();
+            $user_data = service_userlist::where(['status'=> '1','user_id'=>$request->input('user_id')])->with('service')->first();
+            $review_data = backend_reviews_user::where(['status'=> '1','s_user_id'=>$request->input('user_id')])->with('UserDetail')->get();
+            $user_review =backend_reviews_user::where(['status'=> '1','s_user_id'=>$request->input('user_id'),'user_id'=>$user_id])->first();
+            $avg_reviews =backend_reviews_user::where(['status'=> '1','s_user_id'=>$request->input('user_id')])->select('stars', DB::raw('count(*) as users'))->groupBy('stars')->get();
                 return response()->json([
                     'user_data'    => $user_data,
                     'review_data'  => $review_data,
@@ -207,6 +207,14 @@ class ServiceUserlistController extends Controller
             return $this->getExceptionResponse($e);
         }  
     }
+    
+    public function star_ratingbyId(Request $request){
+
+        $rating_data = backend_reviews_user::where(['status'=> '1','s_user_id'=>$request->service_id,'stars'=>$request->star])->with('UserDetail')->get();
+        return response()->json([
+           'rating_data'  => $rating_data, 
+         ], 201);
+  }
     /**
      * Update the specified resource in storage.
      *
