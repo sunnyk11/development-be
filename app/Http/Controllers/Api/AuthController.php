@@ -35,7 +35,8 @@ class AuthController extends Controller
             'other_mobile_number' => 'required|integer|unique:users',
             'selectType' => 'required',
             'agree_check' => 'required|boolean',
-            'password' => 'required|string|confirmed'
+            'password' => 'required|string|confirmed',
+			'gender' => 'required'						  
         ]);
 
         $token = getenv("TWILIO_AUTH_TOKEN");
@@ -49,6 +50,7 @@ class AuthController extends Controller
         $user = new User([
             'name' => $request->first_name,
             'last_name' => $request->last_name,
+			'gender' => $request->gender,							 
             'email' => $request->email,
             'usertype' => $request->selectType,
             'userSelect_type' => $request->selectType,
@@ -998,7 +1000,7 @@ class AuthController extends Controller
     }
 
     public function get_pincodebyid(Request $request) {
-         $data = DB::table('areas')->select('area','pincode','id')->where('area', $request->id)->first();
+         $data = DB::table('areas')->select('area','pincode','id')->where('id', $request->id)->first();
         return response()->json([
             'data' =>$data,
         ], 200);
@@ -1148,6 +1150,31 @@ class AuthController extends Controller
             //     )->toDateTimeString(),
             //     'misc' => $datauser
             //     ]);
+        }
+    }
+    public function user_fetch_details1(Request $request){
+        if($request->mobile_no != null){
+            $request->validate([
+                'mobile_no' => 'required|integer|digits:10',
+            ]);
+        }
+        if($request->email != null){
+            $request->validate([
+                'email' => 'required|email|min:7',
+            ]);
+        }
+        try{
+            $data=[];
+             $data['mobile_no'] = $request->mobile_no;
+             $data['email'] = $request->email;
+
+            $data = user::where(['other_mobile_number'=>$data['mobile_no']])->orwhere(['email'=> $data['email']])->with('productdetails')->get();
+            return response()->json([
+            'data' =>$data,
+          ], 201);
+
+        }catch (\Exception $e) {
+            return $this->getExceptionResponse($e);
         }
     }
      public function user_fetch_details(Request $request){
