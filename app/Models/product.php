@@ -82,6 +82,11 @@ class product extends Model
         'draft',
         'product_uid',
         'order_status',
+        'address_details',
+        'state_id',
+        'district_id',
+        'locality_id',
+        'sub_locality_id',
         'enabled'
     ];
 
@@ -151,6 +156,22 @@ class product extends Model
      {
          return $this->hasOne('App\Models\invoices', 'product_id','product_uid')->where('transaction_status', 'TXN_SUCCESS');
      }
+     public function product_state()
+    {
+        return $this->hasone('App\Models\area_state', 'state_id','state_id');
+    }
+     public function product_district()
+    {
+        return $this->hasone('App\Models\area_district', 'district_id','district_id');
+    }
+    public function product_locality()
+    {
+        return $this->hasone('App\Models\area_locality', 'locality_id','locality_id');
+    }
+    public function product_sub_locality()
+    {
+        return $this->hasone('App\Models\area_sub_locality', 'sub_locality_id','sub_locality_id');
+    }
 
    
     public function roles()

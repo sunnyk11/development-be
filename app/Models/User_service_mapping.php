@@ -28,39 +28,68 @@ class User_service_mapping extends Model
     }
 
     public function scopeSearch($query, $searchTerm) {
-        if ($searchTerm->Area) {
-        	$Area = localarea::where('Area_id', $searchTerm->Area)->get();   
-            $AreaId=json_decode(json_encode($Area), true);
 
-             $length=count($AreaId);
-            $area_id=[];
-            for($i=0; $i<$length; $i++){
-                array_push($area_id,$AreaId[$i]['loc_area_id']);
-            }
-            $LocalArea = user_service_provider::whereIn('loc_area_id', $area_id)->get();
-            $LocalAreaId=json_decode(json_encode($LocalArea), true);
-            $LocalArea_length=count($LocalAreaId);
-              $array=[]; 
-            for($i=0; $i<$LocalArea_length; $i++){
-                array_push($array,$LocalAreaId[$i]['user_id']);
-            }
-            $query = $query->whereIn('user_id',$array)->orderBy('id', 'desc');
+        $sub_locality=$searchTerm->sub_locality;
+        $locality=$searchTerm->locality;
+        $district=$searchTerm->district;
+        $city=$searchTerm->city;
+        $default=1;
+        $user_id=[];
+        if($sub_locality){
+            $locality=null;
+            $district=null;
+            $city=null;
+            $default=null;
+        } elseif ($locality) {
+            $sub_locality=null;
+            $district=null;
+            $city=null;
+            $default=null;
+        } elseif ($district) {
+            $sub_locality=null;
+            $locality=null;
+            $city=null;
+            $default=null;
+        } elseif ($city) {
+            $locality=null;
+            $district=null;
+            $sub_locality=null;
+            $default=null;
+        }else {
+            $locality=null;
+            $district=null;
+            $sub_locality=null;
+            $city=null;
         }
-
-        if ($searchTerm->LocalArea) {
-            $LocalArea = user_service_provider::where('loc_area_id', $searchTerm->LocalArea)->get();
-            $LocalAreaId=json_decode(json_encode($LocalArea), true);
-             $length=count($LocalAreaId);
-              $array=[]; 
-            for($i=0; $i<$length; $i++){
-                array_push($array,$LocalAreaId[$i]['user_id']);
-            }
-            $query = $query->whereIn('user_id',$array)->orderBy('id', 'desc');
+        if ($sub_locality) {
+            $user_id=[];
+            $sub_locality= locality_sublocality_mapping::select('user_id')->where('sub_locality_id', $searchTerm->sub_locality)->get();
+            $user_id=json_decode(json_encode($sub_locality), true);
         }
-
+        if($locality) {
+            $user_id=[];
+            $locality= district_locality_mapping::select('user_id')->where('locality_id', $searchTerm->locality)->get();
+            $user_id=json_decode(json_encode($locality), true);
+        }
+        if($district) {
+            $user_id=[];
+            $locality= state_district_mapping::select('user_id')->where('district_id', $searchTerm->district)->get();
+            $user_id=json_decode(json_encode($locality), true);
+        }
+        if($city) {
+            $user_id=[];
+            $locality= user_area_mapping::select('user_id')->where('state_id', $searchTerm->city)->get();
+            $user_id=json_decode(json_encode($locality), true);
+        }
+        if($default) {
+            $user_id=[];
+            $locality= user_area_mapping::select('user_id')->get();
+            $user_id=json_decode(json_encode($locality), true);
+        }
         if ($searchTerm->service) {
             $query = $query->where('service_id', $searchTerm->service);
         }
+        $query = $query->whereIn('user_id',$user_id)->orderBy('id', 'desc');
         return $query;  
     }
     

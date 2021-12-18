@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\service_userlist;
 use App\Http\Controllers\Controller;
-use App\Models\user_service_provider;
+use App\Models\user_area_mapping;
+use App\Models\state_district_mapping;
 use App\Models\User_service_mapping;
+use App\Models\district_locality_mapping;
+use App\Models\locality_sublocality_mapping;
 use App\Models\backend_reviews_user;
 use Auth;
 use Illuminate\Support\Facades\DB;
@@ -56,36 +59,63 @@ class ServiceUserlistController extends Controller
                         'user_name' => $request['data']['user'],
                         'contact' => $request['data']['contact']
                     ];
+                    // return $user_data;
                     
                     if(service_userlist::create($user_data)){
                         // user  multiple services
                         foreach ($request['data']['service'] as $key => $value) { 
                             $user_data_mapping = [
                                 'user_id' =>$user_id,
-                                'user_name' => $request['data']['user'],
-                                'contact' => $request['data']['contact'],
                                 'service_id' =>$value['service_id']
                             ];
                             User_service_mapping::create($user_data_mapping);
                         }
                         //  service provider entery 
                         $user_service_provider = [
-                            'loc_area_id' => $request['data']['LocalArea'],
+                            'state_id' => $request['data']['city'],
                             'user_id' => $user_id
                         ];
-                        user_service_provider::create($user_service_provider);
+                       $user_area= user_area_mapping::create($user_service_provider);
+                        if($user_area->id && $request['data']['district']){
+                            //  service provider entery 
+                            $user_district_mapping = [
+                                'state_id' => $user_area->id,
+                                'district_id' => $request['data']['district'],
+                                'user_id' =>$user_id
+                            ];
+                            $user_district= state_district_mapping::create($user_district_mapping);
+                            if($user_district->id &&  $request['data']['locality'][0]['locality_id']){
+                               $user_locality_mapping = [
+                                    'district_id' => $user_district->id,
+                                    'locality_id' => $request['data']['locality'][0]['locality_id'],
+                                    'user_id' =>$user_id
+                                ];
+                               $user_locality=district_locality_mapping::create($user_locality_mapping);
+                               if($user_locality->id && $request['data']['sub_locality']){
+                                    foreach ($request['data']['sub_locality'] as $key => $sub_locality) { 
+                                        $user_sub_locality_mapping = [
+                                            'locality_id' => $user_locality->id,
+                                            'sub_locality_id' => $sub_locality['sub_locality_id'],
+                                            'user_id' =>$user_id
+                                        ];
+                                        locality_sublocality_mapping::create($user_sub_locality_mapping);
+                                    }
+                               }
+                           }
+                        }
                         return response() -> json([
                             'message' => 'User Successfully Created',
                         ]);
                     }
             }else{
-                $user_id=
+                $user_id='u1'; 
                 // user created 
                 $user_data = [
                     'user_id' =>$user_id,
                     'user_name' => $request['data']['user'],
                     'contact' => $request['data']['contact']
                 ];
+                // return $user_data;
                 
                 if(service_userlist::create($user_data)){
                     // user  multiple services
@@ -98,14 +128,41 @@ class ServiceUserlistController extends Controller
                     }
                     //  service provider entery 
                     $user_service_provider = [
-                        'loc_area_id' => $request['data']['LocalArea'],
+                        'state_id' => $request['data']['city'],
                         'user_id' => $user_id
                     ];
-                    user_service_provider::create($user_service_provider);
+                    $user_area= user_area_mapping::create($user_service_provider);
+                    if($user_area->id && $request['data']['district']){
+                        //  service provider entery 
+                        $user_district_mapping = [
+                            'state_id' => $user_area->id,
+                            'district_id' => $request['data']['district'],
+                            'user_id' =>$user_id
+                        ];
+                        $user_district= state_district_mapping::create($user_district_mapping);
+                        if($user_district->id &&  $request['data']['locality'][0]['locality_id']){
+                            $user_locality_mapping = [
+                                'district_id' => $user_district->id,
+                                'locality_id' => $request['data']['locality'][0]['locality_id'],
+                                'user_id' =>$user_id
+                            ];
+                            $user_locality=district_locality_mapping::create($user_locality_mapping);
+                            if($user_locality->id && $request['data']['sub_locality']){
+                                foreach ($request['data']['sub_locality'] as $key => $sub_locality) { 
+                                    $user_sub_locality_mapping = [
+                                        'locality_id' => $user_locality->id,
+                                        'sub_locality_id' => $sub_locality['sub_locality_id'],
+                                        'user_id' =>$user_id
+                                    ];
+                                    locality_sublocality_mapping::create($user_sub_locality_mapping);
+                                }
+                            }
+                        }
+                    }
                     return response() -> json([
                         'message' => 'User Successfully Created',
                     ]);
-            }
+                }
             }
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
@@ -122,7 +179,7 @@ class ServiceUserlistController extends Controller
     public function show(service_userlist $service_userlist)
     {
         try{
-           $data = service_userlist::where(['status'=> '1'])->with('user_service','user_review','local_area_user')->orderby('id','desc')->get();
+           $data = service_userlist::where(['status'=> '1'])->with('user_service','user_review','user_area')->orderby('id','desc')->get();
            return response()->json([
                 'data' =>$data,
             ], 201);
@@ -173,6 +230,7 @@ class ServiceUserlistController extends Controller
     }
     
     public function service_user_update(Request $request){
+        // return $request->all();
         try{
             $data1=$request->data;
             $id=$data1['id'];
@@ -196,9 +254,70 @@ class ServiceUserlistController extends Controller
                         }
                     }
                 }
-                //  service provider updated 
-                user_service_provider::where('user_id',$user_id)->update(['loc_area_id'=>$data1['LocalArea']]);
-                
+                // city updated 
+                 $city=$data1['city'];
+                if($city){
+                    user_area_mapping::where(['state_id'=>$city,'user_id'=>$user_id])->delete();
+                        $user_city_mapping = [
+                            'state_id' =>$city,
+                            'user_id' =>$user_id
+                        ];
+                        $user_city_data=user_area_mapping::where(['user_id'=>$user_id,'state_id'=>$city,'status'=>'1'])->get();
+                        $city_count= count($user_city_data);
+                        // return $count;
+                        if($city_count==0){
+                            $user_area= user_area_mapping::create($user_city_mapping);
+                        }
+                }
+                // district updated 
+                $district=$data1['district'];
+                if($district){
+                    state_district_mapping::where(['district_id'=>$district,'user_id'=>$user_id])->delete();
+                    $user_district_mapping = [
+                        'state_id' =>$user_area->id,
+                        'user_id' =>$user_id,
+                        'district_id' =>$district
+                    ];
+                    // return $user_district_mapping;
+                    $user_district_data=state_district_mapping::where(['user_id'=>$user_id,'district_id'=>$district,'status'=>'1'])->get();
+                    $district_count= count($user_district_data);
+                    if($district_count==0){
+                       $user_district=state_district_mapping::create($user_district_mapping);
+                    }
+                }
+                // locality updated 
+                $locality=$data1['locality'][0]['locality_id'];
+                if($locality){
+                    district_locality_mapping::where(['locality_id'=>$locality,'user_id'=>$user_id])->delete();
+                    $user_locality_mapping = [
+                        'district_id' =>$user_district->id,
+                        'user_id' =>$user_id,
+                        'locality_id' =>$locality
+                    ]; 
+                    $user_locality_data=district_locality_mapping::where(['user_id'=>$user_id,'locality_id'=>$locality,'status'=>'1'])->get();
+                    $locality_count= count($user_locality_data);
+                    if($district_count==0){
+                       $user_locality=district_locality_mapping::create($user_locality_mapping);
+                    }
+                }
+                // sublocality data updated 
+               $sub_locality=$data1['sub_locality'];
+               if(count($sub_locality)>0){
+                    locality_sublocality_mapping::where('user_id',$user_id)->delete();
+                    foreach ($sub_locality as $sub_locality_data) { 
+                        $user_sub_locality_mapping = [
+                            'locality_id' =>$user_locality->id,
+                            'user_id' =>$user_id,
+                            'sub_locality_id' =>$sub_locality_data['sub_locality_id']
+                        ];
+
+                        $user_sublocality_data=locality_sublocality_mapping::where(['user_id'=>$user_id,'sub_locality_id'=>$sub_locality_data['sub_locality_id'],'status'=>'1'])->get();
+                        $sublocality_count= count($user_sublocality_data);
+                        if($sublocality_count==0){
+                            locality_sublocality_mapping::create($user_sub_locality_mapping);
+                        }
+                    }
+                } 
                 return response()->json([
                     'message' => 'user details Updated',
                 ], 201);
@@ -241,7 +360,7 @@ class ServiceUserlistController extends Controller
     public function delete(Request $request)
     {
         try{
-            service_userlist::where('user_id', $request['user_id'])->delete();  
+            service_userlist::where('id', $request['id'])->delete();  
             return response()->json([
                 'message' => 'deleted Successfully',
             ], 201);
@@ -254,6 +373,18 @@ class ServiceUserlistController extends Controller
     {
         try{
             $service_user = service_userlist::where('user_id',  $request['user_id'])->with('user_service','user_review','local_area_user')->first();
+               return response()->json([
+                    'data' => $service_user
+                ]);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+    
+    public function update_service_userById(Request $request)
+    {
+        try{
+            $service_user = service_userlist::where('id',  $request['user_id'])->with('user_service','user_state','user_district','user_locality','user_sublocality')->first();
                return response()->json([
                     'data' => $service_user
                 ]);

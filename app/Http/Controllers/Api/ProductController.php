@@ -677,6 +677,7 @@ class ProductController extends Controller
       $data2=$request->form_step2;
       $data3=$request->form_step3;
       $data4=$request->form_step4;
+    //   return $data1;
 
       if($data1['draft_form_id']>0){
         $product = product::where('id', $data1['draft_form_id'])->with('amenities')->first();
@@ -730,12 +731,13 @@ class ProductController extends Controller
 
         // step 2
         $data->address = $data2['address'];
-        $data->city = $data2['city'];
-        $data->locality =$data2['locality'];
-        $data->nearest_landmark = $data2['nearest_place'];
+        $data->address_details = $data2['address_details'];
+        $data->state_id = $data2['city'];
+        $data->district_id = $data2['district_id'];
+        $data->locality_id =$data2['locality'];
+        $data->sub_locality_id =$data2['sub_locality'];
         $data->map_latitude = $data2['map_latitude'];
         $data->map_longitude = $data2['map_longitude'];
-        $data->pincode= $data2['pincode'];
 
         // step 3
         $data->additional_rooms=$addtional_room;
@@ -764,7 +766,6 @@ class ProductController extends Controller
         $data->price_negotiable =$data4['price_negotiable'];
         $data->negotiable_status=$data4['price_negotiable_status'];
         $data->security_deposit=$data4['security_deposit'];
-        // $data->tax_govt_charge = $data4['tax_govt_charge'];
         $data->draft=$data4['draft_form_id'];
         $data->rent_cond =1;
         $data->video_link = $video_link;
@@ -802,7 +803,7 @@ class ProductController extends Controller
            
          $product_uid= rand (1000,9999).time();
 
-            $product_data = new Product([
+            $product_data = [
             'user_id' => $user_id ,
             'product_uid' => $product_uid,
             'build_name' =>$data1['property_name'],
@@ -815,13 +816,14 @@ class ProductController extends Controller
             'property_detail' =>$data1['property_desc'],
 
             // step 2
+            'address_details' =>  $data2['address_details'],
             'address' => $data2['address'],
-            'city' => $data2['city'],
-            'locality' =>  $data2['locality'],
-            'nearest_landmark' =>  $data2['nearest_place'],
+            'state_id' => $data2['city'],
+            'district_id' =>$data2['district_id'],
+            'locality_id' =>  $data2['locality'],
+            'sub_locality_id' => $data2['sub_locality'],
             'map_latitude' => $data2['map_latitude'],
             'map_longitude' => $data2['map_longitude'],
-            'pincode' =>  $data2['pincode'],
 
             // step 3
             'additional_rooms_status' => $data3['additional_rooms'],
@@ -856,7 +858,7 @@ class ProductController extends Controller
             'draft' =>$data4['draft_form_id'],
             // 'possession_by' => $request->possession_by ,
             // 'brokerage_charges' => $request->brokerage_charges ,
-            ]);
+            ];
 
             $user_type = Auth::user()->usertype;
 
@@ -864,13 +866,13 @@ class ProductController extends Controller
                 return response()->json([
                     'message' => 'Unauthorised User',
                 ], 201);
-
-            $product_data->save();
-            $lastid=$product_data->id;
+                // return $product_data;
+           $product_db_result=product::create($product_data);
+            $lastid=$product_db_result->id;
             eventtracker::create(['symbol_code' => '8', 'event' => Auth::user()->name.' created a new property listing for rent.']);
 
        
-         $product_id=$product_data->id;
+         $product_id=$lastid;
          // inserted images functionalty
         $DB_img=Product_img::where('user_id', $user_id)->where('product_id',
             $product_id)->get();
@@ -1221,12 +1223,13 @@ class ProductController extends Controller
 
         // step 2
         $data->address = $data2['address'];
-        $data->city = $data2['city'];
-        $data->locality =$data2['locality'];
-        $data->nearest_landmark = $data2['nearest_place'];
+        $data->address_details = $data2['address_details'];
+        $data->state_id = $data2['city'];
+        $data->district_id = $data2['district_id'];
+        $data->locality_id =$data2['locality'];
+        $data->sub_locality_id =$data2['sub_locality'];
         $data->map_latitude = $data2['map_latitude'];
         $data->map_longitude = $data2['map_longitude'];
-        $data->pincode= $data2['pincode'];
 
         // step 3
         $data->additional_rooms=$addtional_room;
@@ -1489,7 +1492,7 @@ class ProductController extends Controller
 
        $user_id = Auth::user()->id;
         //$product = product::where('id', $request->id)->where('user_id',$user_id)->with('amenities','product_img','Property_Type','locality')->first();
-        $product = product::where('id', $request->id)->where('user_id',$user_id)->with('amenities','product_img')->first();
+        $product = product::where('id', $request->id)->where('user_id',$user_id)->with('amenities','product_img','product_state','product_district','product_locality','product_sub_locality')->first();
             return response()->json([
                 'data' => $product
             ]);

@@ -60,7 +60,7 @@ class AreaServiceController extends Controller
                 'message' => 'Services Created',
             ]);
             }else{
-            $service_id='S01';
+            $service_id='S1';
                 $service_data = [
                 'service_id' =>$service_id,
                 'service_name' => $request['data']['service']

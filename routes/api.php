@@ -65,6 +65,12 @@ Route::group([
     Route::delete('roles/delete/{id}', 'App\Http\Controllers\Api\AuthController@delete_role');
 
     Route::get('/get_areas', 'App\Http\Controllers\Api\AuthController@get_areas');
+    Route::get('/get_locality', 'App\Http\Controllers\Api\AreaLocalityController@index');
+    Route::get('/get_sub_locality', 'App\Http\Controllers\Api\AreaSubLocalityController@sub_localitybyid');
+
+    Route::get('/get_state', 'App\Http\Controllers\Api\AreaStateController@index');
+    Route::get('/get_district_byid', 'App\Http\Controllers\Api\AreaDistrictController@get_district_byid');
+    Route::get('/get_locality_byid', 'App\Http\Controllers\Api\AreaLocalityController@get_locality_byid');
 
     Route::post('/get_pincodebyid', 'App\Http\Controllers\Api\AuthController@get_pincodebyid');																						
     Route::post('/owner_signup', 'App\Http\Controllers\Api\AuthController@owner_signup');
@@ -157,8 +163,9 @@ Route::group([
     
     Route::get('/service_user_list', 'App\Http\Controllers\Api\ServiceUserlistController@show');
     Route::get('/delete_service_user', 'App\Http\Controllers\Api\ServiceUserlistController@delete'); 
-    Route::get('/sevice_user_get_id', 'App\Http\Controllers\Api\ServiceUserlistController@sevice_user_get_id');  
-    Route::get('/local_service', 'App\Http\Controllers\Api\UserServiceMappingController@search_data'); 
+    Route::get('/sevice_user_get_id', 'App\Http\Controllers\Api\ServiceUserlistController@sevice_user_get_id');
+    Route::get('/update_sevice_user_get_id', 'App\Http\Controllers\Api\ServiceUserlistController@update_service_userById');   
+    Route::post('/local_service', 'App\Http\Controllers\Api\UserServiceMappingController@search_data'); 
 
     Route::get('/lawyer_service_index', 'App\Http\Controllers\Api\LawyerController@lawyer_index');
     Route::post('/lawyer_page', 'App\Http\Controllers\Api\LawyerController@lawyer_check');

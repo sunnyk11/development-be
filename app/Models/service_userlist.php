@@ -24,6 +24,22 @@ class service_userlist extends Model
     {
         return $this->hasMany('App\Models\User_service_mapping', 'user_id','user_id')->with('service');
     }
+    public function user_state()
+    {
+        return $this->hasMany('App\Models\user_area_mapping', 'user_id','user_id');
+    }
+    public function user_district()
+    {
+        return $this->hasMany('App\Models\state_district_mapping', 'user_id','user_id');
+    }
+    public function user_locality()
+    {
+        return $this->hasMany('App\Models\district_locality_mapping', 'user_id','user_id')->with('area_locality');
+    }
+    public function user_sublocality()
+    {
+        return $this->hasMany('App\Models\locality_sublocality_mapping', 'user_id','user_id')->with('area_sub_locality');
+    }
     public function user_local_area()
     {
         return $this->hasMany('App\Models\backend_reviews_user', 'user_id','user_id');
@@ -31,6 +47,10 @@ class service_userlist extends Model
     public function local_area_user()
     {
         return $this->hasone('App\Models\user_service_provider', 'user_id','user_id')->with('area_user');
+    }
+    public function user_area()
+    {
+        return $this->hasone('App\Models\user_area_mapping', 'user_id','user_id')->with('area_state','user_district');
     }
 
     public function scopeSearch($query, $searchTerm) {
