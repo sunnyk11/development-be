@@ -143,7 +143,7 @@ class PaymentController extends Controller
 
             $order_details = DB::table('plans_orders')->where('order_id', $order_id)->get();
             $price = $order_details[0]->plan_price;
-            $gst_price = (18 * $price) / 100;
+            $gst_price = round((18 * $price) / 100);
             $total_price = $price + $gst_price;
 
              $body = [
