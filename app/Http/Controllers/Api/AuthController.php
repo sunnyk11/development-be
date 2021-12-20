@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Auth;
 use Image;
+use App\Models\Amenitie;
 use Illuminate\Support\Str;
 use Twilio\Rest\Client;
 use App\Models\eventtracker;
@@ -1195,8 +1196,12 @@ class AuthController extends Controller
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
                  $data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
-                    return response()->json([
+                 $amenities=Amenitie::where('IsEnable', '1')->orderBy('id', 'asc')->get();  
+                 $static_data=$object->static_data();
+                 return response()->json([
                     'data' =>$data,
+                    'amenities_data'=>$amenities,
+                    'static_data'=>$static_data,
                   ], 201);
 
             }else{

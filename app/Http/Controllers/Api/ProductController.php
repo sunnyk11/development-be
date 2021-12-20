@@ -37,24 +37,24 @@ class ProductController extends Controller
     public function product_city_details()
     {
       // Chattarpur location data
-      $locality_data=product::where(['locality' =>'Chattarpur', 'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
-        $Chattarpur_data = $locality_data->groupBy('locality')->map(function ($row) {return $row->count();});
-
+      $chattarpur_id=1281;
+      $locality_data=product::where(['locality_id' =>$chattarpur_id, 'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
+      $Chattarpur_data = $locality_data->groupBy('locality_id')->map(function ($row) {return $row->count();});
+      $chattarpur=['city'=>'CHATTARPUR','chattarpur_count'=>$Chattarpur_data['1281']];
       // all data for delhi location 
         $product_data=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
-        $grouped = $product_data->groupBy('city')->map(function ($row) {return $row->count();});
-
-      $data=product::select('id','city')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('city')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
+        $grouped = $product_data->groupBy('state_id')->map(function ($row) {return $row->count();});
+       $data=product::select('id','state_id')->where(['state_id'=> 1,'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('state_id')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
 
         $city_data=[];
         foreach ($data as $key => $value) {
-            $city_count= $grouped[$value['city']];
-                $count=['id'=>$value['id'],'city'=>$value['city'],'city_count'=>$city_count];
+            $city_count= $grouped[$value['state_id']];
+                $count=['id'=>$value['id'],'city'=>'DELHI','city_count'=>$city_count];
                 array_push($city_data,$count);
         }
         return response()->json([
             'data'=>$city_data,
-            'Chattarpur_data'=>$Chattarpur_data 
+            'Chattarpur_data'=>$chattarpur 
         ], 200);
     }
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ProductAmenties;
+use App\Models\area_locality;
 use App\Models\Property_type;
 use Auth;
 
@@ -187,7 +188,7 @@ class product extends Model
            $query = $query->where('address', 'like', "%" . $searchTerm->data['location'] . "%");
         }
         if ($searchTerm->data['city']) {
-           $query = $query->where('city', 'like', "%" . $searchTerm->data['city'] . "%");
+           $query = $query->where('state_id','1');
         }
         if ($searchTerm->data['area_unit']) {
             $query = $query->where('area_unit', $searchTerm->data['area_unit']);
@@ -234,7 +235,14 @@ class product extends Model
         } 
         if ($searchTerm->data['locality']) {
 
-            $query = $query->where('locality', $searchTerm->data['locality']);
+            $locality = area_locality::select('locality_id')->where('locality', $searchTerm->data['locality'])->get();
+            if(count($locality)>0){
+              $query = $query->whereIn('locality_id',$locality)->orderBy('id', 'desc');  
+            }else{
+                $sub_locality = area_sub_locality::select('locality_id')->where('sub_locality', $searchTerm->data['locality'])->get();
+                // $locality_update = area_locality::select('locality_id')->where('locality_id', $sub_locality)->get();
+                 $query = $query->whereIn('locality_id',$sub_locality)->orderBy('id', 'desc');
+            }
         }
         if ($searchTerm->amenities) {
             $amenities_data = ProductAmenties::select('product_id')->whereIn('amenties',$searchTerm->amenities)->get();

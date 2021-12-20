@@ -69,6 +69,7 @@ Route::group([
     Route::get('/get_areas', 'App\Http\Controllers\Api\AuthController@get_areas');
     Route::get('/get_locality', 'App\Http\Controllers\Api\AreaLocalityController@index');
     Route::get('/get_sub_locality', 'App\Http\Controllers\Api\AreaSubLocalityController@sub_localitybyid');
+    Route::get('/get_common_area_data/{value}', 'App\Http\Controllers\Api\AreaSubLocalityController@get_common_area_data');
 
     Route::get('/get_state', 'App\Http\Controllers\Api\AreaStateController@index');
     Route::get('/get_district_byid', 'App\Http\Controllers\Api\AreaDistrictController@get_district_byid');
