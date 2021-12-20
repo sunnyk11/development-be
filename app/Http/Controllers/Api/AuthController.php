@@ -1206,4 +1206,17 @@ class AuthController extends Controller
             return $this->getExceptionResponse($e);
         }
     }
+
+    public function get_invoice_data() {
+
+        return $areas = DB::table('invoice_data')->first();
+    }
+
+    public function get_username($email) {
+        $username = DB::table('users')->where('email', $email)->value('name');
+        return response()->json([
+            'data' =>$username,
+          ], 201);
+    }
+
 }

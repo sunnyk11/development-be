@@ -46,6 +46,8 @@ Route::post('reset_password_verify_otp', 'App\Http\Controllers\Api\AuthControlle
 Route::post('reset_password', 'App\Http\Controllers\Api\AuthController@reset_password');
 Route::post('reset_send_otp_email', 'App\Http\Controllers\Api\AuthController@reset_send_otp_email');
 Route::post('rp_verify_otp_email', 'App\Http\Controllers\Api\AuthController@rp_verify_otp_email');
+Route::get('get_invoice_data', 'App\Http\Controllers\Api\AuthController@get_invoice_data');
+Route::get('get_username/{email}', 'App\Http\Controllers\Api\AuthController@get_username');
 
 Route::group([
     'prefix' => 'auth'
