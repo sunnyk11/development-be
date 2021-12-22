@@ -18,6 +18,7 @@ use App\Models\Amenitie;
 use App\Models\ProductAmenties;
 use App\Models\UserProductCount;
 use App\Models\Product_img;
+use App\Models\area_locality;
 use App\Models\Product_Comparision;
 
 class ProductController extends Controller
@@ -36,9 +37,8 @@ class ProductController extends Controller
     }
     public function product_city_details()
     {
-      // Chattarpur location data
-      $chattarpur_id=1281;
-      $locality_data=product::where(['locality_id' =>$chattarpur_id, 'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
+     $chattarpur_id=area_locality::select('locality_id')->where(['locality' =>'CHATTARPUR','status' => '1'])->first();
+     $locality_data=product::where(['locality_id' =>$chattarpur_id['locality_id'], 'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
       $Chattarpur_data = $locality_data->groupBy('locality_id')->map(function ($row) {return $row->count();});
       $chattarpur=['city'=>'CHATTARPUR','chattarpur_count'=>$Chattarpur_data['1281']];
       // all data for delhi location 
@@ -54,7 +54,7 @@ class ProductController extends Controller
         }
         return response()->json([
             'data'=>$city_data,
-            'Chattarpur_data'=>$chattarpur 
+            'Chattarpur_data'=> $chattarpur 
         ], 200);
     }
 
