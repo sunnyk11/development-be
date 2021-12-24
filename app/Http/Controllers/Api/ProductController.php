@@ -40,8 +40,12 @@ class ProductController extends Controller
      $chattarpur_id=area_locality::select('locality_id')->where(['locality' =>'CHATTARPUR','status' => '1'])->first();
      $locality_data=product::where(['locality_id' =>$chattarpur_id['locality_id'], 'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
       $Chattarpur_data = $locality_data->groupBy('locality_id')->map(function ($row) {return $row->count();});
-      $chattarpur=['city'=>'CHATTARPUR','chattarpur_count'=>$Chattarpur_data['1281']];
-      // all data for delhi location 
+      $chattarpur=[];
+      if(count($Chattarpur_data)>0){
+        $chattarpur_array=['city'=>'CHATTARPUR','chattarpur_count'=>$Chattarpur_data['1281']];
+         array_push($chattarpur,$chattarpur_array);
+    }
+    // all data for delhi location 
         $product_data=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
         $grouped = $product_data->groupBy('state_id')->map(function ($row) {return $row->count();});
        $data=product::select('id','state_id')->where(['state_id'=> 1,'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('state_id')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 

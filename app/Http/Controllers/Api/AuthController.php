@@ -1196,13 +1196,25 @@ class AuthController extends Controller
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
                  $data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
-                 $amenities=Amenitie::where('IsEnable', '1')->orderBy('id', 'asc')->get();  
-                 $static_data=$object->static_data();
-                 return response()->json([
-                    'data' =>$data,
-                    'amenities_data'=>$amenities,
-                    'static_data'=>$static_data,
-                  ], 201);
+                 
+                 if(count($data)>0){
+                    $amenities=Amenitie::where('IsEnable', '1')->orderBy('id', 'asc')->get();  
+                    $static_data=$object->static_data();
+                    return response()->json([
+                       'data' =>$data,
+                       'amenities_data'=>$amenities,
+                       'static_data'=>$static_data,
+                     ], 201);
+                 }else{
+                    $amenities=[];  
+                    $static_data=[];
+                    return response()->json([
+                       'data' =>$data,
+                       'amenities_data'=>$amenities,
+                       'static_data'=>$static_data,
+                     ], 201);
+                 }
+                 
 
             }else{
                 return 'Unauthication';
