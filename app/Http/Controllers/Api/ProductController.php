@@ -1167,6 +1167,84 @@ class ProductController extends Controller
 
 
     }
+    public function update_product_rent(Request $request){
+        // try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $request -> validate([
+                    'id' => 'required|integer'
+                ]);
+               $product_id=$request->id;   
+               $data = product::find( $product_id);
+
+            //    $addtional_room=implode(',',$request->rooms);
+               $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
+
+               $data->build_name = $request->build_name;
+               $data->type = $request->type;
+               $data->bedroom =$request->bedroom;
+               $data->bathroom =$request->bathroom;
+               $data->balconies = $request->balconies;
+               $data->area =$request->area;
+               $data->area_unit =$request->area_unit;
+               $data->property_detail =$request->property_detail;
+       
+               // step 2
+               $data->address =$request->address;
+               $data->address_details = $request->address_details;
+               $data->state_id =$request->state_id;
+               $data->district_id = $request->district_id;
+               $data->locality_id =$request->locality_id;
+               $data->sub_locality_id =$request->sub_locality_id;
+               $data->map_latitude = $request->map_latitude;
+               $data->map_longitude = $request->map_longitude;
+       
+               // step 3
+            //    $data->additional_rooms=$addtional_room;
+               $data->additional_rooms_status=$request->additional_rooms_status;
+               $data->agreement_type=$request->agreement_type;
+               $data->duration_of_rent_aggreement=$request->duration_of_rent_aggreement;
+               $data->available_for = $request->available_for;
+               $data->facing_towards =$request->facing_towards;
+               $data->furnishing_status =$request->furnishing_status;
+               $data->month_of_notice =$request->month_of_notice;
+               $data->total_floors = $request->total_floors;
+               $data->property_on_floor =$request->property_on_floor;
+               $data->willing_to_rent_out_to =$request->willing_to_rent_out_to;
+               $data->buildyear = $request->buildyear;
+
+            //    step 4
+               $data->inc_electricity_and_water_bill =$request->inc_electricity_and_water_bill;
+               $data->expected_rent = $request->expected_rent;
+               $data->rent_availability =1;
+               $data->maintenance_charge_status = $request->maintenance_charge_status;
+               $data->security_deposit=$request->security_deposit;
+               $data->negotiable_status=$request->price_negotiable_status;
+            //    $data->draft=$request->draft_form_id;
+               $data->rent_cond =1;
+               $data->video_link = $video_link;
+               if($data->save()){
+                return response() -> json([
+                    'message' => 'Successfully Updated',
+                    'status'=> 200,
+                    'data' => $data 
+                ]);
+               }else{
+                return response() -> json([
+                    'message' => 'Something Error',
+                    'status'=> 201,
+                ]);
+               }
+              
+            }else{
+                return 'Unauthication';
+            }
+        // }catch(\Exception $e) {
+        //     return $this->getExceptionResponse($e);
+        // }
+        
+    }
      public function product_rent_update(Request $request)
     {
       $data1=$request->form_step1;
