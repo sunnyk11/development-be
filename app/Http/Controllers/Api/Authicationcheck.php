@@ -45,8 +45,9 @@ class Authicationcheck extends Controller
             $willing_to_rent=[['id'=>1,'value'=>'Family'],['id'=>2,'value'=>'Single Men'],['id'=>3,'value'=>'Single Women']];
             $month_of_notic=[['id'=>1,'months'=>'1'],['id'=>2,'months'=>'2'],['id'=>3,'months'=>'3'],['id'=>4,'months'=>'4'],['id'=>5,'months'=>'5'],['id'=>6,'months'=>'6']];
             $agreement_duration=[['id'=>1,'value'=>'One Year'],['id'=>2,'value'=>'Three Year'],['id'=>3,'value'=>'Custom']];
-            
-            $static_data_array=['property_floor'=>$property_floor,'facing_towards'=>$facing_towards,'total_floors'=>$total_floors,'security_deposit'=>$security_deposit,'bedroom'=>$bedroom,'bathroom'=> $bathroom,'balconies'=>$balconies,'area_unit'=>$area_unit,'property_type'=>$property_type,'addition_room'=> $addition_room,'year_built'=>$year_built,'maintenance_charge_condition'=>$maintenance_charge_condition,'parking_covered_count'=>$parking_covered_count,'parking_open_count'=>$parking_open_count,'willing_to_rent'=>$willing_to_rent,'month_of_notic'=>$month_of_notic,'agreement_duration'=>$agreement_duration];
+            $agreement_type=[['id'=>1,'value'=>'Company Lease Agreement'],['id'=>2,'value'=>'Any']];
+
+            $static_data_array=['property_floor'=>$property_floor,'facing_towards'=>$facing_towards,'total_floors'=>$total_floors,'security_deposit'=>$security_deposit,'bedroom'=>$bedroom,'bathroom'=> $bathroom,'balconies'=>$balconies,'area_unit'=>$area_unit,'property_type'=>$property_type,'addition_room'=> $addition_room,'year_built'=>$year_built,'maintenance_charge_condition'=>$maintenance_charge_condition,'parking_covered_count'=>$parking_covered_count,'parking_open_count'=>$parking_open_count,'willing_to_rent'=>$willing_to_rent,'month_of_notic'=>$month_of_notic,'agreement_duration'=>$agreement_duration,'agreement_type'=>$agreement_type];
            return $static_data_array;
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
