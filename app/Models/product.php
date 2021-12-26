@@ -182,7 +182,7 @@ class product extends Model
 
     public function scopeSearch($query, $searchTerm) {
         if ($searchTerm->data['build_name']) {
-            $query = $query->where('build_name', 'like', "%" . $searchTerm->data['build_name'] . "%");
+            $query = $query->where('build_name', 'like',  $searchTerm->data['build_name'] . "%");
         }
         if ($searchTerm->data['location']) {
            $query = $query->where('address', 'like', "%" . $searchTerm->data['location'] . "%");

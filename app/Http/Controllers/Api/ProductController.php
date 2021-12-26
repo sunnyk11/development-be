@@ -297,7 +297,7 @@ class ProductController extends Controller
         $user_id = Auth::user()->id;
 
         // $product_id_func = product::find($prod_id)->productid;
-         $product = product::where(['delete_flag'=> '0','draft'=> '0','id'=>$prod_id])->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail','Property_Type')->orderBy('id', 'desc')->first();
+         $product = product::where(['delete_flag'=> '0','enabled' => 'yes', 'draft'=> '0','id'=>$prod_id])->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail','Property_Type')->orderBy('id', 'desc')->first();
 
            product::where('id', $prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);
 
@@ -315,7 +315,7 @@ class ProductController extends Controller
             'id' => 'required',
         ]);
         $prod_id = $request->id;
-         $product_data = product::where((['delete_flag'=> '0','draft'=> '0','id'=>$prod_id,'order_status'=> '0']))->with('amenities','Property_Type','product_img','UserDetail')->first();
+         $product_data = product::where((['delete_flag'=> '0','enabled' => 'yes','draft'=> '0','id'=>$prod_id,'order_status'=> '0']))->with('amenities','Property_Type','product_img','UserDetail')->first();
 
        // increase product count 
         product::where('id', $prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);

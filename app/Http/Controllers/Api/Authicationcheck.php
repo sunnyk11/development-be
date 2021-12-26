@@ -39,7 +39,7 @@ class Authicationcheck extends Controller
             $property_floor=[['number'=>'Ground Floor'],['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
             $total_floors=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
             $security_deposit=[['months'=>'1'],['months'=>'2'],['months'=>'3'],['months'=>'4'],['months'=>'5'],['months'=>'6']];
-            $maintenance_charge_condition=[['id'=>1,'condition'=>'Monthly'],['id'=>1,'condition'=>'Monthly'],['id'=>2,'condition'=>'Annually'],['id'=>3,'condition'=>'One Time']];
+            $maintenance_charge_condition=[['id'=>1,'condition'=>'Monthly'],['id'=>2,'condition'=>'Annually'],['id'=>3,'condition'=>'One Time']];
             $parking_covered_count=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5']];
             $parking_open_count=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5']];
             $willing_to_rent=[['id'=>1,'value'=>'Family'],['id'=>2,'value'=>'Single Men'],['id'=>3,'value'=>'Single Women']];

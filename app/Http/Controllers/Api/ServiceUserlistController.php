@@ -84,10 +84,10 @@ class ServiceUserlistController extends Controller
                                 'user_id' =>$user_id
                             ];
                             $user_district= state_district_mapping::create($user_district_mapping);
-                            if($user_district->id &&  $request['data']['locality'][0]['locality_id']){
+                            if($user_district->id &&  $request['data']['locality']){
                                $user_locality_mapping = [
                                     'district_id' => $user_district->id,
-                                    'locality_id' => $request['data']['locality'][0]['locality_id'],
+                                    'locality_id' => $request['data']['locality'],
                                     'user_id' =>$user_id
                                 ];
                                $user_locality=district_locality_mapping::create($user_locality_mapping);
@@ -140,10 +140,10 @@ class ServiceUserlistController extends Controller
                             'user_id' =>$user_id
                         ];
                         $user_district= state_district_mapping::create($user_district_mapping);
-                        if($user_district->id &&  $request['data']['locality'][0]['locality_id']){
+                        if($user_district->id &&  $request['data']['locality']){
                             $user_locality_mapping = [
                                 'district_id' => $user_district->id,
-                                'locality_id' => $request['data']['locality'][0]['locality_id'],
+                                'locality_id' => $request['data']['locality'],
                                 'user_id' =>$user_id
                             ];
                             $user_locality=district_locality_mapping::create($user_locality_mapping);
@@ -286,7 +286,7 @@ class ServiceUserlistController extends Controller
                     }
                 }
                 // locality updated 
-                $locality=$data1['locality'][0]['locality_id'];
+                $locality=$data1['locality'];
                 if($locality){
                     district_locality_mapping::where(['locality_id'=>$locality,'user_id'=>$user_id])->delete();
                     $user_locality_mapping = [

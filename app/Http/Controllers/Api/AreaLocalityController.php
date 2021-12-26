@@ -35,6 +35,21 @@ class AreaLocalityController extends Controller
             return $this->getExceptionResponse($e);
         }
    }
+   
+   public function search_locality(Request $request) {
+    // return $request->value;
+    try{
+        $data=[];
+        $locality=area_locality::where('locality', 'like',  "%" . $request->value . "%")->orderBy('locality', 'asc')->limit(10)->get();
+        // return $locality;
+         array_push($data,$locality);
+            return response()->json([
+                'data' => $data
+            ], 200);
+       }catch(\Exception $e) {
+        return $this->getExceptionResponse($e);
+        }
+}
     
     // public function get_areas(Request $request) {
 
