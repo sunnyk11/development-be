@@ -40,7 +40,6 @@ Route::get('get_rent_features', 'App\Http\Controllers\PlansController@get_rent_f
 Route::get('get_letout_features', 'App\Http\Controllers\PlansController@get_letout_features');
 Route::post('get_product_details', 'App\Http\Controllers\Api\ProductController@get_product_details');
 
-Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
 Route::get('check_email/{email}', 'App\Http\Controllers\Api\AuthController@check_email');
 Route::post('reset_password_send_otp', 'App\Http\Controllers\Api\AuthController@reset_password_send_otp');
 Route::post('reset_password_verify_otp', 'App\Http\Controllers\Api\AuthController@reset_password_verify_otp');
@@ -54,6 +53,7 @@ Route::group([
     'prefix' => 'auth'
 ], function () {
     Route::post('/login', 'App\Http\Controllers\Api\AuthController@login');
+    Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
     Route::post('/user_signup', 'App\Http\Controllers\Api\AuthController@user_signup');
 	Route::post('/verify_mobile', 'App\Http\Controllers\Api\AuthController@verify_mobile_number');																							  
     Route::post('/user_signup_new', 'App\Http\Controllers\Api\AuthController@user_signup_new');

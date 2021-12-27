@@ -36,6 +36,7 @@ class UserLogsController extends Controller
      */
     public function store(Request $request)
     {
+        // return $request->all();
         try{
             $user_logs= [
                 'url'            =>  $request->url_info,
