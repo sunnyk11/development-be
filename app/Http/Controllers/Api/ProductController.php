@@ -1170,7 +1170,6 @@ class ProductController extends Controller
     }
     public function update_product_rent(Request $request){
         try{
-            // dd($request->id);
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
@@ -1180,8 +1179,6 @@ class ProductController extends Controller
                $product_id=$request->id;   
                $data = product::where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes'])->find($product_id);
                if($data){
-                $video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
-                 //  dd($request->build_name);
                 $data->build_name = $request->build_name;
                 $data->type = $request->type;
                 $data->bedroom =$request->bedroom;
@@ -1190,24 +1187,26 @@ class ProductController extends Controller
                 $data->area =$request->area;
                 $data->area_unit =$request->area_unit;
                 $data->property_detail =$request->property_detail;
-        
                 // step 2
                 $data->address =$request->address;
                 $data->address_details = $request->address_details;
-             //    $data->state_id =$request->state_id;
-             //    $data->district_id = $request->district_id;
-             //    $data->locality_id =$request->locality_id;
-             //    $data->sub_locality_id =$request->sub_locality_id;
+                $data->state_id =$request->state_id;
+                $data->district_id = $request->district_id;
+                $data->locality_id =$request->locality_id;
+                $data->sub_locality_id =$request->sub_locality_id;
                 $data->map_latitude = $request->map_latitude;
                 $data->map_longitude = $request->map_longitude;
-        
-                // step 3
-                 if($request->additional !=null){ $addtional_room=implode(',',$request->additional);
-                     $data->additional_rooms=$addtional_room;
-                 }else{
-                    $data->additional_rooms=$request->additional;  
-                 }               
+                // step 3                 
                 $data->additional_rooms_status=$request->additional_rooms_status;
+                if($request->additional_rooms_status == 1){
+                    if($request->additional !=null){ $addtional_room=implode(',',$request->additional);
+                        $data->additional_rooms=$addtional_room;
+                    }else{
+                       $data->additional_rooms=$request->additional;  
+                    }
+                }else{
+                    $data->additional_rooms=NULL;  
+                }
                 $data->agreement_type=$request->agreement_type;
                 $data->duration_of_rent_aggreement=$request->duration_of_rent_aggreement;
                 $data->available_for = $request->available_for;
@@ -1218,46 +1217,61 @@ class ProductController extends Controller
                 $data->property_on_floor =$request->property_on_floor;
                 $data->willing_to_rent_out_to =$request->willing_to_rent_out_to;
                 $data->buildyear = $request->buildyear;
- 
+                $data->additional_parking_status=$request->additional_parking_status;
+               if($request->additional_parking_status == 1){
+                    $data->parking_covered_count=$request->parking_covered_count;
+                    $data->parking_open_count=$request->parking_open_count;
+                }else{  
+                    $data->parking_covered_count=NULL;
+                    $data->parking_open_count=NULL;
+                }
              //    step 4
                 $data->inc_electricity_and_water_bill =$request->inc_electricity_and_water_bill;
                 $data->expected_rent = $request->expected_rent;
                 $data->rent_availability =1;
                 $data->maintenance_charge_status = $request->maintenance_charge_status;
-                $data->maintenance_charge=$request->maintenance_charge;
-                $data->security_deposit=$request->security_deposit;
-                $data->negotiable_status=$request->price_negotiable_status;
-                $data->draft=$request->draft_form_id;
-                $data->price_negotiable=$request->price_negotiable;
+                if($request->maintenance_charge_status == 1){
+                    $data->maintenance_charge=$request->maintenance_charge;
+                    $data->maintenance_charge_condition=$request->maintenance_charge_condition;
+                }else{
+                    $data->maintenance_charge=NULL;
+                    $data->maintenance_charge_condition=NULL;    
+                }
+               $data->security_deposit=$request->security_deposit;
+                $data->negotiable_status=$request->negotiable_status;
+                if($request->negotiable_status==1){
+                    $data->price_negotiable=$request->price_negotiable;         
+                }else{
+                    $data->price_negotiable=NULL;
+                }
+                // $data->draft=$request->draft_form_id;
                 $data->rent_cond =1;
-                $data->video_link = $video_link;
+                if($request->video_link){
+                    $data->video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
+                
+                }
                 $data->updated_at= Carbon::now()->format('Y-m-d H:i:s');
                 
-             if($data['furnishing_status']== 1 ){
-                 // check amenties
-                 $amenities_check=$request->amenityDetail;
-                 $length=count($amenities_check);
-                 if($length>0){
-                     
-                    $amenity_delete= ProductAmenties::where('product_id',$product_id)->delete();
-                 //    dd($amenity_delete);
-                    if($amenity_delete ==1){
-                     foreach ($amenities_check as $Check_amenities) {
-                          $ProductAmenties = [
-                              'amenties' =>$Check_amenities,
-                              'product_id' => $product_id
-                          ];
-                          ProductAmenties::create($ProductAmenties);
-                      }
+                if($data['furnishing_status']== 1 ){
+                    // check amenties
+                    $amenities_check=$request->amenityDetail;
+                    $length=count($amenities_check);
+                    if($length>0){
+                        $amenity_delete= ProductAm0enties::where('product_id',$product_id)->delete();
+                        foreach ($amenities_check as $Check_amenities) {
+                            $ProductAmenties = [
+                                'amenties' =>$Check_amenities,
+                                'product_id' => $product_id
+                            ];
+                            ProductAmenties::create($ProductAmenties);
+                        }
                     }
-                 }
-         
-             }else{
-                 if($request->amenityDetail){
-                     $amenity_delete= ProductAmenties::where('product_id',$product_id)->delete();
-                 }
-         
-             }
+                }else{
+                    //  return $request->amenityDetail;
+                    if($request->amenityDetail){
+                        $amenity_delete= ProductAmenties::where('product_id',$product_id)->delete();
+                    }
+                }
                 if($data->save()){
                  return response() -> json([
                      'message' => 'Successfully Updated',
@@ -1278,8 +1292,12 @@ class ProductController extends Controller
                 ]);
                }
               
-            } else{
-                return 'Unauthication';
+            } else{                
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
             }
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
