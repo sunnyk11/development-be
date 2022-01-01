@@ -83,7 +83,7 @@ class ProductController extends Controller
 
     public function index_featured()
     {
-        $data = product::with('UserDetail','product_img','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
+        $data = product::with('UserDetail','product_img','Property_Type','product_state','product_locality')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
         return response()->json([
             'data' =>$data,
         ], 201);
@@ -91,7 +91,7 @@ class ProductController extends Controller
     public function index_featured_wishlist()
     {
        $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type','product_state','product_locality')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
 
         // return  $product;
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
@@ -190,7 +190,7 @@ class ProductController extends Controller
     {
         // return $request->input();
         // return $request->Bedrooms;
-        $product = product::with('amenities','UserDetail','Property_Type','product_img')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->get();
+        $product = product::with('amenities','UserDetail','Property_Type','product_img','product_state','product_locality')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->get();
         return response()->json([
             'data' =>$product,
           ], 201);
@@ -220,7 +220,7 @@ class ProductController extends Controller
             'cityname' => 'required',
         ]);
         $city = $request->cityname;
-        $productSimilar=product::with('UserDetail','Property_Type','product_img')->where(['city'=> $city,'delete_flag'=>0,'draft'=>'0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(6)->get();
+        $productSimilar=product::with('UserDetail','Property_Type','product_img','product_state','product_locality')->where(['city'=> $city,'delete_flag'=>0,'draft'=>'0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(6)->get();
 
             return response()-> json([
                 'data' => $productSimilar,
@@ -231,7 +231,7 @@ class ProductController extends Controller
      {
        $city = $request->cityname;  
         $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','product_img','product_comparision','Property_Type')->where(['city'=> $city,'delete_flag'=> 0,'draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(6)->get();
+        $product = product::with('UserDetail','product_img','product_comparision','Property_Type','product_state','product_locality')->where(['city'=> $city,'delete_flag'=> 0,'draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(6)->get();
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
         $productcount = count($product);
         $wishlistcount = count($Wishlist);
@@ -260,7 +260,7 @@ class ProductController extends Controller
     {
       // return $request->data['bedrooms'];
        $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','amenities','product_img','product_comparision')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->orderBy('id', 'desc')->get();
+        $product = product::with('UserDetail','amenities','product_img','product_comparision','product_state','product_district','product_locality','product_sub_locality')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->orderBy('id', 'desc')->get();
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
         $productcount = count($product);
         $wishlistcount = count($Wishlist);
@@ -298,7 +298,7 @@ class ProductController extends Controller
         $user_id = Auth::user()->id;
 
         // $product_id_func = product::find($prod_id)->productid;
-         $product = product::where(['delete_flag'=> '0','enabled' => 'yes', 'draft'=> '0','id'=>$prod_id])->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail','Property_Type')->orderBy('id', 'desc')->first();
+         $product = product::where(['delete_flag'=> '0','enabled' => 'yes', 'draft'=> '0','id'=>$prod_id])->with('amenities','product_img','product_comparision','Single_wishlist','UserDetail','product_state','product_district','product_locality','product_sub_locality')->orderBy('id', 'desc')->first();
 
            product::where('id', $prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);
 
@@ -316,7 +316,7 @@ class ProductController extends Controller
             'id' => 'required',
         ]);
         $prod_id = $request->id;
-         $product_data = product::where((['delete_flag'=> '0','enabled' => 'yes','draft'=> '0','id'=>$prod_id,'order_status'=> '0']))->with('amenities','Property_Type','product_img','UserDetail')->first();
+         $product_data = product::where((['delete_flag'=> '0','enabled' => 'yes','draft'=> '0','id'=>$prod_id,'order_status'=> '0']))->with('amenities','Property_Type','product_img','UserDetail','product_state','product_locality')->first();
 
        // increase product count 
         product::where('id', $prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);
@@ -1172,7 +1172,7 @@ class ProductController extends Controller
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == true){
+            if($object->authication_check($token) == false){
                 $request -> validate([
                     'id' => 'required|integer'
                 ]);
@@ -1257,7 +1257,7 @@ class ProductController extends Controller
                     $amenities_check=$request->amenityDetail;
                     $length=count($amenities_check);
                     if($length>0){
-                        $amenity_delete= ProductAm0enties::where('product_id',$product_id)->delete();
+                        $amenity_delete= ProductAmenties::where('product_id',$product_id)->delete();
                         foreach ($amenities_check as $Check_amenities) {
                             $ProductAmenties = [
                                 'amenties' =>$Check_amenities,
