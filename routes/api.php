@@ -33,11 +33,15 @@ Route::get('posts/{post}', 'App\Http\Controllers\PostController@show');
 Route::middleware('auth:api')->post('posts/update/{slug}', 'App\Http\Controllers\PostController@update');
 Route::middleware('auth:api')->delete('posts/delete/{slug}', 'App\Http\Controllers\PostController@destroy');
 
-Route::get('get_rent_plans', 'App\Http\Controllers\PlansController@get_rent_plans');
-Route::get('get_letout_plans', 'App\Http\Controllers\PlansController@get_letout_plans');
+Route::get('get_enabled_rent_plans', 'App\Http\Controllers\PlansController@get_enabled_rent_plans');																									
+Route::get('get_all_rent_plans', 'App\Http\Controllers\PlansController@get_all_rent_plans');
+Route::get('get_enabled_letout_plans', 'App\Http\Controllers\PlansController@get_enabled_letout_plans');
+Route::get('get_all_letout_plans', 'App\Http\Controllers\PlansController@get_all_letout_plans');
 Route::get('getLetOutPlans_Features', 'App\Http\Controllers\PlansController@getLetOutPlans_Features');
 Route::get('get_rent_features', 'App\Http\Controllers\PlansController@get_rent_features');
 Route::get('get_letout_features', 'App\Http\Controllers\PlansController@get_letout_features');
+Route::post('update_property_plans', 'App\Http\Controllers\PlansController@update_property_plans');
+Route::post('add_property_plan', 'App\Http\Controllers\PlansController@add_property_plan');																								   
 Route::post('get_product_details', 'App\Http\Controllers\Api\ProductController@get_product_details');
 
 Route::get('check_email/{email}', 'App\Http\Controllers\Api\AuthController@check_email');
@@ -53,6 +57,7 @@ Route::group([
     'prefix' => 'auth'
 ], function () {
     Route::post('/login', 'App\Http\Controllers\Api\AuthController@login');
+	Route::post('admin_login', 'App\Http\Controllers\Api\AdminControllerNew@admin_login');
     Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
     Route::post('/user_signup', 'App\Http\Controllers\Api\AuthController@user_signup');
 	Route::post('/verify_mobile', 'App\Http\Controllers\Api\AuthController@verify_mobile_number');																							  

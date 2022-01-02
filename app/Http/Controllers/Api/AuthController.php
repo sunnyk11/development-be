@@ -1121,8 +1121,8 @@ class AuthController extends Controller
                 'usertype' => 3,
                 'userSelect_type' => 3,
                 'profile_pic' => $user->avatar_original,
-                'other_mobile_number' => 1234567890,
-                'phone_number_verification_status' => 1,
+                //'other_mobile_number' => 1234567890,
+                'phone_number_verification_status' => 0,
                 'id'=> $user->id,
                 'internal_user' => "No",
                 'password' => encrypt('123456dummy')
@@ -1185,6 +1185,7 @@ class AuthController extends Controller
             $request->validate([
                 'mobile_no' => 'required|integer|digits:10',
             ]);
+			$email_db = DB::table('users')->where('other_mobile_number', $mobile_no)->value('email');																						 
         }
         if($email != null){
             $request->validate([
@@ -1195,13 +1196,21 @@ class AuthController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                 $data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
-                 
+                 //$data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
+                 if($mobile_no) {
+                     $invoices = DB::table('invoices')->where('user_email', $email_db)->get();
+                     $data = user::where(['other_mobile_number'=>$mobile_no])->with('propertydetails')->get();		 
+                 }
+                 else if($email) {
+                    $invoices = DB::table('invoices')->where('user_email', $email)->get();
+                    $data = user::where(['email'=>$email])->with('propertydetails')->get();
+                 }
                  if(count($data)>0){
                     $amenities=Amenitie::where('IsEnable', '1')->orderBy('id', 'asc')->get();  
                     $static_data=$object->static_data();
                     return response()->json([
                        'data' =>$data,
+					   'invoices' => $invoices,
                        'amenities_data'=>$amenities,
                        'static_data'=>$static_data,
                      ], 201);
@@ -1210,6 +1219,7 @@ class AuthController extends Controller
                     $static_data=[];
                     return response()->json([
                        'data' =>$data,
+					   'invoices' => $invoices,
                        'amenities_data'=>$amenities,
                        'static_data'=>$static_data,
                      ], 201);
@@ -1217,7 +1227,7 @@ class AuthController extends Controller
                  
 
             }else{
-                return 'Unauthication';
+                return 'Unauthenticated';
             }
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);

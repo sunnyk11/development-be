@@ -12,6 +12,10 @@ use App\Models\planCredit;
 use Carbon\Carbon;
 use App\Models\invoices;
 use App\Models\product;
+use App\Models\LetOutPlansNew;
+use App\Models\PropertyPlans;
+use App\Models\plansFeaturesPivot;
+use App\Models\orderPlanFeatures; 
 
 class PlansController extends Controller
 {
@@ -91,16 +95,34 @@ class PlansController extends Controller
         //
     }
 
-    public function get_rent_plans() {
-        $rent_plans = DB::table('rent_plans')->where('status', 'enabled')->get();
+    public function get_enabled_rent_plans() {
+        $rent_plans = DB::table('property_plans')->where(['plan_type' => 'Rent','plan_status'=> 'enabled'])->get();
         return response()->json([
             'data' => $rent_plans
         ], 200);
     }
 
-    public function get_letout_plans() {
-        return $letout_plans = DB::table('let_out_plans')->get();
+    public function get_enabled_letout_plans() {
+        $letout_plans = DB::table('property_plans')->where(['plan_type' => 'Let Out','plan_status'=> 'enabled'])->get();
+        return response()->json([
+            'data' => $letout_plans
+        ], 200);
     }
+
+    public function get_all_rent_plans() {
+        $rent_plans = DB::table('property_plans')->where(['plan_type' => 'Rent'])->get();
+        return response()->json([
+            'data' => $rent_plans
+        ], 200);
+    }
+
+    public function get_all_letout_plans() {
+        $letout_plans = DB::table('property_plans')->where(['plan_type' => 'Let Out'])->get();
+        return response()->json([
+            'data' => $letout_plans
+        ], 200);
+    }
+
     public function getLetOutPlans_Features() {
          $letout_plans = DB::table('let_out_plans')->get();
 
@@ -117,15 +139,19 @@ class PlansController extends Controller
         //return $rent_features = DB::table('rent_features')->groupBy('feature_name')->get();
         //return $rent_features = DB::table('rent_features')->select(DB::raw('feature_name, group_concat(feature_details) as feature_details'))->groupBy('feature_name')->get();
         //return $rent_features = DB::table('rent_features')->orderBy('feature_id')->select(DB::raw('feature_name, group_concat(feature_details) as feature_details'))->groupBy('feature_name')->get();
-        return $rent_features = DB::table('rent_plans')->where('status', 'enabled')->join('rent_features', 'rent_plans.plan_ID','=','rent_features.plan_id')->orderBy('feature_id')->select(DB::raw('feature_name, group_concat(feature_details) as feature_details'))->groupBy('feature_name')->get();
+        //return $rent_features = DB::table('rent_plans')->where('status', 'enabled')->join('rent_features', 'rent_plans.plan_ID','=','rent_features.plan_id')->orderBy('feature_id')->select(DB::raw('feature_name, group_concat(feature_details) as feature_details'))->groupBy('feature_name')->get();
+        $plan_details = PropertyPlans::where(['plan_type' => 'Rent','plan_status'=> 'enabled'])->with('features')->get();
+        return $plan_details;
     }
 
     public function get_letout_features() {
-        return $letout_features = DB::table('let_out_features')->orderBy('id')->select(DB::raw('feature_name, group_concat(feature_details) as feature_details'))->groupBy('feature_name')->get();
+        $plan_details = PropertyPlans::where(['plan_type' => 'Let Out','plan_status'=> 'enabled'])->with('features')->get();
+        return $plan_details;
     }
 
     public function post_selected_plan(Request $request) {
-        // return $request->all();
+        $data = json_decode($request->plan_features_data, true);
+        // return gettype($data['features']);
         $request->validate([
             'user_id' => 'required',
             'user_email' => 'required',
@@ -138,7 +164,25 @@ class PlansController extends Controller
         ]);
 
         $order_id = 'OR'.rand (10,100).time();
+        
+        $plan_features = new orderPlanFeatures([
+            'order_id' => $order_id,
+            'plan_id' => $data['id'],
+            'plan_name' => $data['plan_name'],
+            'plan_type' => $data['plan_type'],
+            'plan_status' => $data['plan_status'],
+            'payment_type' => $data['payment_type'],
+            'special_tag' => $data['special_tag'],
+            'actual_price_days' => $data['actual_price_days'],
+            'discount_status' => $data['discount'],
+            'discounted_price_days' => $data['discounted_price_days'],
+            'discount_percentage' => $data['discount_percentage'],
+            'plan_created_at' => $data['created_at'],
+            'plan_updated_at' => $data['updated_at'],
+            'features' => json_encode($data['features'])
+        ]);
 
+        if($request->plan_type == 'Let Out') {
             $plan = new plansOrders([
                 'user_id' => $request->user_id,
                 'user_email' => $request->user_email,
@@ -151,8 +195,25 @@ class PlansController extends Controller
                 'payment_type' => $request->payment_type
                 
             ]);
+        }
+
+        else if($request->plan_type == 'Rent') {
+            $plan = new plansRentOrders([
+                'user_id' => $request->user_id,
+                'user_email' => $request->user_email,
+                'order_id' => $order_id,
+                'plan_type' => $request->plan_type,
+                'plan_name' => $request->plan_name,
+                'plan_id' => $request->plan_id,
+                'expected_rent' => $request->expected_rent,
+                'plan_price' => $request->plan_price,
+                'payment_type' => $request->payment_type
+                
+            ]);
+        }
 
             $plan->save();
+            $plan_features->save();
 
             return response()->json([
                 'data' => $plan,
@@ -161,6 +222,7 @@ class PlansController extends Controller
     }
 
     public function post_selected_rent_plan(Request $request) {
+        $data = json_decode($request->plan_features_data, true);
 
         $request->validate([
             'user_id' => 'required',
@@ -181,6 +243,23 @@ class PlansController extends Controller
         ]);
 
         $order_id = 'OR'.rand (10,100).time();
+
+        $plan_features = new orderPlanFeatures([
+            'order_id' => $order_id,
+            'plan_id' => $data['id'],
+            'plan_name' => $data['plan_name'],
+            'plan_type' => $data['plan_type'],
+            'plan_status' => $data['plan_status'],
+            'payment_type' => $data['payment_type'],
+            'special_tag' => $data['special_tag'],
+            'actual_price_days' => $data['actual_price_days'],
+            'discount_status' => $data['discount'],
+            'discounted_price_days' => $data['discounted_price_days'],
+            'discount_percentage' => $data['discount_percentage'],
+            'plan_created_at' => $data['created_at'],
+            'plan_updated_at' => $data['updated_at'],
+            'features' => json_encode($data['features'])
+        ]);
 
             $plan = new plansRentOrders([
                 'user_id' => $request->user_id,
@@ -203,6 +282,7 @@ class PlansController extends Controller
             ]);
 
             $plan->save();
+            $plan_features->save();
 
             return response()->json([
                 'data' => $plan,
@@ -238,7 +318,7 @@ class PlansController extends Controller
         return $invoice_details = DB::table('invoices')->where([
             ['user_email', $emailID],
             ['plan_status', 'available'],
-            ['plan_type', 'let_out']
+            ['plan_type', 'Let Out']
         ])->get();
     }
 
@@ -438,5 +518,72 @@ class PlansController extends Controller
 
     public function get_rented_properties($userEmail) {
        return $property_details = DB::table('plans_rent_orders')->where(['user_email' => $userEmail, 'transaction_status' => 'TXN_SUCCESS'])->get();
+    }
+
+    public function update_property_plans(Request $request) {
+        try {
+            $request->validate([
+                'id' => 'required',
+                'payment_type' => 'required|string',
+                'plan_type' => 'required|string',
+                'plan_name' => 'required|string',
+                'plan_actual_price' => 'required|integer',
+                'plan_status' => 'required|string',
+                'special_tag' => 'required|string',
+                'discount_status' => 'required|string',
+                'discounted_price' => 'sometimes|nullable|integer',
+                'discount_per' => 'sometimes|nullable|numeric'
+            ]);
+
+            PropertyPlans::where(['id' => $request->id])->update(['plan_name' => $request->plan_name, 'plan_type' => $request->plan_type, 
+            'payment_type' => $request->payment_type, 'actual_price_days' => $request->plan_actual_price, 
+            'discount' => $request->discount_status, 'discounted_price_days' => $request->discounted_price, 
+            'discount_percentage' => $request->discount_per, 'special_tag' => $request->special_tag, 'plan_status' => $request->plan_status]);
+
+            return response()->json([
+                'message' => 'Plan details updated'
+            ], 201);
+        }
+        catch (\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
+    public function add_property_plan(Request $request) {
+        try {
+            $validator = $request->validate([
+                'plan_type' => 'required|string',
+                'planName' => 'required|string',
+                'actualPrice' => 'required|integer',
+                'payment_type' => 'required|string',
+                'plan_status' => 'required|string',
+                'special_tag' => 'required|string',
+                'discount_status' => 'required|string',
+                'discountPrice' => 'sometimes|nullable|integer',
+                'discount_per' => 'sometimes|nullable|numeric'
+            ]);
+
+            $plan = new PropertyPlans([
+                'plan_type' => $request->plan_type,
+                'plan_name' => $request->planName,
+                'actual_price_days' => $request->actualPrice,
+                'discount' => $request->discount_status,
+                'discounted_price_days' => $request->discountPrice,
+                'discount_percentage' => $request->discount_per,
+                'payment_type' => $request->payment_type,
+                'plan_status' => $request->plan_status,
+                'special_tag' => $request->special_tag
+            ]);
+
+            $plan->save();
+
+            return response()->json([
+                'message' => 'Plan Added'
+            ], 201);
+        }
+        catch (\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+
     }
 }
