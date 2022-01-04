@@ -155,7 +155,7 @@ class product extends Model
  
     public function Pro_order()
      {
-         return $this->hasOne('App\Models\invoices', 'product_id','product_uid')->where('transaction_status', 'TXN_SUCCESS');
+         return $this->hasOne('App\Models\invoices', 'user_id','user_id')->where('transaction_status', 'TXN_SUCCESS');
      }
      public function product_state()
     {
