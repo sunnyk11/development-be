@@ -1241,7 +1241,7 @@ class AuthController extends Controller
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == false){
+            if($object->authication_check($token) == true){
                  //$data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
                  if($mobile_no) {
                      $invoices = DB::table('invoices')->where('user_email', $email_db)->get();

@@ -73,7 +73,11 @@ class WishlistController extends Controller
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == false){
+            if($object->authication_check($token) == true){
+                $request -> validate([
+                    'product_id' => 'required|integer',
+                    'user_id' => 'required|integer'
+                ]);
                 $product_id=$request->product_id;
                 $user_id = $request->user_id;
                 // fetch details user product db        
@@ -171,7 +175,11 @@ class WishlistController extends Controller
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == false){
+            if($object->authication_check($token) == true){
+                $request -> validate([
+                    'product_id' => 'required|integer',
+                    'user_id' => 'required|integer'
+                ]);
                 $product_id=$request->product_id;
                 $user_id = $request->user_id;
                 $data= Wishlist::where(['user_id'=>$user_id,'product_id'=>$product_id])->delete();
