@@ -2,34 +2,25 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\product;
-use App\Models\reviews;
-use App\Models\eventtracker;
+use App\Models\guest_user_feedback;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\eventtracker;
+use App\Models\product;
 use Auth;
 
-class ReviewsController extends Controller
+class GuestUserFeedbackController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function review_index()
+    public function index()
     {
         $user_id = Auth::user()->id;
-
         return response()->json([
-            'data' => reviews::where('user_id', $user_id)->get()
-        ]);
-    }
-    public function testimonial()
-    {
-        // $user_id = Auth::user()->id;
-
-        return response()->json([
-            'data' => reviews::with('UserDetail')->where('stars', '5')->orderBy('id', 'desc')->take(3)->get()
+            'data' => guest_user_feedback::where('user_id', $user_id)->get()
         ]);
     }
 
@@ -43,45 +34,51 @@ class ReviewsController extends Controller
         //
     }
 
+    
+    public function testimonial(){
+        return response()->json([
+            'data' => guest_user_feedback::with('UserDetail')->where('stars', '5')->orderBy('id', 'desc')->take(3)->get()
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    
     public function store(Request $request)
     {
-        $request -> validate([
+        // return $request->all();
+        $request-> validate([
             'product_id' => 'required',
             'stars' => 'required',
             'subject' => 'required',
             'content' => 'required',
+            'user_id'=> 'required',
         ]);
+        
+      $data=$request->data;
 
         $property_name = product::select('build_name')->where('id', $request->product_id)->value('build_name');
 
-
-        $review = new Reviews([
-            'user_id' => user_id,
-            'user_name' => Auth::user()->name,
-            'property_name' => $property_name,
+        $guest_user_feedback = new guest_user_feedback([
+            'user_id' => $request->user_id,
             'product_id' => $request->product_id,
             'stars' => $request->stars,
-            'rev_subject' => $request->subject,
-            'rev_content' => $request->content,
+            'subject' => $request->subject,
+            'content' => $request->content,
         ]);
 
-        $review->save();
+        $guest_user_feedback->save();
         eventtracker::create(['symbol_code' => '5', 'event' => Auth::user()->name.' gave a review on a property '. $property_name]);
-
-
         return response()->json([
             'message' => 'Review Submitted',
-            $property_name
-        ],201);
+            'status'=> 200,
+        ],200);
 
     }
-
     public function product_review(Request $request)
     {
         $request -> validate([
@@ -89,7 +86,7 @@ class ReviewsController extends Controller
         ]);
 
         return response()->json([
-            'data' => reviews::where('product_id', $request->id)->get(),
+            'data' => guest_user_feedback::where('product_id', $request->id)->get(),
         ],201);
 
     }
@@ -97,10 +94,10 @@ class ReviewsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\reviews  $reviews
+     * @param  \App\Models\guest_user_feedback  $guest_user_feedback
      * @return \Illuminate\Http\Response
      */
-    public function show(reviews $reviews)
+    public function show(guest_user_feedback $guest_user_feedback)
     {
         //
     }
@@ -108,10 +105,10 @@ class ReviewsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\reviews  $reviews
+     * @param  \App\Models\guest_user_feedback  $guest_user_feedback
      * @return \Illuminate\Http\Response
      */
-    public function edit(reviews $reviews)
+    public function edit(guest_user_feedback $guest_user_feedback)
     {
         //
     }
@@ -120,10 +117,10 @@ class ReviewsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\reviews  $reviews
+     * @param  \App\Models\guest_user_feedback  $guest_user_feedback
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, reviews $reviews)
+    public function update(Request $request, guest_user_feedback $guest_user_feedback)
     {
         //
     }
@@ -131,16 +128,15 @@ class ReviewsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\reviews  $reviews
+     * @param  \App\Models\guest_user_feedback  $guest_user_feedback
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $review = reviews::where('id', $id);
+        $review = guest_user_feedback::where('id', $id);
         $review->delete();
         return response() -> json ([
             'message' => 'The review has been deleted.'
         ]); 
     }
 }
-

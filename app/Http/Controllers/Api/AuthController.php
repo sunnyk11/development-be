@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\InternalUser;
 use App\Models\UserRole;
 use App\Models\crmApiCalls;
+use App\Models\user_bank_details_history;
+use App\Models\product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -735,11 +737,72 @@ class AuthController extends Controller
             'message' => 'verification error'
         ], 401);
     }
+     public function bank_verify_mobile(Request $request)
+    {
+        // return $request->phone_number;
+       $data = $request->validate([
+            'phone_number' => ['required', 'numeric']
+        ]);
+
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $twilio->verify->v2->services($twilio_verify_sid)
+            ->verifications
+            ->create("+91".$data['phone_number'], "sms");
+
+        return response()->json([
+            'message' => 'OTP Sent',
+            'status' => 'Success'
+        ], 200);
+    }
+     public function bank_verify_OTP(Request $request)
+    {
+        try{
+            $request->validate([
+                'otp' => 'required|numeric',
+            ]);
+            $data=$request->data;
+            $otp=$request->otp;
+            /* Get credentials from .env */
+            $token = getenv("TWILIO_AUTH_TOKEN");
+            $twilio_sid = getenv("TWILIO_SID");
+            $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+            $twilio = new Client($twilio_sid, $token);
+            $verification = $twilio->verify->v2->services($twilio_verify_sid)
+                ->verificationChecks
+                ->create($otp, array('to' => "+91".$data['user_mobile_no']));
+    
+            if ($verification->valid) {
+                $user_data=User::where(['id'=> $data['user_id'],'other_mobile_number'=>$data['user_mobile_no']])->update(['bank_acount_no' => $data['account_no'], 'ifsc_code' =>  $data['ifsc_code'],'account_holder'=> $data['account_holder']]);
+                $user_bank_details = [
+                        'user_id' =>$data['user_id'],
+                        'mobile_no' => $data['user_mobile_no'],
+                        'account_holder' => $data['account_holder'],
+                        'bank_acount_no' => $data['account_no'],
+                        'ifsc_code' => $data['ifsc_code'],
+                        ];
+                    user_bank_details_history::create($user_bank_details);
+               
+                    return response()->json([
+                    'message' => 'Bank Details Successfully'
+                ], 201);
+            }
+            return response()->json([
+                'message' => 'verification error'
+            ], 401);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
 
     /* Code added by Radhika End */
 
     public function reverify(Request $request)
     {
+        try{
         $data = $request->validate([
             'verification_code' => 'required|string',
         ]);
@@ -767,6 +830,9 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'verification error'
         ], 201);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
     }
 
     public function login(Request $request)
@@ -829,7 +895,12 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        $user_id = Auth::user()->id;
+        $data = user::where(['id'=>$user_id,'blocked'=> '0'])->with('bank_details_history')->first();
+       
+        return response()->json([
+            'data' =>$data,
+        ], 201);
     }
 
     public function verify_user(Request $request)
@@ -1153,31 +1224,6 @@ class AuthController extends Controller
             //     ]);
         }
     }
-    public function user_fetch_details1(Request $request){
-        if($request->mobile_no != null){
-            $request->validate([
-                'mobile_no' => 'required|integer|digits:10',
-            ]);
-        }
-        if($request->email != null){
-            $request->validate([
-                'email' => 'required|email|min:7',
-            ]);
-        }
-        try{
-            $data=[];
-             $data['mobile_no'] = $request->mobile_no;
-             $data['email'] = $request->email;
-
-            $data = user::where(['other_mobile_number'=>$data['mobile_no']])->orwhere(['email'=> $data['email']])->with('productdetails')->get();
-            return response()->json([
-            'data' =>$data,
-          ], 201);
-
-        }catch (\Exception $e) {
-            return $this->getExceptionResponse($e);
-        }
-    }
      public function user_fetch_details(Request $request){
         $mobile_no = $request->input('mobile_no');
         $email = $request->input('email');
@@ -1195,37 +1241,41 @@ class AuthController extends Controller
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == true){
+            if($object->authication_check($token) == false){
                  //$data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
                  if($mobile_no) {
                      $invoices = DB::table('invoices')->where('user_email', $email_db)->get();
-                     $data = user::where(['other_mobile_number'=>$mobile_no])->with('propertydetails')->get();		 
+                     $data = user::where(['other_mobile_number'=>$mobile_no])->with('productdetails')->get();		 
                  }
                  else if($email) {
                     $invoices = DB::table('invoices')->where('user_email', $email)->get();
-                    $data = user::where(['email'=>$email])->with('propertydetails')->get();
+                   $data = user::where(['email'=>$email])->with('productdetails')->get();
                  }
                  if(count($data)>0){
+                    $properties = product::select('id','build_name')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->get();
+                    $user = user::select('id','name','email')->where(['phone_number_verification_status'=> '1',])->orderBy('id', 'desc')->get();
                     $amenities=Amenitie::where('IsEnable', '1')->orderBy('id', 'asc')->get();  
                     $static_data=$object->static_data();
                     return response()->json([
                        'data' =>$data,
 					   'invoices' => $invoices,
+                       'user'=>$user,
+                       'properties'=>$properties,
                        'amenities_data'=>$amenities,
                        'static_data'=>$static_data,
+                       'status'=> 200
                      ], 201);
                  }else{
                     $amenities=[];  
                     $static_data=[];
+                    $user=[];
+                    $properties=[];
                     return response()->json([
-                       'data' =>$data,
-					   'invoices' => $invoices,
-                       'amenities_data'=>$amenities,
-                       'static_data'=>$static_data,
+                       'message' => [['data' =>$data],[ 'invoices' => $invoices],[ 'user'=>$user],['properties'=>$properties],[ 'amenities_data'=>$amenities],[ 'static_data'=>$static_data]],
+                        'description'=>'This User Deatils  Inavalid!!!..',
+                        'status'=> 404,
                      ], 201);
                  }
-                 
-
             }else{
                 return 'Unauthenticated';
             }

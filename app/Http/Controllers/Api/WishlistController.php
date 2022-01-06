@@ -68,7 +68,48 @@ class WishlistController extends Controller
         ], 201);           
         }
     }
+   public function Crm_store(Request $request)
+    {
+        try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == false){
+                $product_id=$request->product_id;
+                $user_id = $request->user_id;
+                // fetch details user product db        
+                $Wishlist = Wishlist::where(['user_id'=>$user_id,'product_id'=>$product_id])->get();
+                // dd($Wishlist);
+                $count = count($Wishlist);
 
+                if($count==0){
+                    $Wishlist_data = [
+                        'user_id' => $user_id,
+                        'product_id' => $product_id,
+                    ];
+                    Wishlist::create($Wishlist_data);
+
+                return response()->json([
+                        'message' => 'Successfully Add Wishlist',
+                        'status'  => 200
+                    ]);
+
+                }else{
+                  return response()->json([
+                    'data' =>'Already Added',
+                    'status'=>200
+                ]);           
+                }
+            } else{                
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
+    }
     /**
      * Display the specified resource.
      *
@@ -122,6 +163,32 @@ class WishlistController extends Controller
             return response()->json([
                 'message' => 'Wishlist Successfully Deleted ',
             ], 201);
+
+    }
+
+     public function crm_delete(Request $request)
+    {
+        try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == false){
+                $product_id=$request->product_id;
+                $user_id = $request->user_id;
+                $data= Wishlist::where(['user_id'=>$user_id,'product_id'=>$product_id])->delete();
+                    return response()->json([
+                        'message' => 'Wishlist Successfully Deleted ',
+                        'status'=> 200
+                    ]);
+            } else{                
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
 
     }
 }

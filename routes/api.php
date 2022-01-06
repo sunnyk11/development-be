@@ -25,6 +25,8 @@ Route::resource('property_type', 'App\Http\Controllers\Api\PropertyTypeControlle
 Route::post('contact-form', 'App\Http\Controllers\ContactController@store');
 Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');
 Route::post('/update_product_rent', 'App\Http\Controllers\Api\ProductController@update_product_rent');																			
+Route::post('wishlist_crm', 'App\Http\Controllers\Api\WishlistController@Crm_store');																			
+Route::post('wishlist_delete_crm', 'App\Http\Controllers\Api\WishlistController@crm_delete');
 Route::middleware('auth:api')->post('posts', 'App\Http\Controllers\PostController@store');
 Route::get('posts', 'App\Http\Controllers\PostController@index');
 Route::get('posts_latest', 'App\Http\Controllers\PostController@index_latest');
@@ -91,7 +93,9 @@ Route::group([
 
     Route::post('/verify', 'App\Http\Controllers\Api\AuthController@verify');
 	Route::post('/verify_mob', 'App\Http\Controllers\Api\AuthController@verify_mob');	
-    Route::post('/verify_profile_mob', 'App\Http\Controllers\Api\AuthController@verify_profile_mob');																			 
+    Route::post('/verify_profile_mob', 'App\Http\Controllers\Api\AuthController@verify_profile_mob');
+    Route::post('/bank_verify_mobile', 'App\Http\Controllers\Api\AuthController@bank_verify_mobile');
+    Route::post('/bank_verify_OTP', 'App\Http\Controllers\Api\AuthController@bank_verify_OTP');																			 
     Route::post('/reverify', 'App\Http\Controllers\Api\AuthController@reverify');
     Route::post('/forgot_password', 'App\Http\Controllers\Api\AuthController@forgot_password');
 
@@ -180,12 +184,12 @@ Route::group([
     Route::get('/lawyer_service_index', 'App\Http\Controllers\Api\LawyerController@lawyer_index');
     Route::post('/lawyer_page', 'App\Http\Controllers\Api\LawyerController@lawyer_check');
 
-    Route::post('/product_review', 'App\Http\Controllers\Api\ReviewsController@product_review');
+    Route::post('/product_review', 'App\Http\Controllers\Api\GuestUserFeedbackController@product_review');
 
     Route::post('/search_pro_type', 'App\Http\Controllers\Api\ProductController@search_pro_type');
     
     Route::post('/productsearching', 'App\Http\Controllers\Api\ProductController@propertysearch_list');
-    Route::get('/testimonial', 'App\Http\Controllers\Api\ReviewsController@testimonial');
+    Route::get('/testimonial', 'App\Http\Controllers\Api\GuestUserFeedbackController@testimonial');
 
     Route::group([
         'middleware' => 'auth:api'
@@ -196,8 +200,8 @@ Route::group([
         Route::post('/city_search_login', 'App\Http\Controllers\Api\ProductController@city_search_login_uesr');
         Route::post('/loginsimilarproperty', 'App\Http\Controllers\Api\ProductController@loginSimilarproperty');
         Route::post('/requ', 'App\Http\Controllers\Api\RequirementController@create');
-        Route::get('/review_index', 'App\Http\Controllers\Api\ReviewsController@review_index');
-        Route::post('/post_review', 'App\Http\Controllers\Api\ReviewsController@store');
+        Route::get('/review_index', 'App\Http\Controllers\Api\GuestUserFeedbackController@review_index');
+        Route::post('/post_review', 'App\Http\Controllers\Api\GuestUserFeedbackController@store');
         Route::post('/Login_search_home', 'App\Http\Controllers\Api\ProductController@Login_search_home');
         Route::post('/search_pro_type_login', 'App\Http\Controllers\Api\ProductController@search_pro_type_login');
       Route::post('/check_order_product', 'App\Http\Controllers\Api\ProductOrderController@check_order_product');
@@ -234,8 +238,8 @@ Route::group([
 
         Route::resource('wishlist', 'App\Http\Controllers\Api\WishlistController');
         Route::post('wishlistdelete', 'App\Http\Controllers\Api\WishlistController@delete');
-
-          Route::resource('product_comp', 'App\Http\Controllers\Api\ProductComparisionController');
+       
+         Route::resource('product_comp', 'App\Http\Controllers\Api\ProductComparisionController');
         Route::post('pro_comp_delete', 'App\Http\Controllers\Api\ProductComparisionController@delete');
 
          Route::post('recently_product_user', 'App\Http\Controllers\Api\UserProductCountController@count_byID');
@@ -288,7 +292,7 @@ Route::group([
         Route::get('/product_update_admin', 'App\Http\Controllers\Api\AdminController@product_update');
         Route::get('/admin_lawyer_service', 'App\Http\Controllers\Api\AdminController@admin_lawyer_service');
         Route::get('/admin_review_index', 'App\Http\Controllers\Api\AdminController@review_index');
-		Route::delete('reviews/delete/{id}', 'App\Http\Controllers\Api\ReviewsController@destroy');
+		Route::delete('reviews/delete/{id}', 'App\Http\Controllers\Api\GuestUserFeedbackController@destroy');
 	}); 
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });

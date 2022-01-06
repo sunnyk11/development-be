@@ -1172,7 +1172,7 @@ class ProductController extends Controller
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == false){
+            if($object->authication_check($token) == true){
                 $request -> validate([
                     'id' => 'required|integer'
                 ]);
