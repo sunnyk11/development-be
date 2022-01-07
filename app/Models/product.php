@@ -117,7 +117,7 @@ class product extends Model
     
     public function product_wishlist_crm()
     {
-        return $this->hasOne('App\Models\Wishlist', 'product_id','user_id')->where('status', '1');
+        return $this->hasOne('App\Models\Wishlist', 'product_id','id')->where('status', '1');
     }
     public function product_comp()
     {

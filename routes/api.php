@@ -200,11 +200,11 @@ Route::group([
         Route::post('/city_search_login', 'App\Http\Controllers\Api\ProductController@city_search_login_uesr');
         Route::post('/loginsimilarproperty', 'App\Http\Controllers\Api\ProductController@loginSimilarproperty');
         Route::post('/requ', 'App\Http\Controllers\Api\RequirementController@create');
-        Route::get('/review_index', 'App\Http\Controllers\Api\GuestUserFeedbackController@review_index');
+        
         Route::post('/post_review', 'App\Http\Controllers\Api\GuestUserFeedbackController@store');
         Route::post('/Login_search_home', 'App\Http\Controllers\Api\ProductController@Login_search_home');
         Route::post('/search_pro_type_login', 'App\Http\Controllers\Api\ProductController@search_pro_type_login');
-      Route::post('/check_order_product', 'App\Http\Controllers\Api\ProductOrderController@check_order_product');
+       Route::post('/check_order_product', 'App\Http\Controllers\Api\ProductOrderController@check_order_product');
 
         Route::get('/get_requ', 'App\Http\Controllers\Api\RequirementController@index');
         Route::get('/requ_display', 'App\Http\Controllers\Api\RequirementController@display');
@@ -292,7 +292,10 @@ Route::group([
         Route::get('/product_update_admin', 'App\Http\Controllers\Api\AdminController@product_update');
         Route::get('/admin_lawyer_service', 'App\Http\Controllers\Api\AdminController@admin_lawyer_service');
         Route::get('/admin_review_index', 'App\Http\Controllers\Api\AdminController@review_index');
-		Route::delete('reviews/delete/{id}', 'App\Http\Controllers\Api\GuestUserFeedbackController@destroy');
-	}); 
+		Route::get('/get_reviews', 'App\Http\Controllers\Api\GuestUserFeedbackController@search_data');
+        Route::post('user_reviews_delete', 'App\Http\Controllers\Api\GuestUserFeedbackController@destroy');
+        Route::post('/reviews_status_changes', 'App\Http\Controllers\Api\GuestUserFeedbackController@reviews_status_changes');
+       	
+    }); 
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });

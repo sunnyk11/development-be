@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\eventtracker;
 use App\Models\product;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Auth;
 
 class GuestUserFeedbackController extends Controller
@@ -18,10 +20,20 @@ class GuestUserFeedbackController extends Controller
      */
     public function index()
     {
-        $user_id = Auth::user()->id;
+        try{
+            return response()->json([
+                'data' => guest_user_feedback::with('UserDetail')->get()
+            ]);
+         }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
+    public function search_data(Request $request){
         return response()->json([
-            'data' => guest_user_feedback::where('user_id', $user_id)->get()
-        ]);
+                'data' => guest_user_feedback::with('UserDetail')->search($request)->get()
+            ]);
+
     }
 
     /**
@@ -33,12 +45,39 @@ class GuestUserFeedbackController extends Controller
     {
         //
     }
+    public function reviews_status_changes(Request $request){
+        // return $request->user_id;
+        try{
+            $request -> validate([
+                    'user_id' => 'required|integer'
+                ]);
+            $data= guest_user_feedback::select('status')->where('id', $request->user_id)->first();
+            if($data['status']=='1'){
+                guest_user_feedback::where('id', $request->user_id)->update(['status' =>'0']);
+            }else{
+                guest_user_feedback::where('id',$request->user_id)->update(['status' =>'1']);
+            }
+            return response()->json([
+                'message' => 'User Reviews Status Chages',
+                'status'=> 200
+            ]);
+
+           
+         }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
 
     
     public function testimonial(){
-        return response()->json([
-            'data' => guest_user_feedback::with('UserDetail')->where('stars', '5')->orderBy('id', 'desc')->take(3)->get()
-        ]);
+        try{
+            return response()->json([
+                'data' => guest_user_feedback::with('UserDetail')->where(['status'=>'1','stars'=> '5'])->orderBy('id', 'desc')->take(3)->get()
+            ]); 
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+        
     }
 
     /**
@@ -50,33 +89,37 @@ class GuestUserFeedbackController extends Controller
     
     public function store(Request $request)
     {
-        // return $request->all();
-        $request-> validate([
-            'product_id' => 'required',
-            'stars' => 'required',
-            'subject' => 'required',
-            'content' => 'required',
-            'user_id'=> 'required',
-        ]);
-        
-      $data=$request->data;
+        try{
+            // return $request->all();
+            $request-> validate([
+                'product_id' => 'required',
+                'stars' => 'required',
+                'subject' => 'required',
+                'content' => 'required',
+                'user_id'=> 'required',
+            ]);
+            
+          $data=$request->data;
 
-        $property_name = product::select('build_name')->where('id', $request->product_id)->value('build_name');
+            $property_name = product::select('build_name')->where('id', $request->product_id)->value('build_name');
 
-        $guest_user_feedback = new guest_user_feedback([
-            'user_id' => $request->user_id,
-            'product_id' => $request->product_id,
-            'stars' => $request->stars,
-            'subject' => $request->subject,
-            'content' => $request->content,
-        ]);
+            $guest_user_feedback = new guest_user_feedback([
+                'user_id' => $request->user_id,
+                'product_id' => $request->product_id,
+                'stars' => $request->stars,
+                'subject' => $request->subject,
+                'content' => $request->content,
+            ]);
 
-        $guest_user_feedback->save();
-        eventtracker::create(['symbol_code' => '5', 'event' => Auth::user()->name.' gave a review on a property '. $property_name]);
-        return response()->json([
-            'message' => 'Review Submitted',
-            'status'=> 200,
-        ],200);
+            $guest_user_feedback->save();
+            eventtracker::create(['symbol_code' => '5', 'event' => Auth::user()->name.' gave a review on a property '. $property_name]);
+            return response()->json([
+                'message' => 'Review Submitted',
+                'status'=> 200,
+            ],200);
+         }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
 
     }
     public function product_review(Request $request)
@@ -131,12 +174,18 @@ class GuestUserFeedbackController extends Controller
      * @param  \App\Models\guest_user_feedback  $guest_user_feedback
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $review = guest_user_feedback::where('id', $id);
-        $review->delete();
-        return response() -> json ([
-            'message' => 'The review has been deleted.'
-        ]); 
+        try{
+             $request -> validate([
+                    'user_id' => 'required|integer'
+                ]);
+            $review = guest_user_feedback::where('id', $request->user_id)->delete();
+            return response() -> json ([
+                'message' => 'The review has been deleted.'
+            ]); 
+         }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
     }
 }
