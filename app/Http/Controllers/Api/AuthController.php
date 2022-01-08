@@ -775,24 +775,78 @@ class AuthController extends Controller
                 ->create($otp, array('to' => "+91".$data['user_mobile_no']));
     
             if ($verification->valid) {
-                $user_data=User::where(['id'=> $data['user_id'],'other_mobile_number'=>$data['user_mobile_no']])->update(['bank_acount_no' => $data['account_no'], 'ifsc_code' =>  $data['ifsc_code'],'account_holder'=> $data['account_holder']]);
-                $user_bank_details = [
+                $paytm_data=User::select('account_paytm_verify_id')->where(['id'=> $data['user_id'],'other_mobile_number'=>$data['user_mobile_no']])->first();
+               
+                $paytm_id=NULL;
+                $updated_date=Carbon::now()->format('Y-m-d H:i:s');
+                // return $updated_date;
+                $user_data=User::where(['id'=> $data['user_id'],'other_mobile_number'=>$data['user_mobile_no']])->update(['bank_acount_no' => $data['account_no'], 'ifsc_code' =>  $data['ifsc_code'],'account_holder'=> $data['account_holder'],'account_paytm_verify_id'=>$paytm_id,'paytm_verify_status'=>'0','updated_at'=>$updated_date]);
+                $paytm_id=$paytm_data->account_paytm_verify_id;
+                 $user_bank_details = [
                         'user_id' =>$data['user_id'],
                         'mobile_no' => $data['user_mobile_no'],
                         'account_holder' => $data['account_holder'],
                         'bank_acount_no' => $data['account_no'],
                         'ifsc_code' => $data['ifsc_code'],
+                        'account_paytm_verify_id' => $paytm_id,
                         ];
                     user_bank_details_history::create($user_bank_details);
                
                     return response()->json([
-                    'message' => 'Bank Details Successfully'
+                    'message' => 'Bank Details Successfully',
+                    'data'=>$user_bank_details
                 ], 201);
             }
             return response()->json([
                 'message' => 'verification error'
             ], 401);
         }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+    public function get_userbank_details(){
+        try{
+            $data = User::where('blocked','0')->whereNotNull('bank_acount_no')->orderBy('updated_at', 'desc')->get();
+            return response()->json([
+                'data' => $data
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+    public function update_bank_paytm_id(Request $request)
+    {        
+        $request ->validate([
+            'account_holder' => 'required',
+            'account_no' => 'required',
+            'ifsc_code' => 'required',
+            'user_mobile_no'=>'required',
+            'Paytm_unique_id'=>'required',
+            'user_id'=>'required'
+        ]);
+        // validate
+
+        try{
+            $user_data=User::where(['id'=>$request->user_id,'bank_acount_no'=>$request->account_no,'other_mobile_number'=>$request->user_mobile_no])->update(['account_paytm_verify_id' => $request->Paytm_unique_id,'paytm_verify_status'=>'1']);
+            return response()->json([
+                'message' => 'Successfully verified',
+                'status' =>200
+            ]);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+    public function bank_details_delete(Request $request)
+    {
+        try{
+             $request -> validate([
+                    'user_id' => 'required|integer'
+                ]);
+            $data = User::where('id', $request->user_id)->update(['blocked' =>'1']);
+            return response() -> json ([
+                'message' => 'The User Bank  details has been deleted.'
+            ]); 
+         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
         }
     }
@@ -1277,7 +1331,11 @@ class AuthController extends Controller
                      ], 201);
                  }
             }else{
-                return 'Unauthenticated';
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
             }
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
