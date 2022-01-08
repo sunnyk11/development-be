@@ -33,5 +33,10 @@ class Wishlist extends Model
     {
         $user_id = Auth::user()->id;
         return $this->hasOne('App\Models\Product_Comparision', 'product_id','product_id')->where('status', '1')->where('user_id', $user_id);
+    }
+    
+    public function product_name()
+    {
+        return $this->hasOne('App\Models\product', 'id','product_id')->select('id','build_name');
     } 
 }

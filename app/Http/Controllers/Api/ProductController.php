@@ -1168,7 +1168,277 @@ class ProductController extends Controller
 
 
     }
-    public function update_product_rent(Request $request){
+    public function get_crm_property(Request $request){
+        try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $data = product::where(['property_mode'=> 'crm'])->with('amenities','UserDetail','product_img','product_state','product_locality')->orderBy('id', 'desc')->get();
+                return response()->json([
+                    'data' => $data,
+                    'status'=>200
+                ], 200);
+            }else{
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }   
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        } 
+    }
+    
+    public function get_allproperty_crm(Request $request){
+        try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $property = product::where(['delete_flag'=> '0','enabled' => 'yes'])->orderBy('id', 'desc')->get();
+                $user = user::get();
+                $static_data=$object->static_data();
+                return response()->json([
+                    'property' => $property,
+                    'user'=>$user,
+                    'static_data'=>$static_data,
+                    'status'=>200
+                ], 200);
+            }else{
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            } 
+
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        } 
+    }   
+    public function crm_create_product_rent(Request $request){
+        $request->validate([
+            'crm_user_email' => 'required|email',
+        ]);
+       try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $data = product::find($request->id);
+                // if($data){
+                //     if($request->additional_rooms_status==1){
+                //         $addtional_room=implode(',',$request->additional);
+                //     }else{
+                //         $addtional_room=NULL;
+                //     } 
+                                
+                //     $data->build_name =$request->build_name;
+                //     $data->type = $request->type;
+                //     $data->bedroom = $request->bedroom;
+                //     $data->bathroom = $request->bathroom;
+                //     $data->balconies =  $request->balconies;
+                //     $data->area = $request->area;
+                //     $data->area_unit = $request->area_unit;
+                //     $data->property_detail = $request->property_detail;
+
+                //     // step 2
+                //     $data->address = $request->address;
+                //     $data->address_details = $request->address_details;
+                //     $data->state_id = $request->state_id;
+                //     $data->district_id = $request->district_id;
+                //     $data->locality_id = $request->locality_id;
+                //     $data->sub_locality_id =$request->sub_locality_id;
+                //     $data->map_latitude = $request->map_latitude;
+                //     $data->map_longitude =  $request->map_longitude;
+
+                //     // step 3
+                //     if($request->additional_rooms_status == 1){
+                //         if($request->additional !=null){ $addtional_room=implode(',',$request->additional);
+                //             $data->additional_rooms=$addtional_room;
+                //         }else{
+                //            $data->additional_rooms=$request->additional;  
+                //         }
+                //     }else{
+                //         $data->additional_rooms=NULL;  
+                //     }
+                //     $data->additional_rooms_status=$request->additional_rooms_status;
+                //     $data->agreement_type=$request->agreement_type;
+                //     $data->duration_of_rent_aggreement=$request->duration_of_rent_aggreement;
+                //     $data->available_for = $request->available_for;
+                //     $data->facing_towards = $request->facing_towards;
+                //     $data->furnishing_status = $request->furnishing_status;
+                //     $data->month_of_notice = $request->month_of_notice;
+                //     $data->additional_parking_status =$request->additional_parking_status;
+                //     if($request->additional_parking_status == 1){
+                //         $data->parking_covered_count=$request->parking_covered_count;
+                //         $data->parking_open_count=$request->parking_open_count;
+                //     }else{  
+                //         $data->parking_covered_count=NULL;
+                //         $data->parking_open_count=NULL;
+                //     }
+                //     $data->total_floors = $request->total_floors;
+                //     $data->property_on_floor = $request->property_on_floor;
+                //     $data->willing_to_rent_out_to =$request->willing_to_rent_out_to;
+                //     $data->buildyear = $request->buildyear;
+
+                //     // step 4
+                //     $data->inc_electricity_and_water_bill =$request->inc_electricity_and_water_bill;
+                //     $data->expected_rent = $request->expected_rent;
+                //     $data->rent_availability =1;
+                //     $data->maintenance_charge_status = $request->maintenance_charge_status;
+                //     if($request->maintenance_charge_status == 1){
+                //         $data->maintenance_charge=$request->maintenance_charge;
+                //         $data->maintenance_charge_condition=$request->maintenance_charge_condition;
+                //     }else{
+                //         $data->maintenance_charge=NULL;
+                //         $data->maintenance_charge_condition=NULL;    
+                //     }
+                //     $data->negotiable_status=$request->negotiable_status;
+                //     if($request->negotiable_status==1){
+                //         $data->price_negotiable=$request->price_negotiable;         
+                //     }else{
+                //         $data->price_negotiable=NULL;
+                //     }
+                //     $data->security_deposit=$request->security_deposit;
+                //     $data->draft=$request->draft_id;
+                //     $data->property_mode=$request->property_mode;
+                //     $data->crm_user_email=$request->crm_user_email;
+                //     $data->rent_cond =1;
+                //     if($request->video_link){
+                //         $data->video_link=str_replace("https://www.youtube.com/watch?v=","",$request->video_link);
+                //     }
+                //     $data->updated_at= Carbon::now()->format('Y-m-d H:i:s');
+                //     $data->save();
+                //     $product_id= $request->id;
+                //     if($request->furnishing_status == 1 ){
+                //         // check amenties
+                //             $amenities_check=$request->amenityDetail;
+                //             $length=count($amenities_check);
+                //             if($length>0){
+                //                 $amenity_delete= ProductAmenties::where(['user_id'=>$request->userId,'product_id'=>$product_id])->delete();
+                //                 foreach ($amenities_check as $Check_amenities) {
+                //                     $ProductAmenties = [
+                //                         'amenties' =>$Check_amenities,
+                //                         'user_id' => $request->userId,
+                //                         'product_id' => $product_id
+                //                     ];
+                //                     ProductAmenties::create($ProductAmenties);
+                //                 }
+                //             }
+                //         }else{
+                //             //  return $request->amenityDetail;
+                //             if($request->amenityDetail){
+                //                 $amenity_delete= ProductAmenties::where(['user_id'=>$request->userId,'product_id'=>$product_id])->delete();
+                //             }
+                //         }
+                        
+                //     return response() -> json([
+                //         'message' => 'Successfully Updated Draft Property',
+                //         'product_id' => $product_id,
+                //         'status'=> 200
+                //     ]);
+                // }else{
+                    // $video_link=str_replace("https://www.youtube.com/watch?v=","",$data4['video_link']);
+                    if($request->additional_rooms_status==1){
+                        $addtional_room=implode(',',$request->additional);
+                    }else{
+                        $addtional_room=NULL;
+                    }           
+                    $product_uid= rand (1000,9999).time();
+                    //  return $product_uid;
+
+                        $product_data = [
+                        'user_id' => $request->userId,
+                        'crm_user_email'=>$request->crm_user_email,
+                        'product_uid' => $product_uid,
+                        'build_name' =>$request->build_name,
+                        'type' =>$request->type,
+                        'bedroom' => $request->bedroom,
+                        'bathroom' => $request->bathroom,
+                        'balconies' => $request->balconies,
+                        'area' =>$request->area,
+                        'area_unit' => $request->area_unit,
+                        'property_detail' =>$request->property_detail,
+
+                        // step 2
+                        // 'address_details' => $request->userId,
+                        'address' =>$request->address,
+                        'state_id' =>$request->state_id,
+                        'district_id' =>$request->district_id,
+                        'locality_id' => $request->locality_id,
+                        'sub_locality_id' => $request->sub_locality_id,
+                        'map_latitude' => $request->map_latitude,
+                        'map_longitude' => $request->map_longitude,
+
+                        // step 3
+                        'additional_rooms_status' =>$request->additional_rooms_status,
+                        'additional_rooms' => $addtional_room,
+                        'agreement_type' => $request->agreement_type,
+                        'duration_of_rent_aggreement' => $request->duration_of_rent_aggreement,
+                        'available_for' =>$request->available_for,
+                        'facing_towards'=>$request->facing_towards,
+                        'furnishing_status'=>$request->furnishing_status,
+                        'month_of_notice'=>$request->month_of_notice,
+                        'additional_parking_status' =>$request->additional_parking_status,
+                        'parking_covered_count' =>$request->parking_covered_count,
+                        'parking_open_count' =>$request->parking_open_count,
+                        'property_on_floor' =>$request->property_on_floor,
+                        'total_floors' =>$request->total_floors,
+                        'willing_to_rent_out_to' =>$request->willing_to_rent_out_to,
+                        'buildyear' =>$request->buildyear,
+
+                        // step 4
+                        'inc_electricity_and_water_bill' =>$request->inc_electricity_and_water_bill,
+                        'expected_rent' =>$request->expected_rent,
+                        'rent_availability' =>1,
+                        'maintenance_charge_status' =>$request->maintenance_charge_status,
+                        'maintenance_charge' =>$request->maintenance_charge,
+                        'maintenance_charge_condition' =>$request->maintenance_charge_condition,
+                        'negotiable_status' =>$request->negotiable_status,
+                        'price_negotiable' =>$request->price_negotiable,
+                        'security_deposit' =>$request->security_deposit,
+                        'rent_cond' =>1,
+                        // 'video_link'=>$video_link,
+                        'draft' =>$request->draft_id,
+                        'property_mode'=>$request->property_mode
+                        ];
+                    $product_db_result=product::create($product_data);
+                    $product_id=$product_db_result->id;
+                    if($request->furnishing_status == 1 ){
+                        // check amenties
+                            $amenities_check=$request->amenityDetail;
+                            $length=count($amenities_check);
+                            if($length>0){
+                                foreach ($amenities_check as $Check_amenities) {
+                                    $ProductAmenties = [
+                                        'amenties' =>$Check_amenities,
+                                        'user_id' => $request->userId,
+                                        'product_id' => $product_id
+                                    ];
+                                    ProductAmenties::create($ProductAmenties);
+                                }
+                            }
+                        }
+                        return response()->json([
+                            'message' => 'Successfully created Draft Property',
+                            'product_id' => $product_id,
+                            'status'=>200
+                        ], 201);
+                // }
+            }else{
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }
+        
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        }  
+    
+    }
+    public function crm_update_product_rent(Request $request){
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();

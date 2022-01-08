@@ -88,7 +88,9 @@ class product extends Model
         'district_id',
         'locality_id',
         'sub_locality_id',
-        'enabled'
+        'enabled',
+        'property_mode',
+        'crm_user_email'
     ];
 
     public function productid()

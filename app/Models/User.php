@@ -70,11 +70,11 @@ class User extends Authenticatable
 
     public function productdetails()
     {
-        return $this->hasMany('App\Models\product', 'user_id','id')->with('amenities','product_comp','product_img','product_wishlist_crm','Pro_order','letout_invoice', 'rent_invoice')->where(['delete_flag'=> '0','draft'=> '0','enabled' => 'yes']);
+        return $this->hasMany('App\Models\product', 'user_id','id')->with('amenities','product_comp','product_img','product_wishlist_crm','Pro_order','letout_invoice', 'rent_invoice')->where(['delete_flag'=> '0','enabled' => 'yes']);
     }
     public function product_wishlist(){
 
-        return $this->hasMany('App\Models\Wishlist', 'user_id','id')->where('status', '1');
+        return $this->hasMany('App\Models\Wishlist', 'user_id','id')->with('product_name')->where('status', '1');
     }
 
 }

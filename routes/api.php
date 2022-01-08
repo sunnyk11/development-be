@@ -24,7 +24,11 @@ Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
 Route::resource('property_type', 'App\Http\Controllers\Api\PropertyTypeController');
 Route::post('contact-form', 'App\Http\Controllers\ContactController@store');
 Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');
-Route::post('/update_product_rent', 'App\Http\Controllers\Api\ProductController@update_product_rent');																			
+
+Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
+Route::get('/get_allproperty_crm', 'App\Http\Controllers\Api\ProductController@get_allproperty_crm');
+Route::post('/create_product_rent', 'App\Http\Controllers\Api\ProductController@crm_create_product_rent');
+Route::post('/update_product_rent', 'App\Http\Controllers\Api\ProductController@crm_update_product_rent');																			
 Route::post('wishlist_crm', 'App\Http\Controllers\Api\WishlistController@Crm_store');																			
 Route::post('wishlist_delete_crm', 'App\Http\Controllers\Api\WishlistController@crm_delete');
 Route::middleware('auth:api')->post('posts', 'App\Http\Controllers\PostController@store');
@@ -295,7 +299,9 @@ Route::group([
 		Route::get('/get_reviews', 'App\Http\Controllers\Api\GuestUserFeedbackController@search_data');
         Route::post('user_reviews_delete', 'App\Http\Controllers\Api\GuestUserFeedbackController@destroy');
         Route::post('/reviews_status_changes', 'App\Http\Controllers\Api\GuestUserFeedbackController@reviews_status_changes');
-       	
+        Route::get('/get_userbank_details', 'App\Http\Controllers\Api\AuthController@get_userbank_details');
+         Route::post('bank_details_delete', 'App\Http\Controllers\Api\AuthController@bank_details_delete');
+          Route::post('update_bank_paytm_id', 'App\Http\Controllers\Api\AuthController@update_bank_paytm_id');
     }); 
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');
 });
