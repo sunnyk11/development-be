@@ -70,14 +70,14 @@ class WishlistController extends Controller
     }
    public function Crm_store(Request $request)
     {
+        $request -> validate([
+                'product_id' => 'required|integer',
+                'user_id' => 'required|integer'
+        ]);
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $request -> validate([
-                    'product_id' => 'required|integer',
-                    'user_id' => 'required|integer'
-                ]);
                 $product_id=$request->product_id;
                 $user_id = $request->user_id;
                 // fetch details user product db        
@@ -90,16 +90,17 @@ class WishlistController extends Controller
                         'user_id' => $user_id,
                         'product_id' => $product_id,
                     ];
-                    Wishlist::create($Wishlist_data);
-
+                 Wishlist::create($Wishlist_data);
                 return response()->json([
-                        'message' => 'Successfully Add Wishlist',
+                        'message' => 'SUCCESS ',
+                        'description'=>'Successfully Add Wishlist',
                         'status'  => 200
                     ]);
 
                 }else{
                   return response()->json([
-                    'data' =>'Already Added',
+                    'message' =>'SUCCESS',
+                    'description'=>'Already Added',
                     'status'=>200
                 ]);           
                 }
@@ -111,7 +112,7 @@ class WishlistController extends Controller
                 ]);
             }
         }catch(\Exception $e) {
-            return $this->getExceptionResponse($e);
+            return $this->getExceptionResponse1($e);
         }  
     }
     /**
@@ -172,21 +173,24 @@ class WishlistController extends Controller
 
      public function crm_delete(Request $request)
     {
+        $request -> validate([
+                    'product_id' => 'required|integer',
+                    'user_id' => 'required|integer'
+        ]);
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $request -> validate([
-                    'product_id' => 'required|integer',
-                    'user_id' => 'required|integer'
-                ]);
+                
                 $product_id=$request->product_id;
                 $user_id = $request->user_id;
                 $data= Wishlist::where(['user_id'=>$user_id,'product_id'=>$product_id])->delete();
                     return response()->json([
-                        'message' => 'Wishlist Successfully Deleted ',
-                        'status'=> 200
+                        'message' =>'SUCCESS',
+                        'description'=>'Wishlist Successfully Deleted',
+                        'status'=>200
                     ]);
+                    
             } else{                
                 return response() -> json([
                     'message' => 'Failure',
@@ -195,7 +199,7 @@ class WishlistController extends Controller
                 ]);
             }
         }catch(\Exception $e) {
-            return $this->getExceptionResponse($e);
+            return $this->getExceptionResponse1($e);
         }
 
     }

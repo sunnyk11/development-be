@@ -17,4 +17,11 @@ class Controller extends BaseController
             'status'    => 404,
         ]);
     }
+    public function getExceptionResponse1($e){
+        return response()->json([
+            'message'   => 'FAIL',
+            'status'    => 404,
+        ]);
+    }
+
 }

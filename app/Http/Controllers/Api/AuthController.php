@@ -806,7 +806,18 @@ class AuthController extends Controller
     }
     public function get_userbank_details(){
         try{
-            $data = User::where('blocked','0')->whereNotNull('bank_acount_no')->orderBy('updated_at', 'desc')->get();
+            $data = User::whereNotNull('bank_acount_no')->orderBy('updated_at', 'desc')->get();
+            return response()->json([
+                'data' => $data
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
+    public function get_all_user(){
+        try{
+            $data = User::orderBy('id', 'desc')->get();
             return response()->json([
                 'data' => $data
             ], 200);
@@ -842,9 +853,24 @@ class AuthController extends Controller
              $request -> validate([
                     'user_id' => 'required|integer'
                 ]);
-            $data = User::where('id', $request->user_id)->update(['blocked' =>'1']);
+            $data = User::where('id', $request->user_id)->update(['bank_acount_no' =>NULL,'ifsc_code'=>NULL,'account_paytm_verify_id'=>NULL,'paytm_verify_status'=>0]);
             return response() -> json ([
                 'message' => 'The User Bank  details has been deleted.'
+            ]); 
+         }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
+    public function delete_user(Request $request)
+    {
+        try{
+             $request -> validate([
+                    'user_id' => 'required|integer'
+                ]);
+            $data = User::where('id', $request->user_id)->delete();
+            return response() -> json ([
+                'message' => 'The User  has been deleted.'
             ]); 
          }catch(\Exception $e) {
             return $this->getExceptionResponse($e);

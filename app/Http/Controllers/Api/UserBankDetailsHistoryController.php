@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;;
 
 use App\Models\user_bank_details_history;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class UserBankDetailsHistoryController extends Controller
 {
@@ -16,7 +17,17 @@ class UserBankDetailsHistoryController extends Controller
     {
         //
     }
-
+   public function get_userbank_history_id(Request $request){
+       try{
+            $user_history= user_bank_details_history::where('user_id', $request->user_id)->take(5)->get();
+            return response()->json([
+                    'data' => $user_history,
+                    'status'=>200
+                ]);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+   }
     /**
      * Show the form for creating a new resource.
      *

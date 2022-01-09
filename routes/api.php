@@ -300,6 +300,9 @@ Route::group([
         Route::post('user_reviews_delete', 'App\Http\Controllers\Api\GuestUserFeedbackController@destroy');
         Route::post('/reviews_status_changes', 'App\Http\Controllers\Api\GuestUserFeedbackController@reviews_status_changes');
         Route::get('/get_userbank_details', 'App\Http\Controllers\Api\AuthController@get_userbank_details');
+        Route::get('/get_all_user', 'App\Http\Controllers\Api\AuthController@get_all_user');
+         Route::post('delete_user', 'App\Http\Controllers\Api\AuthController@delete_user');
+        Route::get('/get_userbank_history_id', 'App\Http\Controllers\Api\UserBankDetailsHistoryController@get_userbank_history_id');
          Route::post('bank_details_delete', 'App\Http\Controllers\Api\AuthController@bank_details_delete');
           Route::post('update_bank_paytm_id', 'App\Http\Controllers\Api\AuthController@update_bank_paytm_id');
     }); 

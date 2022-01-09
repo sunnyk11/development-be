@@ -1173,20 +1173,21 @@ class ProductController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $data = product::where(['property_mode'=> 'crm'])->with('amenities','UserDetail','product_img','product_state','product_locality')->orderBy('id', 'desc')->get();
+                $data = product::where(['property_mode'=> 'crm','delete_flag'=> '0'])->with('amenities','UserDetail','product_img','product_state','product_locality')->orderBy('id', 'desc')->get();
                 return response()->json([
+                    'message' =>'SUCCESS',
                     'data' => $data,
                     'status'=>200
                 ], 200);
             }else{
                 return response() -> json([
-                    'message' => 'Failure',
+                    'message' => 'FAIL',
                     'description'=>'Unauthication',
                     'status'=> 401,
                 ]);
             }   
         }catch(\Exception $e) {
-            return $this->getExceptionResponse($e);
+            return $this->getExceptionResponse1($e);
         } 
     }
     
@@ -1195,10 +1196,11 @@ class ProductController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $property = product::where(['delete_flag'=> '0','enabled' => 'yes'])->orderBy('id', 'desc')->get();
+                $property = product::where(['delete_flag'=> '0'])->orderBy('id', 'desc')->get();
                 $user = user::get();
                 $static_data=$object->static_data();
                 return response()->json([
+                    'message' =>'SUCCESS',
                     'property' => $property,
                     'user'=>$user,
                     'static_data'=>$static_data,
@@ -1206,19 +1208,20 @@ class ProductController extends Controller
                 ], 200);
             }else{
                 return response() -> json([
-                    'message' => 'Failure',
+                    'message' => 'FAIL',
                     'description'=>'Unauthication',
                     'status'=> 401,
                 ]);
             } 
 
         }catch(\Exception $e) {
-            return $this->getExceptionResponse($e);
+            return $this->getExceptionResponse1($e);
         } 
     }   
     public function crm_create_product_rent(Request $request){
         $request->validate([
             'crm_user_email' => 'required|email',
+            'draft_id'=>'required|integer'
         ]);
        try{
             $token  = $request->header('authorization');
@@ -1403,6 +1406,7 @@ class ProductController extends Controller
                         'property_mode'=>$request->property_mode
                         ];
                     $product_db_result=product::create($product_data);
+                   
                     $product_id=$product_db_result->id;
                     if($request->furnishing_status == 1 ){
                         // check amenties
@@ -1420,14 +1424,15 @@ class ProductController extends Controller
                             }
                         }
                         return response()->json([
-                            'message' => 'Successfully created Draft Property',
-                            'product_id' => $product_id,
+                            'message' =>'SUCCESS',
+                            'description' => 'Successfully created Draft Property',
+                            // 'product_id' => $product_id,
                             'status'=>200
                         ], 201);
                 // }
             }else{
                 return response() -> json([
-                    'message' => 'Failure',
+                    'message' => 'FAIL',
                     'description'=>'Unauthication',
                     'status'=> 401,
                 ]);
@@ -1544,19 +1549,20 @@ class ProductController extends Controller
                 }
                 if($data->save()){
                  return response() -> json([
-                     'message' => 'Successfully Updated',
+                    'message' => 'SUCCESS',
+                    'description'=>'Successfully Updated',
                      'status'=> 200
                  ]);
                 }else{
                  return response() -> json([
-                     'message' => 'Failure',
+                     'message' => 'FAIL',
                      'description'=>'Somthing Error !!!...',
                      'status'=> 201,
                  ]);
                 } 
                }else{
                 return response() -> json([
-                    'message' => 'Failure',
+                    'message' => 'FAIL',
                     'description'=>'This Product Deatils  Inavalid!!!..',
                     'status'=> 404,
                 ]);
@@ -1564,13 +1570,13 @@ class ProductController extends Controller
               
             } else{                
                 return response() -> json([
-                    'message' => 'Failure',
+                    'message' => 'FAIL',
                     'description'=>'Unauthication',
                     'status'=> 401,
                 ]);
             }
         }catch(\Exception $e) {
-            return $this->getExceptionResponse($e);
+            return $this->getExceptionResponse1($e);
         }
         
     }
