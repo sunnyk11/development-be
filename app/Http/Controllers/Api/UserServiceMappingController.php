@@ -58,7 +58,7 @@ class UserServiceMappingController extends Controller
     public function search_data(Request $request){
         // return $request->all();
         try{
-            $data = User_service_mapping::where(['status'=> '1'])->with('service','service_user','user_review')->search($request)->orderby('id','desc')->get();
+            $data = User_service_mapping::where(['status'=> '1'])->with('service','service_user','user_review')->search($request)->orderby('id','desc')->paginate(5);
             // return $data[0]['user_review'][1];
                 return response()->json([
                     'data' =>$data,

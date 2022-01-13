@@ -179,7 +179,7 @@ class ServiceUserlistController extends Controller
     public function show(service_userlist $service_userlist)
     {
         try{
-           $data = service_userlist::where(['status'=> '1'])->with('user_service','user_review','user_area')->orderby('id','desc')->get();
+           $data = service_userlist::where(['status'=> '1'])->with('user_service','user_review','user_area')->orderby('id','desc')->paginate(5);
            return response()->json([
                 'data' =>$data,
             ], 201);

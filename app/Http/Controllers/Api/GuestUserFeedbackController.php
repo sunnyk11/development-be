@@ -31,7 +31,7 @@ class GuestUserFeedbackController extends Controller
 
     public function search_data(Request $request){
         return response()->json([
-                'data' => guest_user_feedback::with('UserDetail')->search($request)->get()
+                'data' => guest_user_feedback::with('UserDetail')->search($request)->paginate(5)
             ]);
 
     }

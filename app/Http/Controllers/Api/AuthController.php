@@ -806,7 +806,7 @@ class AuthController extends Controller
     }
     public function get_userbank_details(){
         try{
-            $data = User::whereNotNull('bank_acount_no')->orderBy('updated_at', 'desc')->get();
+            $data = User::whereNotNull('bank_acount_no')->orderBy('updated_at', 'desc')->paginate(5);
             return response()->json([
                 'data' => $data
             ], 200);
@@ -817,7 +817,7 @@ class AuthController extends Controller
 
     public function get_all_user(){
         try{
-            $data = User::orderBy('id', 'desc')->get();
+            $data = User::orderBy('id', 'desc')->paginate(2);
             return response()->json([
                 'data' => $data
             ], 200);

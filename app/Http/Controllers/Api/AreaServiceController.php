@@ -19,6 +19,17 @@ class AreaServiceController extends Controller
     public function index()
     {
         try{
+            $data=AreaService::where('status', '1')->orderBy('id', 'desc')->paginate(7);
+            return response()->json([
+                'data' => $data
+            ], 200); 
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }   
+    }
+    public function getarea_service_userpage()
+    {
+        try{
             $data=AreaService::where('status', '1')->orderBy('id', 'desc')->get();
             return response()->json([
                 'data' => $data
@@ -27,6 +38,7 @@ class AreaServiceController extends Controller
             return $this->getExceptionResponse($e);
         }   
     }
+    
 
     /**
      * Show the form for creating a new resource.

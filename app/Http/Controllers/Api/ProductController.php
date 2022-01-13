@@ -188,12 +188,18 @@ class ProductController extends Controller
 
     public function propertysearch_list(Request $request)
     {
-        // return $request->input();
-        // return $request->Bedrooms;
-        $product = product::with('amenities','UserDetail','Property_Type','product_img','product_state','product_locality')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->get();
+      try{
+        //   return "iqbal";
+        $product = product::with('amenities','UserDetail','Property_Type','product_img','product_state','product_locality')->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->paginate(6);
         return response()->json([
             'data' =>$product,
+            'status'=>200
           ], 201);
+
+
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
         
     }
     public function feature_property()
@@ -258,35 +264,18 @@ class ProductController extends Controller
     }
     public function User_propertysearchlist(Request $request)
     {
-      // return $request->data['bedrooms'];
-       $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','amenities','product_img','product_comparision','product_state','product_district','product_locality','product_sub_locality')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->orderBy('id', 'desc')->get();
-        $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
-        $productcount = count($product);
-        $wishlistcount = count($Wishlist);
+      try{
+         $user_id = Auth::user()->id;
+          $product = product::with('UserDetail','amenities','product_img','product_comparision','product_state','product_district','product_locality','product_sub_locality','Single_wishlist')->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->orderBy('id', 'desc')->paginate(6);
 
-       $productArray = json_decode(json_encode($product), true);
-       $WishlistArray = json_decode(json_encode($Wishlist), true);
-        // dd($productArray);
-       
-       // wishlist check with product id nd wishlist id
-       for ($i=0; $i < $productcount; $i++) {    
-            for ($j=0; $j < $wishlistcount; $j++) { 
-                if($productArray[$i]['id']==$WishlistArray[$j]['product_id']){
-                    $addWishlist="true";
-                    array_push($productArray[$i],$addWishlist);
-                }
-            }
-        }
-        if($productArray){
-            return response()->json([
-            'data' =>$productArray,
-          ], 201);
-        }else{
-            return response()->json([
-            'data' =>$product,
-          ], 201);
-        }        
+          return response()->json([
+              'data' =>$product,
+              'status'=>200
+            ], 201); 
+
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        }      
     }
 
      public function product_login_see(Request $request){
@@ -968,7 +957,7 @@ class ProductController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $data = product::with('product_img')->where('user_id', $user_id)->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->get();
+        $data = product::with('product_img')->where('user_id', $user_id)->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->paginate(2);
         //$tableq = DB::table('users')->select('id','name','email','profile_pic')->get();
         return response()->json([
             //'users'=> $tableq,
@@ -981,7 +970,7 @@ class ProductController extends Controller
 
         $user_id = Auth::user()->id;
 
-        $data = product::with('product_img')->where(['delete_flag'=> '0','draft'=> '1','order_status'=> '0','user_id'=>  $user_id])->orderBy('id', 'desc')->get();
+        $data = product::with('product_img')->where(['delete_flag'=> '0','draft'=> '1','order_status'=> '0','user_id'=>  $user_id])->orderBy('id', 'desc')->paginate(2);
         return response()->json([
             'data' =>$data,
         ], 200);

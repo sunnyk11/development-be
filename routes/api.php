@@ -174,6 +174,7 @@ Route::group([
     Route::get('/getlocalArea', 'App\Http\Controllers\Api\LocalareaController@index');
     Route::get('/get_localareaby_id', 'App\Http\Controllers\Api\LocalareaController@get_localareaby_id');
     Route::get('/getarea_service', 'App\Http\Controllers\Api\AreaServiceController@index');
+    Route::get('/getarea_service_userpage', 'App\Http\Controllers\Api\AreaServiceController@getarea_service_userpage');
     Route::get('/delete_service', 'App\Http\Controllers\Api\AreaServiceController@delete'); 
     Route::get('/get_service_id', 'App\Http\Controllers\Api\AreaServiceController@get_service_By_id');
     Route::get('/update_service_id', 'App\Http\Controllers\Api\AreaServiceController@update_service_id');
@@ -183,7 +184,7 @@ Route::group([
     Route::get('/delete_service_user', 'App\Http\Controllers\Api\ServiceUserlistController@delete'); 
     Route::get('/sevice_user_get_id', 'App\Http\Controllers\Api\ServiceUserlistController@sevice_user_get_id');
     Route::get('/update_sevice_user_get_id', 'App\Http\Controllers\Api\ServiceUserlistController@update_service_userById');   
-    Route::post('/local_service', 'App\Http\Controllers\Api\UserServiceMappingController@search_data'); 
+    Route::get('/local_service', 'App\Http\Controllers\Api\UserServiceMappingController@search_data'); 
 
     Route::get('/lawyer_service_index', 'App\Http\Controllers\Api\LawyerController@lawyer_index');
     Route::post('/lawyer_page', 'App\Http\Controllers\Api\LawyerController@lawyer_check');
@@ -192,7 +193,7 @@ Route::group([
 
     Route::post('/search_pro_type', 'App\Http\Controllers\Api\ProductController@search_pro_type');
     
-    Route::post('/productsearching', 'App\Http\Controllers\Api\ProductController@propertysearch_list');
+    Route::get('/productsearching', 'App\Http\Controllers\Api\ProductController@propertysearch_list');
     Route::get('/testimonial', 'App\Http\Controllers\Api\GuestUserFeedbackController@testimonial');
 
     Route::group([
@@ -235,7 +236,7 @@ Route::group([
         Route::post('/lawyer_create_service', 'App\Http\Controllers\Api\LawyerController@lawyer_create_service');
         Route::get('/lawyer_service', 'App\Http\Controllers\Api\LawyerController@lawyer_service');
         Route::post('/lawyer_service_delete', 'App\Http\Controllers\Api\LawyerController@lawyer_service_delete');
-        Route::post('/product_searching_login', 'App\Http\Controllers\Api\ProductController@User_propertysearchlist');
+        Route::get('/product_searching_login', 'App\Http\Controllers\Api\ProductController@User_propertysearchlist');
         Route::post('/property_get_id', 'App\Http\Controllers\Api\ProductController@property_get_id');
         Route::get('get_product_wishlist', 'App\Http\Controllers\Api\ProductController@index_featured_wishlist');
         Route::get('/product_listing_wishlist', 'App\Http\Controllers\Api\ProductController@product_listing_wishlist');

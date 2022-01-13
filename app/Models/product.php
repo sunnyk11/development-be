@@ -155,10 +155,6 @@ class product extends Model
         return $this->hasOne('App\Models\product_order', 'id','product_id')->where(['status'=> '1']);
     }
  
-    public function Pro_order()
-     {
-         return $this->hasOne('App\Models\invoices', 'user_id','user_id');
-     }
      public function product_state()
     {
         return $this->hasone('App\Models\area_state', 'state_id','state_id');
@@ -176,6 +172,18 @@ class product extends Model
         return $this->hasone('App\Models\area_sub_locality', 'sub_locality_id','sub_locality_id');
     }
 
+    // public function Pro_order()
+    //  {
+    //      return $this->hasMany('App\Models\plansRentOrders', 'property_id','id');
+    //  }
+	public function letout_invoice() {
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Let Out']);
+    }
+
+    public function rent_invoice() {
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Rent']);
+    }
+
    
     public function roles()
     {
@@ -183,65 +191,77 @@ class product extends Model
     }
 
     public function scopeSearch($query, $searchTerm) {
-        if ($searchTerm->data['build_name']) {
-            $query = $query->where('build_name', 'like',  $searchTerm->data['build_name'] . "%");
+        if ($searchTerm->build_name) {
+            $query = $query->where('build_name', 'like',  $searchTerm->build_name . "%");
         }
-        if ($searchTerm->data['location']) {
-           $query = $query->where('address', 'like', "%" . $searchTerm->data['location'] . "%");
+        if ($searchTerm->location) {
+           $query = $query->where('address', 'like', "%" . $searchTerm->location . "%");
         }
-        if ($searchTerm->data['city']) {
+        if ($searchTerm->city) {
            $query = $query->where('state_id','1');
         }
-        if ($searchTerm->data['area_unit']) {
-            $query = $query->where('area_unit', $searchTerm->data['area_unit']);
+        if ($searchTerm->area_unit) {
+            $query = $query->where('area_unit', $searchTerm->area_unit);
         }
-        if ($searchTerm->data['type']) {
+        if ($searchTerm->type) {
             // $type_id = Property_type::where('name','like', "%" .$searchTerm->data['type'] . "%")->first();
 
             // $type_value=$searchTerm->data['type'];
-            $query = $query->where('type','like', "%" .$searchTerm->data['type'] . "%");
+            $query = $query->where('type','like', "%" .$searchTerm->type . "%");
         }
-        if ($searchTerm->data['bathrooms']) {
-            $query = $query->where('bathroom', $searchTerm->data['bathrooms']);
+        if ($searchTerm->bathrooms) {
+            $query = $query->where('bathroom', $searchTerm->bathrooms);
         }
-        if ($searchTerm->data['bedrooms']) {
+        if ($searchTerm->bedrooms) {
 
-            $query = $query->where('bedroom', $searchTerm->data['bedrooms']);
+            $query = $query->where('bedroom', $searchTerm->bedrooms);
         }
-        if ($searchTerm->data['sliderControl'][0]) {
-            $min = $searchTerm->data['sliderControl'][0];
+        // if ($searchTerm->min_price) {
+        //     $min = Number($searchTerm->min_price);
+        //     $query->where(function($query) use ($min){
+        //         $query->where('expected_pricing', '>=', $min)
+        //               ->orWhere('expected_rent', '>=', $min);
+        //     });
+        // }
+        // if ($searchTerm->max_price) {
+        //     $max = Number($searchTerm->max_price);
+        //     $query->where(function($query) use ($max){
+        //         $query->where('expected_pricing', '<=', $max)
+        //               ->orWhere('expected_rent', '<=', $max);
+        //     });
+        // }
+         if ($searchTerm->min_price) {
+            $min =$searchTerm->min_price;
             $query->where(function($query) use ($min){
-                $query->where('expected_pricing', '>=', $min)
-                      ->orWhere('expected_rent', '>=', $min);
+                $query->where('expected_rent', '>=', $min);
             });
         }
-        if ($searchTerm->data['sliderControl'][1]) {
-            $max = $searchTerm->data['sliderControl'][1];
+        if ($searchTerm->max_price) {
+            $max =$searchTerm->max_price;
             $query->where(function($query) use ($max){
-                $query->where('expected_pricing', '<=', $max)
-                      ->orWhere('expected_rent', '<=', $max);
+                $query->where('expected_rent', '<=', $max);
             });
         }
 
-        if ($searchTerm->data['years']) {
-            $query = $query->where('buildyear', $searchTerm->data['years']);
+        if ($searchTerm->years) {
+            $query = $query->where('buildyear', $searchTerm->years);
         }
-        if ($searchTerm->data['property_status']== "all") {
+        if ($searchTerm->property_status == "all") {
             $query = $query->orderBy('id', 'desc');
         }
-        if ($searchTerm->data['property_status']== "recently") {
+        if ($searchTerm->property_status == "recently") {
             $query = $query->orderBy('id', 'desc')->take(6);
         }
-        if ($searchTerm->data['property_status']== "viewed") {
+        if ($searchTerm->property_status == "viewed") {
             $query = $query->where('view_counter', '>=',10)->orderBy('view_counter', 'desc');
         } 
-        if ($searchTerm->data['locality']) {
+        if ($searchTerm->locality) {
 
-            $locality = area_locality::select('locality_id')->where('locality', $searchTerm->data['locality'])->get();
+            $locality = area_locality::select('locality_id')->where('locality', $searchTerm->locality)->get();
             if(count($locality)>0){
               $query = $query->whereIn('locality_id',$locality)->orderBy('id', 'desc');  
             }else{
-                $sub_locality = area_sub_locality::select('locality_id')->where('sub_locality', $searchTerm->data['locality'])->get();
+                $sub_locality = area_sub_locality::select('locality_id')->where('sub_locality', $searchTerm->locality)->get();
                 // $locality_update = area_locality::select('locality_id')->where('locality_id', $sub_locality)->get();
                  $query = $query->whereIn('locality_id',$sub_locality)->orderBy('id', 'desc');
             }
@@ -257,13 +277,5 @@ class product extends Model
             $query = $query->whereIn('id',$array)->orderBy('id', 'desc');            
         }
         return $query;  
-    }
-
-	public function letout_invoice() {
-        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Let Out']);
-    }
-
-    public function rent_invoice() {
-        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Rent']);
     }								  
 }
