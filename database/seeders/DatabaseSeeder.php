@@ -21,5 +21,6 @@ class DatabaseSeeder extends Seeder
         $this->call(LocalareaSeeder::class);
 
         $this->call(MoreInfoSeeder::class);
+        $this->call(permissionsSeeder::class);
     }
 }

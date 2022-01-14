@@ -274,40 +274,31 @@ class AuthController extends Controller
     public function internal_user_signup(Request $request)
     {
         $request->validate([
-            'user_name' => 'required',
-            'email' => 'required|string|unique:users',
+            'userName' => 'required',
+            'email' => 'required|email|unique:users',
             'other_mobile_number' => 'required|integer|unique:users',
-            'address' => 'required',
+            'address1' => 'required',
             'password' => 'required',
-            'branch' => 'required',
-            'user_role' => 'required',
-            'area_name' => 'required',
+            'userRole' => 'required'
         ]);
-
-        /*$token = getenv("TWILIO_AUTH_TOKEN");
-        $twilio_sid = getenv("TWILIO_SID");
-        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
-        $twilio = new Client($twilio_sid, $token);
-        $twilio->verify->v2->services($twilio_verify_sid)
-            ->verifications
-            ->create("+91".$request->other_mobile_number, "sms"); */
-
-
+        
         $user = new User([
-            'name' => $request->user_name,
+            'name' => $request->userName,
             'email' => $request->email,
             'other_mobile_number' => $request->other_mobile_number,
             'usertype' => 8,
-            'address' => $request->address,
-            'address1' => $request->address1,
+            'address' => $request->address1,
+            'address1' => $request->address2,
             'password' => bcrypt($request->password),
-            'internal_user' => "Yes",
-            'branch' => $request->branch,
-            'user_role' => $request->user_role,
-            'area_names' => json_encode($request->area_name)
+            'internal_user' => "Yes"
         ]);
 
         $user->save();
+		foreach($request->userRole as $role => $value) {
+            $role_id[] = $value['item_id'];
+        }
+        //return $role_id;
+        $user->roles()->attach($role_id);												
        
         eventtracker::create(['symbol_code' => '2', 'event' => $request->user_name.' created a new Internal User Account']);
 

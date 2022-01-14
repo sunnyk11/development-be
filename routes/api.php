@@ -47,7 +47,9 @@ Route::get('getLetOutPlans_Features', 'App\Http\Controllers\PlansController@getL
 Route::get('get_rent_features', 'App\Http\Controllers\PlansController@get_rent_features');
 Route::get('get_letout_features', 'App\Http\Controllers\PlansController@get_letout_features');
 Route::post('update_property_plans', 'App\Http\Controllers\PlansController@update_property_plans');
-Route::post('add_property_plan', 'App\Http\Controllers\PlansController@add_property_plan');																								   
+Route::post('add_property_plan', 'App\Http\Controllers\PlansController@add_property_plan');
+Route::get('get_all_features', 'App\Http\Controllers\PlansController@get_all_features');	
+Route::post('get_plan_features', 'App\Http\Controllers\PlansController@get_plan_features');																							 
 Route::post('get_product_details', 'App\Http\Controllers\Api\ProductController@get_product_details');
 
 Route::get('check_email/{email}', 'App\Http\Controllers\Api\AuthController@check_email');
@@ -64,6 +66,7 @@ Route::group([
 ], function () {
     Route::post('/login', 'App\Http\Controllers\Api\AuthController@login');
 	Route::post('admin_login', 'App\Http\Controllers\Api\AdminControllerNew@admin_login');
+	Route::get('/get_user_permissions/{id}', 'App\Http\Controllers\Api\AdminControllerNew@get_user_permissions');																											 
     Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
     Route::post('/user_signup', 'App\Http\Controllers\Api\AuthController@user_signup');
 	Route::post('/verify_mobile', 'App\Http\Controllers\Api\AuthController@verify_mobile_number');																							  
@@ -153,6 +156,12 @@ Route::post('post-payment','App\Http\Controllers\Api\PaymentController@postPayme
 Route::post('plans-post-payment','App\Http\Controllers\Api\PaymentController@PlansPostPayment');
 Route::post('plans-rent-post-payment','App\Http\Controllers\Api\PaymentController@PlansRentPostPayment');
 
+Route::get('/get_permissions', 'App\Http\Controllers\Api\RolesPermissionsController@get_permissions');
+Route::post('/create_role', 'App\Http\Controllers\Api\RolesPermissionsController@create_role');
+Route::get('/get_roles', 'App\Http\Controllers\Api\RolesPermissionsController@get_roles');
+Route::post('/get_role_permissions', 'App\Http\Controllers\Api\RolesPermissionsController@get_role_permissions');
+Route::post('/edit_role', 'App\Http\Controllers\Api\RolesPermissionsController@edit_role');
+Route::post('/delete_role', 'App\Http\Controllers\Api\RolesPermissionsController@delete_role');
 
 Route::group([
     'prefix' => 'product'

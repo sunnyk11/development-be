@@ -77,4 +77,8 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Wishlist', 'user_id','id')->with('product_name')->where('status', '1');
     }
 
+	public function roles() {
+        return $this->belongsToMany(Role::class, 'user_roles_pivot', 'user_id', 'role_id')->with('permissions');
+    }
+						 
 }

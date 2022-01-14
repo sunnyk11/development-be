@@ -540,6 +540,16 @@ class PlansController extends Controller
             'discount' => $request->discount_status, 'discounted_price_days' => $request->discounted_price, 
             'discount_percentage' => $request->discount_per, 'special_tag' => $request->special_tag, 'plan_status' => $request->plan_status]);
 
+            $plan = PropertyPlans::where(['id' => $request->id])->first();
+            $plan->features()->detach();
+
+            foreach($request->features as $feature => $value) {
+                if($value == true) {
+                    $feature_id[] = $feature;
+                }
+            }
+            $plan->features()->attach($feature_id);
+            
             return response()->json([
                 'message' => 'Plan details updated'
             ], 201);
@@ -577,8 +587,16 @@ class PlansController extends Controller
 
             $plan->save();
 
+            foreach($request->features as $feature => $value) {
+                if($value == true) {
+                    $feature_id[] = $feature;
+                }
+            }
+
+            //return $feature_id;
+            $plan->features()->attach($feature_id);
             return response()->json([
-                'message' => 'Plan Added'
+                'message' => 'Plan Added Successfully'
             ], 201);
         }
         catch (\Exception $e) {
@@ -586,4 +604,39 @@ class PlansController extends Controller
         }
 
     }
+
+    public function get_all_features() {
+        try {
+            $features = DB::table('plans_features')->get();
+            return response()->json([
+                'features' => $features
+            ], 201);
+        }
+        catch (\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
+    public function get_plan_features(Request $request) {
+        try {
+            
+            $plan_features = DB::table('plans_features_pivots')->where('plan_id', $request->plan_id)->get();
+            $features = DB::table('plans_features')->get();
+            foreach($features as $f) {
+                $f->status = false;
+            }
+            foreach($plan_features as $val) {
+                foreach($features as $val1) {
+                    if($val->feature_id == $val1->id) {
+                        $val1->status = true;
+                    }
+                }
+            }
+            return $features;
+        }
+        catch (\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
 }
