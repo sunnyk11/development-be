@@ -15,12 +15,14 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         
-        $this->call(AmenitiesSeeder::class);
-        $this->call(Property_typeSeeder::class);
         // $this->call(User_Roles_Table_Seeder::class);
 
-        $this->call(MoreInfoSeeder::class);
-        $this->call(permissionsSeeder::class);
+        // $this->call(MoreInfoSeeder::class);
+        // $this->call(permissionsSeeder::class);
+
+        // iqbal files seeder**************************
+        // $this->call(AmenitiesSeeder::class);
+        // $this->call(Property_typeSeeder::class);
         $this->call(maintenance_condition::class);
         $this->call(ageement_duration::class);
         $this->call(ageement_type::class);
