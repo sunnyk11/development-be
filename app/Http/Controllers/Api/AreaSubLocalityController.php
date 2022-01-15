@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;;
+namespace App\Http\Controllers\Api;
 
 use App\Models\area_sub_locality;
 use App\Models\area_locality;

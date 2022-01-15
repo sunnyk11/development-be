@@ -137,14 +137,40 @@ class product extends Model
     {
         return $this->hasMany('App\Models\ProductAmenties', 'product_id','id')->with('amenties');
     }
+
     public function product_img()
     {
         return $this->hasMany('App\Models\Product_img', 'product_id','id')->where('status', '1');
     }
     public function Property_Type()
     {
-        return $this->hasOne('App\Models\Property_type', 'id','type')->where('status', '1');
+        return $this->hasOne('App\Models\Property_type', 'id','type')->where('status', '1')->select('id','name');
     }
+    public function Property_area_unit()
+    {
+        return $this->hasOne('App\Models\area_unit', 'id','area_unit')->where('status', '1')->select('id','unit');
+    }
+    public function property_room()
+    {
+        return $this->hasMany('App\Models\property_room_pivot', 'product_id','id')->where('status', '1')->with('room')->select('id','room_id','product_id');
+    }
+    public function willing_rent_out()
+    {
+        return $this->hasOne('App\Models\property_willing_rent_out', 'id','willing_to_rent_out_to')->where('status', '1')->select('id','name');
+    }
+    public function maintenance_condition()
+    {
+        return $this->hasOne('App\Models\property_maintenance_condition', 'id','maintenance_charge_condition')->where('status', '1')->select('id','name');
+    }
+    public function aggeement_type()
+    {
+        return $this->hasOne('App\Models\property_ageement_type', 'id','agreement_type')->where('status', '1')->select('id','name');
+    }
+    public function ageement_duration()
+    {
+        return $this->hasOne('App\Models\property_ageement_duration', 'id','duration_of_rent_aggreement')->where('status', '1')->select('id','name');
+    }
+
     // public function Pro_order()
     // {
     //     return $this->hasOne('App\Models\product_order', 'product_id','product_uid')->where('transaction_status', 'TXN_SUCCESS');
@@ -204,10 +230,10 @@ class product extends Model
             $query = $query->where('area_unit', $searchTerm->area_unit);
         }
         if ($searchTerm->type) {
-            // $type_id = Property_type::where('name','like', "%" .$searchTerm->data['type'] . "%")->first();
-
+            $type_id = Property_type::select('id')->where('name',$searchTerm->type)->first();
             // $type_value=$searchTerm->data['type'];
-            $query = $query->where('type','like', "%" .$searchTerm->type . "%");
+            // dd($type_id);
+            $query = $query->where('type',$type_id['id']);
         }
         if ($searchTerm->bathrooms) {
             $query = $query->where('bathroom', $searchTerm->bathrooms);
@@ -247,13 +273,13 @@ class product extends Model
             $query = $query->where('buildyear', $searchTerm->years);
         }
         if ($searchTerm->property_status == "all") {
-            $query = $query->orderBy('id', 'desc');
+            $query = $query->orderBy('id', 'asc');
         }
         if ($searchTerm->property_status == "recently") {
-            $query = $query->orderBy('id', 'desc')->take(6);
+            $query = $query->orderBy('id', 'desc');
         }
         if ($searchTerm->property_status == "viewed") {
-            $query = $query->where('view_counter', '>=',10)->orderBy('view_counter', 'desc');
+            $query = $query->where('view_counter', '>=',25)->orderBy('view_counter', 'desc');
         } 
         if ($searchTerm->locality) {
 

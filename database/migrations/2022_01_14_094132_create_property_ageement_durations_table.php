@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddListPropertyToUserRolesTable extends Migration
+class CreatePropertyAgeementDurationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddListPropertyToUserRolesTable extends Migration
      */
     public function up()
     {
-        Schema::table('user_roles', function (Blueprint $table) {
-            $table->string('access_list_property')->after('access_manage_roles');
+        Schema::create('property_ageement_durations', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->enum('status', ['0', '1'])->default('1');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddListPropertyToUserRolesTable extends Migration
      */
     public function down()
     {
-        Schema::table('user_roles', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('property_ageement_durations');
     }
 }

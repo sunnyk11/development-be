@@ -18,11 +18,15 @@ class WishlistController extends Controller
      */
     public function index()
     {
-        $user_id = Auth::user()->id;
-       $data=Wishlist::where('status', '1')->where('user_id',$user_id)->with('productdetails')->orderBy('id', 'asc')->get();
-        return response()->json([
-            'data' => $data
-        ], 200);
+        try{
+            $user_id = Auth::user()->id;
+            $data=Wishlist::where('status', '1')->where('user_id',$user_id)->with('productdetails')->orderBy('id', 'asc')->get();
+                return response()->json([
+                    'data' => $data
+                ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+      } 
     }
 
     /**

@@ -808,7 +808,7 @@ class AuthController extends Controller
 
     public function get_all_user(){
         try{
-            $data = User::orderBy('id', 'desc')->paginate(2);
+            $data = User::orderBy('id', 'desc')->paginate(5);
             return response()->json([
                 'data' => $data
             ], 200);

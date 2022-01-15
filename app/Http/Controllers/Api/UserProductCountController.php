@@ -19,11 +19,15 @@ class UserProductCountController extends Controller
      */
     public function index()
     {
-         $user_id = Auth::user()->id;
-         $data=UserProductCount::where('user_id',$user_id)->with('productdetails','product_img')->orderBy('Product_count', 'desc')->take(6)->get();
-        return response()->json([
-            'data' => $data
-        ], 200);
+        try{
+            $user_id = Auth::user()->id;
+            $data=UserProductCount::where('user_id',$user_id)->with('productdetails','product_img')->orderBy('Product_count', 'desc')->take(6)->get();
+            return response()->json([
+                'data' => $data
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }    
     }
 
      public function count_byID(Request $request)

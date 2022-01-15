@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');
 //Route::resource('/blog', PostsController::class);
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
+Route::get('get_dropdown_data', 'App\Http\Controllers\Api\Authicationcheck@get_dropdown_data');
 Route::resource('property_type', 'App\Http\Controllers\Api\PropertyTypeController');
 Route::post('contact-form', 'App\Http\Controllers\ContactController@store');
 Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');
@@ -239,7 +240,7 @@ Route::group([
         Route::get('/draft_properties', 'App\Http\Controllers\Api\ProductController@Draft_properties');
 
         Route::post('/insert_product_sale', 'App\Http\Controllers\Api\ProductController@first');
-        Route::post('/insert_product_rent', 'App\Http\Controllers\Api\ProductController@second');
+        Route::post('/insert_product_rent', 'App\Http\Controllers\Api\ProductController@insert_product_rent');
 
 
         Route::post('/lawyer_create_service', 'App\Http\Controllers\Api\LawyerController@lawyer_create_service');

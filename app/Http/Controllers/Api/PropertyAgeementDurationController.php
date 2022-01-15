@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Amenitie;
+use App\Models\property_ageement_duration;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller; 
 
-class AmenitieController extends Controller
+class PropertyAgeementDurationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,10 +15,15 @@ class AmenitieController extends Controller
      */
     public function index()
     {
-        $data=Amenitie::where('IsEnable', '1')->orderBy('id', 'asc')->get();
-        return response()->json([
-            'data' => $data
-        ], 200);
+        
+        try{
+            $data=property_ageement_duration::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
+            return response()->json([
+                'data' => $data
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        } 
     }
 
     /**
@@ -45,10 +50,10 @@ class AmenitieController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Amenitie  $amenitie
+     * @param  \App\Models\property_ageement_duration  $property_ageement_duration
      * @return \Illuminate\Http\Response
      */
-    public function show(Amenitie $amenitie)
+    public function show(property_ageement_duration $property_ageement_duration)
     {
         //
     }
@@ -56,10 +61,10 @@ class AmenitieController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Amenitie  $amenitie
+     * @param  \App\Models\property_ageement_duration  $property_ageement_duration
      * @return \Illuminate\Http\Response
      */
-    public function edit(Amenitie $amenitie)
+    public function edit(property_ageement_duration $property_ageement_duration)
     {
         //
     }
@@ -68,10 +73,10 @@ class AmenitieController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Amenitie  $amenitie
+     * @param  \App\Models\property_ageement_duration  $property_ageement_duration
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Amenitie $amenitie)
+    public function update(Request $request, property_ageement_duration $property_ageement_duration)
     {
         //
     }
@@ -79,10 +84,10 @@ class AmenitieController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Amenitie  $amenitie
+     * @param  \App\Models\property_ageement_duration  $property_ageement_duration
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Amenitie $amenitie)
+    public function destroy(property_ageement_duration $property_ageement_duration)
     {
         //
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddManageRolesToUserRolesTable extends Migration
+class CreatePropertyWillingRentOutsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddManageRolesToUserRolesTable extends Migration
      */
     public function up()
     {
-        Schema::table('user_roles', function (Blueprint $table) {
-            $table->string('access_manage_roles')->after('access_manage_blog');
+        Schema::create('property_willing_rent_outs', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->enum('status', ['0', '1'])->default('1');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddManageRolesToUserRolesTable extends Migration
      */
     public function down()
     {
-        Schema::table('user_roles', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('property_willing_rent_outs');
     }
 }
