@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
         // $this->call(User_Roles_Table_Seeder::class);
 
         // $this->call(MoreInfoSeeder::class);
-        // $this->call(permissionsSeeder::class);
+        /* Seeder added by Radhika */
+         $this->call(permissionsSeeder::class);
 
         // iqbal files seeder**************************
         // $this->call(AmenitiesSeeder::class);
