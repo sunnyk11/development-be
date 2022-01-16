@@ -26,6 +26,8 @@ Route::resource('property_type', 'App\Http\Controllers\Api\PropertyTypeControlle
 Route::post('contact-form', 'App\Http\Controllers\ContactController@store');
 Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');
 
+Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_proeprty_id');
+
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
 Route::get('/get_allproperty_crm', 'App\Http\Controllers\Api\ProductController@get_allproperty_crm');
 Route::post('/create_product_rent', 'App\Http\Controllers\Api\ProductController@crm_create_product_rent');

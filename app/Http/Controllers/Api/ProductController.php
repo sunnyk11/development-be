@@ -1178,6 +1178,36 @@ class ProductController extends Controller
 
 
     }
+
+    public function get_proeprty_id(Request $request){
+      $request->validate([
+                'product_id' => 'required|integer',
+            ]);
+
+        $product_id = $request->input('product_id');
+        try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+               $data = product::select('id','build_name')->where(['id'=>$product_id,'delete_flag'=> '0'])->first();
+
+               return response()->json([
+                    'message' =>'SUCCESS',
+                    'data' => $data,
+                    'status'=>200
+                ], 200);
+
+            }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }   
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse1($e);
+        } 
+    }
     public function get_crm_property(Request $request){
         try{
             $token  = $request->header('authorization');
@@ -1574,10 +1604,11 @@ class ProductController extends Controller
                         }
                     }
                 }else{
+                    // return "iqbal";
                     //  return $request->amenityDetail;
-                    if($request->amenityDetail){
+                    // if($request->amenityDetail){
                         $amenity_delete= ProductAmenties::where('product_id',$product_id)->delete();
-                    }
+                    // }
                 }
                 if($data->save()){
                  return response() -> json([
@@ -1763,9 +1794,9 @@ class ProductController extends Controller
                     }
                 }else{
                     //  return $request->amenityDetail;
-                    if($request->amenties){
+                    // if($request->amenties){
                         $amenity_delete= ProductAmenties::where(['product_id'=>$product_id,'user_id'=>$user_id])->delete();
-                    }
+                    // }
                 }
         return response() -> json([
             'message' => 'Successfully Updated',
