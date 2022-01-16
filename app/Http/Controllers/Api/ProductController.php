@@ -1190,12 +1190,19 @@ class ProductController extends Controller
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
                $data = product::select('id','build_name')->where(['id'=>$product_id,'delete_flag'=> '0'])->first();
-
-               return response()->json([
-                    'message' =>'SUCCESS',
-                    'data' => $data,
-                    'status'=>200
-                ], 200);
+              if($data){
+                return response()->json([
+                     'message' =>'SUCCESS',
+                     'data' => $data,
+                     'status'=>200
+                 ], 200);
+              }else{
+                return response()->json([
+                     'message' =>'FAIL',
+                     'description' => 'Product Id is Invalid !!!...',
+                     'status'=>200
+                 ], 200);
+              }
 
             }else{
                 return response() -> json([
