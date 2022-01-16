@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\area_unit;
 
-class area_unit extends Seeder
+class proeprty_area_unit extends Seeder
 {
     /**
      * Run the database seeds.

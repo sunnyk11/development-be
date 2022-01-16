@@ -1313,6 +1313,7 @@ class AuthController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
+                $data=[];
                  //$data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
                  if($mobile_no) {
                      $invoices = DB::table('invoices')->where('user_email', $email_db)->get();
@@ -1325,24 +1326,23 @@ class AuthController extends Controller
                  if(count($data)>0){
                     $properties = product::select('id','build_name')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->get();
                     $user = user::select('id','name','email')->where(['phone_number_verification_status'=> '1',])->orderBy('id', 'desc')->get();
-                    $amenities=Amenitie::where('IsEnable', '1')->orderBy('id', 'asc')->get();  
                     $static_data=$object->static_data();
                     return response()->json([
                        'data' =>$data,
 					   'invoices' => $invoices,
                        'user'=>$user,
                        'properties'=>$properties,
-                       'amenities_data'=>$amenities,
                        'static_data'=>$static_data,
                        'status'=> 200
                      ], 201);
                  }else{
-                    $amenities=[];  
-                    $static_data=[];
-                    $user=[];
-                    $properties=[];
+                    $invoices=NULL;  
+                    $static_data=NULL;
+                    $user=NULL;
+                    $properties=NULL;
+                    $data=NULL;
                     return response()->json([
-                       'message' => [['data' =>$data],[ 'invoices' => $invoices],[ 'user'=>$user],['properties'=>$properties],[ 'amenities_data'=>$amenities],[ 'static_data'=>$static_data]],
+                       'message' => 'Fail',
                         'description'=>'This User Deatils  Inavalid!!!..',
                         'status'=> 404,
                      ], 201);
