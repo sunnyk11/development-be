@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Auth;
+use Illuminate\Support\Facades\DB;
 
 
 class WishlistController extends Controller
@@ -27,6 +28,44 @@ class WishlistController extends Controller
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
       } 
+    }
+    public function get_wishlist_userid(Request $request){
+        // return $request->user_id;
+        $request->validate([
+            'user_id' => 'required|integer'
+        ]);
+       try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $data=DB::table('wishlists')
+                   ->select('wishlists.id as wishlist_id','wishlists.user_id','wishlists.product_id','products.build_name as property_name')
+                   ->Join('products','products.id','=','wishlists.product_id')
+                   ->where(['wishlists.user_id'=>$request->user_id,'status'=>'1'])
+                   ->get();
+                 if(count($data)>0){
+                    return response()->json([
+                         'message' =>'SUCCESS',
+                         'data' => $data,
+                         'status'=>200
+                     ], 200);
+                  }else{
+                    return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'User Id is Invalid !!!...',
+                         'status'=>200
+                     ], 200);
+                }
+            }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }     
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse1($e);
+      }  
     }
 
     /**

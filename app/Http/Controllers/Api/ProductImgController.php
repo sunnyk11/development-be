@@ -112,4 +112,37 @@ class ProductImgController extends Controller
         ], 201);
 
     }
+     public function delete_product_img_crm (Request $request){
+        // return $request->all();
+         $request->validate([
+            'pro_image_id' => 'required|integer',
+            'product_id' => 'required|integer'
+        ]);
+       try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+            Product_img::where(['product_id'=>$request->product_id, 'id'=>$request->pro_image_id])->delete();
+
+                return response()->json([
+                    'message' => 'SUCCESS',
+                    'status'=>200
+                ], 200);
+            }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            } 
+
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse1($e);
+        }  
+
+        return response()->json([
+            'message' => 'Image Successfully deleted',
+        ], 201);
+
+    }
 }
