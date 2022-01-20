@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');
 //Route::resource('/blog', PostsController::class);
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
+Route::get('getarea_unit', 'App\Http\Controllers\Api\AreaUnitController@index');
 Route::get('get_dropdown_data', 'App\Http\Controllers\Api\Authicationcheck@get_dropdown_data');
 Route::resource('property_type', 'App\Http\Controllers\Api\PropertyTypeController');
 Route::post('contact-form', 'App\Http\Controllers\ContactController@store');
@@ -29,10 +30,12 @@ Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_
 Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_proeprty_id');
 
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
+Route::get('/delete_property_img', 'App\Http\Controllers\Api\ProductImgController@delete_product_img_crm');
 Route::get('/get_allproperty_crm', 'App\Http\Controllers\Api\ProductController@get_allproperty_crm');
 Route::post('/create_product_rent', 'App\Http\Controllers\Api\ProductController@crm_create_product_rent');
 Route::post('/update_product_rent', 'App\Http\Controllers\Api\ProductController@crm_update_product_rent');																			
-Route::post('wishlist_crm', 'App\Http\Controllers\Api\WishlistController@Crm_store');																			
+Route::post('wishlist_crm', 'App\Http\Controllers\Api\WishlistController@Crm_store');
+Route::get('get_wishlist_userid', 'App\Http\Controllers\Api\WishlistController@get_wishlist_userid');																			
 Route::post('wishlist_delete_crm', 'App\Http\Controllers\Api\WishlistController@crm_delete');
 Route::middleware('auth:api')->post('posts', 'App\Http\Controllers\PostController@store');
 Route::get('posts', 'App\Http\Controllers\PostController@index');
