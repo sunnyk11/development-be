@@ -21,6 +21,42 @@ class ProductImgController extends Controller
         //
     }
 
+    public function get_pro_img_byid(Request $request){
+        // return $request->product_id;
+        $request->validate([
+            'product_id' => 'required|integer'
+        ]);
+       try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $data=Product_img::select('id','user_id','product_id','image')->where(['product_id'=>$request->product_id ,'status'=>'1'])
+                   ->get();
+                 if(count($data)>0){
+                    return response()->json([
+                         'message' =>'SUCCESS',
+                         'data' => $data,
+                         'status'=>200
+                     ], 200);
+                  }else{
+                    return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'Product Id is Invalid !!!...',
+                         'status'=>200
+                     ], 200);
+                }
+            }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }     
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse1($e);
+      }  
+    }
+
     /**
      * Show the form for creating a new resource.
      *

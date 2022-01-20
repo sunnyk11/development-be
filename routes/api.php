@@ -35,7 +35,8 @@ Route::get('/get_allproperty_crm', 'App\Http\Controllers\Api\ProductController@g
 Route::post('/create_product_rent', 'App\Http\Controllers\Api\ProductController@crm_create_product_rent');
 Route::post('/update_product_rent', 'App\Http\Controllers\Api\ProductController@crm_update_product_rent');																			
 Route::post('wishlist_crm', 'App\Http\Controllers\Api\WishlistController@Crm_store');
-Route::get('get_wishlist_userid', 'App\Http\Controllers\Api\WishlistController@get_wishlist_userid');																			
+Route::get('get_wishlist_userid', 'App\Http\Controllers\Api\WishlistController@get_wishlist_userid');	
+Route::get('get_pro_img_byid', 'App\Http\Controllers\Api\ProductImgController@get_pro_img_byid');   																		
 Route::post('wishlist_delete_crm', 'App\Http\Controllers\Api\WishlistController@crm_delete');
 Route::middleware('auth:api')->post('posts', 'App\Http\Controllers\PostController@store');
 Route::get('posts', 'App\Http\Controllers\PostController@index');
