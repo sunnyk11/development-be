@@ -150,8 +150,8 @@ class PlansController extends Controller
     }
 
     public function post_selected_plan(Request $request) {
+        // return $request->plan_features_data['features']['4']['feature_value'];
         $data = json_decode($request->plan_features_data, true);
-        // return gettype($data['features']);
         $request->validate([
             'user_id' => 'required',
             'user_email' => 'required',
@@ -177,6 +177,8 @@ class PlansController extends Controller
             'discount_status' => $data['discount'],
             'discounted_price_days' => $data['discounted_price_days'],
             'discount_percentage' => $data['discount_percentage'],
+            'client_visit_priority'=>$data['features']['5']['feature_value'],
+            'product_plans_days'=>$data['features']['4']['feature_value'],
             'plan_created_at' => $data['created_at'],
             'plan_updated_at' => $data['updated_at'],
             'features' => json_encode($data['features'])

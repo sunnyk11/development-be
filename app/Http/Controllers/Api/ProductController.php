@@ -21,7 +21,10 @@ use App\Models\Product_img;
 use App\Models\area_locality;
 use App\Models\Product_Comparision;
 use App\Models\property_room_pivot;
+use App\Models\invoices;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Input;
+use App\Http\Resources\API\Product\ProductListResource;
 
 class ProductController extends Controller
 {
@@ -92,36 +95,10 @@ class ProductController extends Controller
     public function index_featured_wishlist()
     {
        $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','product_img','product_comparision','Property_Type','product_state','product_locality','Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
-
-        // return  $product;
-        $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
-        $productcount = count($product);
-        $wishlistcount = count($Wishlist);
-
-       $productArray = json_decode(json_encode($product), true);
-       $WishlistArray = json_decode(json_encode($Wishlist), true);
-
-        // return  $productArray;
-       
-       // wishlist check with product id nd wishlist id
-       for ($i=0; $i < $productcount; $i++) {    
-            for ($j=0; $j < $wishlistcount; $j++) { 
-                if($productArray[$i]['id']==$WishlistArray[$j]['product_id']){
-                    $addWishlist="true";
-                    array_push($productArray[$i],$addWishlist);
-                }
-            }
-        }
-        if($productArray){
-            return response()->json([
-            'data' =>$productArray,
-          ], 201);
-        }else{
+        $product = product::with('UserDetail','Single_wishlist','product_img','product_comparision','Property_Type','product_state','product_locality','Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
             return response()->json([
             'data' =>$product,
           ], 201);
-        }
     }
 
     public function product_list_featured()
@@ -178,25 +155,51 @@ class ProductController extends Controller
     
     public function search_pro_type_login(Request $request)
     {
-        // return $request->input('id');
-        $product = product::with('UserDetail','Property_Type','product_img','Property_Type','product_comparision')->where(['delete_flag'=> '0','draft'=> '0','type'=> $request->id,'order_status'=> '0', 'enabled' => 'yes'])->get();
-        return response()->json([
-            'data' =>$product,
-          ], 201);
+      try{
+          $product = product::with('UserDetail','Property_Type','product_img','Property_Type','product_comparision')->where(['delete_flag'=> '0','draft'=> '0','type'=> $request->id,'order_status'=> '0', 'enabled' => 'yes'])->get();
+          return response()->json([
+              'data' =>$product,
+            ], 201);
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
         
     }
-
-
-    public function propertysearch_list(Request $request)
+    public function User_propertysearchlist(Request $request)
     {
       try{
-        $product = product::with('amenities','UserDetail','Property_Type','product_img','product_state','product_locality','Property_Type','Property_area_unit')->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->paginate(8);
-        return response()->json([
-            'data' =>$product,
-            'status'=>200
-          ], 201);
-
-
+        $current_date= Carbon::now()->format('Y-m-d H:i:s');
+        $product = product::with('product_img_listing','listing_wishlist','listing_pro_comp','Property_Type','pro_user_details','Property_area_unit','product_state','product_locality')->select('products.id as product_id','products.build_name','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",order_plan_features.plan_created_at)  as "plans_day_left"'))
+            ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
+            ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
+            ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])
+           ->search($request)
+           ->orderBy('plans_day_left','asc')
+            ->paginate(8);
+            return response()->json([
+              'data'=> $product,
+              'status'=>200
+            ], 201);
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        }      
+    }
+    public function propertysearch_list(Request $request)
+    {
+      
+      try{
+        $current_date= Carbon::now()->format('Y-m-d H:i:s');
+        $product = product::with('product_img_listing','Property_Type','pro_user_details','Property_area_unit','product_state','product_locality')->select('products.id as product_id','products.build_name','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",order_plan_features.plan_created_at)  as "plans_day_left"'))
+            ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
+            ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
+            ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])
+           ->search($request)
+           ->orderBy('plans_day_left','asc')
+            ->paginate(8);
+            return response()->json([
+              'data'=> $product,
+              'status'=>200
+            ]);
         }catch(\Exception $e) {
               return $this->getExceptionResponse($e);
         } 
@@ -245,20 +248,6 @@ class ProductController extends Controller
               return $this->getExceptionResponse($e);
         }     
 
-    }
-    public function User_propertysearchlist(Request $request)
-    {
-      try{
-          $product = product::with('Property_Type','UserDetail','amenities','product_img','product_comparision','product_state','product_district','product_locality','product_sub_locality','Single_wishlist','Property_area_unit')->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->search($request)->paginate(8);
-
-          return response()->json([
-              'data' =>$product,
-              'status'=>200
-            ], 201); 
-
-        }catch(\Exception $e) {
-              return $this->getExceptionResponse($e);
-        }      
     }
 
      public function product_login_see(Request $request){
@@ -1238,6 +1227,45 @@ class ProductController extends Controller
         } 
     }
     
+
+     public function get_property_byid(Request $request){
+       $request->validate([
+                'property_id' => 'required|integer',
+            ]);
+        try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $property_id =$request->property_id;
+                // return $property_id;
+                $data = product::where(['delete_flag'=> '0','id'=>$request->property_id])->with('amenities','Property_Type','product_img','UserDetail','product_state','product_district','product_locality','product_sub_locality','Property_area_unit','property_room','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration')->get();
+                 if(count($data)>0){
+                  $static_data=$object->static_data();
+                    return response()->json([
+                         'message' =>'SUCCESS',
+                         'data' => $data,
+                          'static_data'=>$static_data,
+                         'status'=>200
+                     ], 200);
+                  }else{
+                    return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'Product Id is Invalid !!!...',
+                         'status'=>200
+                     ], 200);
+                }
+             }else{
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }       
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }    
+
+     }
     public function get_allproperty_crm(Request $request){
         try{
             $token  = $request->header('authorization');
@@ -1605,6 +1633,7 @@ class ProductController extends Controller
                         foreach ($amenities_check as $Check_amenities) {
                             $ProductAmenties = [
                                 'amenties' =>$Check_amenities,
+                                'user_id' => $request->userId,
                                 'product_id' => $product_id
                             ];
                             ProductAmenties::create($ProductAmenties);
@@ -1989,7 +2018,7 @@ class ProductController extends Controller
             'id' => 'required'
         ]);
 
-        return $product_details = product::where('id', $request->id)->with('Property_area_unit', 'maintenance_condition')->get();
+        return $product_details = DB::table('products')->where('id', $request->id)->get();
     }
 
     public function store(Request $request)

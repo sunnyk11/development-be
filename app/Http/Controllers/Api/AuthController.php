@@ -1334,7 +1334,7 @@ class AuthController extends Controller
                        'properties'=>$properties,
                        'static_data'=>$static_data,
                        'status'=> 200
-                     ], 201);
+                     ]);
                  }else{
                     $invoices=NULL;  
                     $static_data=NULL;
@@ -1345,7 +1345,7 @@ class AuthController extends Controller
                        'message' => 'Fail',
                         'description'=>'This User Deatils  Inavalid!!!..',
                         'status'=> 404,
-                     ], 201);
+                     ]);
                  }
             }else{
                 return response() -> json([

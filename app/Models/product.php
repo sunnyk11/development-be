@@ -102,12 +102,22 @@ class product extends Model
     {
         return $this->hasOne('App\Models\User', 'id','user_id');
     }
+    public function pro_user_details()
+    {
+        return $this->hasOne('App\Models\User', 'id','user_id')->select('id','name');
+    }
 
     public function product_comparision()
     {
 
         $user_id = Auth::user()->id;
-        return $this->hasOne('App\Models\Product_Comparision', 'product_id','id')->where('status', '1')->where('user_id', $user_id)->orderBy('id', 'asc');
+        return $this->hasOne('App\Models\Product_Comparision','product_id','id')->where('status', '1')->where('user_id', $user_id)->orderBy('id', 'asc');
+    }
+    public function listing_pro_comp()
+    {
+
+        $user_id = Auth::user()->id;
+        return $this->hasOne('App\Models\Product_Comparision', 'product_id','product_id')->where('status', '1')->where('user_id', $user_id)->orderBy('id', 'asc');
     }
 
     public function Single_wishlist()
@@ -115,6 +125,12 @@ class product extends Model
         
         $user_id = Auth::user()->id;
         return $this->hasOne('App\Models\Wishlist', 'product_id','id')->where('user_id', $user_id)->where('status', '1');
+    }
+
+    public function listing_wishlist()
+    {
+        $user_id = Auth::user()->id;
+        return $this->hasOne('App\Models\Wishlist', 'product_id','product_id')->where('user_id', $user_id)->where('status', '1');
     }
     
     public function product_wishlist_crm()
@@ -140,7 +156,12 @@ class product extends Model
 
     public function product_img()
     {
-        return $this->hasMany('App\Models\Product_img', 'product_id','id')->where('status', '1');
+        return $this->hasMany('App\Models\Product_img', 'product_id','id')->select('id','product_id','image');
+    }
+
+    public function product_img_listing()
+    {
+        return $this->hasMany('App\Models\Product_img', 'product_id','product_id')->select('id','product_id','image');
     }
     public function Property_Type()
     {
@@ -183,7 +204,7 @@ class product extends Model
  
      public function product_state()
     {
-        return $this->hasone('App\Models\area_state', 'state_id','state_id');
+        return $this->hasone('App\Models\area_state', 'state_id','state_id')->select('state_id','state','status');
     }
      public function product_district()
     {
@@ -208,31 +229,23 @@ class product extends Model
 
     public function rent_invoice() {
         return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Rent']);
-    }
-
-   
-    public function roles()
-    {
-
-    }
-
-    public function scopeSearch($query, $searchTerm) {
+    }		
+     public function scopeSearch($query, $searchTerm) {
         if ($searchTerm->build_name) {
             $query = $query->where('build_name', 'like',  $searchTerm->build_name . "%");
         }
-        if ($searchTerm->location) {
-           $query = $query->where('address', 'like', "%" . $searchTerm->location . "%");
-        }
+        // if ($searchTerm->location) {
+        //    $query = $query->where('address', 'like', "%" . $searchTerm->location . "%");
+        // }
         if ($searchTerm->city) {
            $query = $query->where('state_id','1');
         }
         if ($searchTerm->area_unit) {
-            $query = $query->where('area_unit', $searchTerm->area_unit);
+            $area_unit = area_unit::select('id')->where('unit',$searchTerm->area_unit)->first();
+            $query = $query->where('area_unit',$area_unit['id']);
         }
         if ($searchTerm->type) {
             $type_id = Property_type::select('id')->where('name',$searchTerm->type)->first();
-            // $type_value=$searchTerm->data['type'];
-            // dd($type_id);
             $query = $query->where('type',$type_id['id']);
         }
         if ($searchTerm->bathrooms) {
@@ -242,41 +255,27 @@ class product extends Model
 
             $query = $query->where('bedroom', $searchTerm->bedrooms);
         }
-        // if ($searchTerm->min_price) {
-        //     $min = Number($searchTerm->min_price);
-        //     $query->where(function($query) use ($min){
-        //         $query->where('expected_pricing', '>=', $min)
-        //               ->orWhere('expected_rent', '>=', $min);
-        //     });
-        // }
-        // if ($searchTerm->max_price) {
-        //     $max = Number($searchTerm->max_price);
-        //     $query->where(function($query) use ($max){
-        //         $query->where('expected_pricing', '<=', $max)
-        //               ->orWhere('expected_rent', '<=', $max);
-        //     });
-        // }
          if ($searchTerm->min_price) {
             $min =$searchTerm->min_price;
             $query->where(function($query) use ($min){
-                $query->where('expected_rent', '>=', $min);
+                $query->where('products.expected_rent', '>=', $min);
             });
         }
         if ($searchTerm->max_price) {
             $max =$searchTerm->max_price;
             $query->where(function($query) use ($max){
-                $query->where('expected_rent', '<=', $max);
+                $query->where('products.expected_rent', '<=', $max);
             });
         }
 
         if ($searchTerm->years) {
-            $query = $query->where('buildyear', $searchTerm->years);
+            $query = $query->where('products.buildyear', $searchTerm->years);
         }
         if ($searchTerm->property_status == "all") {
-            $query = $query->orderBy('id', 'asc');
+            $query = $query->orderBy('products.id', 'asc');
         }
-        if ($searchTerm->property_status == "recently") {
-            $query = $query->orderBy('id', 'desc');
+        if ($searchTerm->property_status== "recently") {
+            $query = $query->orderBy('products.id', 'desc');
         }
         if ($searchTerm->property_status == "viewed") {
             $query = $query->where('view_counter', '>=',25)->orderBy('view_counter', 'desc');
@@ -285,11 +284,11 @@ class product extends Model
 
             $locality = area_locality::select('locality_id')->where('locality', $searchTerm->locality)->get();
             if(count($locality)>0){
-              $query = $query->whereIn('locality_id',$locality)->orderBy('id', 'desc');  
+              $query = $query->whereIn('locality_id',$locality)->orderBy('products.id', 'desc');  
             }else{
                 $sub_locality = area_sub_locality::select('locality_id')->where('sub_locality', $searchTerm->locality)->get();
                 // $locality_update = area_locality::select('locality_id')->where('locality_id', $sub_locality)->get();
-                 $query = $query->whereIn('locality_id',$sub_locality)->orderBy('id', 'desc');
+                 $query = $query->whereIn('locality_id',$sub_locality)->orderBy('products.id', 'desc');
             }
         }
         if ($searchTerm->amenities) {
@@ -300,8 +299,8 @@ class product extends Model
             for($i=0; $i<$length; $i++){
                 array_push($array,$amenitiesID[$i]['product_id']);
             }
-            $query = $query->whereIn('id',$array)->orderBy('id', 'desc');            
+            $query = $query->whereIn('products.id',$array);            
         }
         return $query;  
-    }								  
+    }	  
 }

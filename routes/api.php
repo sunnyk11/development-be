@@ -29,6 +29,7 @@ Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_
 
 Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_proeprty_id');
 
+Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get_property_byid');
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
 Route::get('/delete_property_img', 'App\Http\Controllers\Api\ProductImgController@delete_product_img_crm');
 Route::get('/get_allproperty_crm', 'App\Http\Controllers\Api\ProductController@get_allproperty_crm');
@@ -209,7 +210,7 @@ Route::group([
 
     Route::post('/search_pro_type', 'App\Http\Controllers\Api\ProductController@search_pro_type');
     
-    Route::get('/productsearching', 'App\Http\Controllers\Api\ProductController@propertysearch_list');
+    Route::post('/productsearching', 'App\Http\Controllers\Api\ProductController@propertysearch_list');
     Route::get('/testimonial', 'App\Http\Controllers\Api\GuestUserFeedbackController@testimonial');
 
     Route::group([
@@ -252,7 +253,7 @@ Route::group([
         Route::post('/lawyer_create_service', 'App\Http\Controllers\Api\LawyerController@lawyer_create_service');
         Route::get('/lawyer_service', 'App\Http\Controllers\Api\LawyerController@lawyer_service');
         Route::post('/lawyer_service_delete', 'App\Http\Controllers\Api\LawyerController@lawyer_service_delete');
-        Route::get('/product_searching_login', 'App\Http\Controllers\Api\ProductController@User_propertysearchlist');
+        Route::post('/product_searching_login', 'App\Http\Controllers\Api\ProductController@User_propertysearchlist');
         Route::post('/property_get_id', 'App\Http\Controllers\Api\ProductController@property_get_id');
         Route::get('get_product_wishlist', 'App\Http\Controllers\Api\ProductController@index_featured_wishlist');
         Route::get('/product_listing_wishlist', 'App\Http\Controllers\Api\ProductController@product_listing_wishlist');
