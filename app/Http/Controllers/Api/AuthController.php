@@ -1317,10 +1317,14 @@ class AuthController extends Controller
                  //$data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
                  if($mobile_no) {
                      $invoices = DB::table('invoices')->where('user_email', $email_db)->get();
+					 $let_out_plans = DB::table('plans_orders')->where('user_email', $email_db)->get();
+                     $rent_plans = DB::table('plans_rent_orders')->where('user_email', $email_db)->get();																					
                      $data = user::where(['other_mobile_number'=>$mobile_no])->with('productdetails','product_wishlist')->get();		 
                  }
                  else if($email) {
                     $invoices = DB::table('invoices')->where('user_email', $email)->get();
+					$let_out_plans = DB::table('plans_orders')->where('user_email', $email)->get();
+                    $rent_plans = DB::table('plans_rent_orders')->where('user_email', $email)->get();																			   
                    $data = user::where(['email'=>$email])->with('productdetails','product_wishlist')->get();
                  }
                  if(count($data)>0){
@@ -1330,6 +1334,8 @@ class AuthController extends Controller
                     return response()->json([
                        'data' =>$data,
 					   'invoices' => $invoices,
+					   'let_out_plans' => $let_out_plans,
+                       'rent_plans' => $rent_plans,									 
                        'user'=>$user,
                        'properties'=>$properties,
                        'static_data'=>$static_data,
