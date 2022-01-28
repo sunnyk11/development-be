@@ -152,6 +152,7 @@ class PlansController extends Controller
     public function post_selected_plan(Request $request) {
         // return $request->plan_features_data['features']['4']['feature_value'];
         $data = json_decode($request->plan_features_data, true);
+    
         $request->validate([
             'user_id' => 'required',
             'user_email' => 'required',
@@ -164,25 +165,6 @@ class PlansController extends Controller
         ]);
 
         $order_id = 'OR'.rand (10,100).time();
-        
-        $plan_features = new orderPlanFeatures([
-            'order_id' => $order_id,
-            'plan_id' => $data['id'],
-            'plan_name' => $data['plan_name'],
-            'plan_type' => $data['plan_type'],
-            'plan_status' => $data['plan_status'],
-            'payment_type' => $data['payment_type'],
-            'special_tag' => $data['special_tag'],
-            'actual_price_days' => $data['actual_price_days'],
-            'discount_status' => $data['discount'],
-            'discounted_price_days' => $data['discounted_price_days'],
-            'discount_percentage' => $data['discount_percentage'],
-            'client_visit_priority'=>$data['features']['5']['feature_value'],
-            'product_plans_days'=>$data['features']['4']['feature_value'],
-            'plan_created_at' => $data['created_at'],
-            'plan_updated_at' => $data['updated_at'],
-            'features' => json_encode($data['features'])
-        ]);
 
         if($request->plan_type == 'Let Out') {
             $plan = new plansOrders([
@@ -196,6 +178,25 @@ class PlansController extends Controller
                 'plan_price' => $request->plan_price,
                 'payment_type' => $request->payment_type
                 
+            ]);
+
+            $plan_features = new orderPlanFeatures([
+                'order_id' => $order_id,
+                'plan_id' => $data['id'],
+                'plan_name' => $data['plan_name'],
+                'plan_type' => $data['plan_type'],
+                'plan_status' => $data['plan_status'],
+                'payment_type' => $data['payment_type'],
+                'special_tag' => $data['special_tag'],
+                'actual_price_days' => $data['actual_price_days'],
+                'discount_status' => $data['discount'],
+                'discounted_price_days' => $data['discounted_price_days'],
+                'discount_percentage' => $data['discount_percentage'],
+                'client_visit_priority'=>$data['features']['5']['feature_value'],
+                'product_plans_days'=>$data['features']['4']['feature_value'],
+                'plan_created_at' => $data['created_at'],
+                'plan_updated_at' => $data['updated_at'],
+                'features' => json_encode($data['features'])
             ]);
         }
 
@@ -211,6 +212,23 @@ class PlansController extends Controller
                 'plan_price' => $request->plan_price,
                 'payment_type' => $request->payment_type
                 
+            ]);
+
+            $plan_features = new orderPlanFeatures([
+                'order_id' => $order_id,
+                'plan_id' => $data['id'],
+                'plan_name' => $data['plan_name'],
+                'plan_type' => $data['plan_type'],
+                'plan_status' => $data['plan_status'],
+                'payment_type' => $data['payment_type'],
+                'special_tag' => $data['special_tag'],
+                'actual_price_days' => $data['actual_price_days'],
+                'discount_status' => $data['discount'],
+                'discounted_price_days' => $data['discounted_price_days'],
+                'discount_percentage' => $data['discount_percentage'],
+                'plan_created_at' => $data['created_at'],
+                'plan_updated_at' => $data['updated_at'],
+                'features' => json_encode($data['features'])
             ]);
         }
 

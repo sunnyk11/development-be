@@ -2018,7 +2018,7 @@ class ProductController extends Controller
             'id' => 'required'
         ]);
 
-        return $product_details = DB::table('products')->where('id', $request->id)->get();
+        return $product_details = product::where('id', $request->id)->with('Property_area_unit', 'maintenance_condition')->get();
     }
 
     public function store(Request $request)

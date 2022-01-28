@@ -142,6 +142,11 @@ class PaymentController extends Controller
             $CUST_ID = Auth::user()->id;
 
             $order_details = DB::table('plans_orders')->where('order_id', $order_id)->get();
+            if($order_details[0]->invoice_no != NULL) {
+                return response()->json([
+                    'message' => 'Order has already been processed'   
+                ]);
+            }
             $price = $order_details[0]->plan_price;
             $gst_price = round((18 * $price) / 100);
             $total_price = $price + $gst_price;
@@ -179,6 +184,11 @@ class PaymentController extends Controller
     public function PlansPostPayment(Request $request) {
 
         try {   
+
+            $validate = $request->validate([
+                'order_id' => 'unique:invoices'
+            ]);
+
             $plan_transaction= [
                 'order_id'           =>  $request->ORDERID,
                 'MID'                =>  $request->MID,
@@ -283,7 +293,15 @@ class PaymentController extends Controller
             return response()->redirectTo($angular_url);     
         }
         catch (\Exception $e) {
-            return $this->getExceptionResponse($e);
+            //return $this->getExceptionResponse($e);
+            if ($e->getCode() === '23000') {
+                /* $error = "This order has already been processed";
+                return response()->json([
+                    'message' => $error   
+                ]); */
+                return redirect()->to(env('APP_REDIRECT_URL'));
+               // return redirect()->to(env('APP_REDIRECT_URL'))->withErrors($error);
+            }
         }
     }
 
