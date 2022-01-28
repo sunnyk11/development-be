@@ -31,8 +31,9 @@ Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_p
 
 Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get_property_byid');
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
+Route::post('/store_property_image', 'App\Http\Controllers\Api\ProductImgController@store');
 Route::get('/delete_property_img', 'App\Http\Controllers\Api\ProductImgController@delete_product_img_crm');
-Route::get('/get_allproperty_crm', 'App\Http\Controllers\Api\ProductController@get_allproperty_crm');
+Route::get('/get_all_property_userDeatils', 'App\Http\Controllers\Api\ProductController@get_all_property_userDeatils');
 Route::post('/create_product_rent', 'App\Http\Controllers\Api\ProductController@crm_create_product_rent');
 Route::post('/update_product_rent', 'App\Http\Controllers\Api\ProductController@crm_update_product_rent');																			
 Route::post('wishlist_crm', 'App\Http\Controllers\Api\WishlistController@Crm_store');
@@ -93,6 +94,8 @@ Route::group([
     Route::get('/get_locality', 'App\Http\Controllers\Api\AreaLocalityController@index');
     Route::get('/get_sub_locality', 'App\Http\Controllers\Api\AreaSubLocalityController@sub_localitybyid');
     Route::get('/get_common_area_data/{value}', 'App\Http\Controllers\Api\AreaSubLocalityController@get_common_area_data');
+    Route::get('/get_internal_user_locality/{value}', 'App\Http\Controllers\Api\AreaSubLocalityController@get_internal_user_locality');
+    
     Route::get('/search_locality/{value}', 'App\Http\Controllers\Api\AreaLocalityController@search_locality');
 
     Route::get('/get_state', 'App\Http\Controllers\Api\AreaStateController@index');

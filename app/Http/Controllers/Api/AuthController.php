@@ -943,6 +943,7 @@ class AuthController extends Controller
             'id' => $user->id,
             'email'    => $user->email,
             'usertype' => $user->usertype,
+            'internal_user'=>$user->internal_user,
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse(
@@ -967,7 +968,7 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         $user_id = Auth::user()->id;
-        $data = user::where(['id'=>$user_id,'blocked'=> '0'])->with('bank_details_history')->first();
+        $data = user::where(['id'=>$user_id,'blocked'=> '0'])->with('bank_details_history','productdetails')->first();
        
         return response()->json([
             'data' =>$data,

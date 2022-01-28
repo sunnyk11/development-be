@@ -46,6 +46,20 @@ class AreaSubLocalityController extends Controller
             return $this->getExceptionResponse($e);
             }
    }
+   
+   public function get_internal_user_locality(Request $request) {
+    // return $request->value;
+    try{
+        $data=[];
+        $locality=[];
+        $data=area_locality::where('locality', 'like',  "%" . $request->value . "%")->orderBy('locality', 'asc')->limit(10)->get();
+            return response()->json([
+                'data' => $data
+            ], 200);
+       }catch(\Exception $e) {
+        return $this->getExceptionResponse($e);
+        }
+}
 
     
     public function sub_localitybyid(Request $request) {

@@ -1266,7 +1266,7 @@ class ProductController extends Controller
         }    
 
      }
-    public function get_allproperty_crm(Request $request){
+    public function get_all_property_userDeatils(Request $request){
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();

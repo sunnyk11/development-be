@@ -74,8 +74,55 @@ class ProductImgController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        //
+    { 
+        $request->validate([
+                'product_id' => 'required|integer',
+                // 'file'=>'required',
+                'user_id'=>'required|integer'
+            ]);
+
+        $product_id = $request->input('product_id');
+        $user_id = $request->input('user_id');
+        try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                // return $request->file('file');
+                if($request->file('file')){
+                    foreach($request->file('file') as $file)
+                    {
+                        $ImageName = 'product_image_file/'.uniqid() . '-' .$file->getClientOriginalName();
+                          $file->move(public_path('storage/product_image_file'), $ImageName);
+                               $Product_images_data = [
+                                    'user_id' => $user_id,
+                                    'product_id' => $product_id,
+                                    'image' =>$ImageName 
+                                ];
+                         Product_img::create($Product_images_data);
+                          
+                    }
+                        return response()->json([
+                             'message' =>'SUCCESS',
+                             'status'=>200
+                         ], 200);
+                }else{
+                    return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'Please Select Product Image',
+                         'status'=>200
+                    ], 200);
+                }
+            }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }   
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse1($e);
+        } 
+        
     }
 
     /**

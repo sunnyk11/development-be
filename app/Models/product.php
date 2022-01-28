@@ -279,16 +279,30 @@ class product extends Model
         }
         if ($searchTerm->property_status == "viewed") {
             $query = $query->where('view_counter', '>=',25)->orderBy('view_counter', 'desc');
+        }
+        $sub_locality=$searchTerm->sub_locality;
+        $locality=$searchTerm->locality;
+          if($sub_locality){
+            $locality=null;
+            $default=null;
+        } elseif ($locality) {
+            $sub_locality=null;
+            $default=null;
+        }else{
+            $locality=null;
+            $sub_locality=null;
         } 
-        if ($searchTerm->locality) {
-
+        if($sub_locality){
+            $query = $query->where('sub_locality_id',$searchTerm->sub_locality);            
+        }
+        if ($locality) {
             $locality = area_locality::select('locality_id')->where('locality', $searchTerm->locality)->get();
             if(count($locality)>0){
-              $query = $query->whereIn('locality_id',$locality)->orderBy('products.id', 'desc');  
+              $query = $query->whereIn('locality_id',$locality);  
             }else{
                 $sub_locality = area_sub_locality::select('locality_id')->where('sub_locality', $searchTerm->locality)->get();
                 // $locality_update = area_locality::select('locality_id')->where('locality_id', $sub_locality)->get();
-                 $query = $query->whereIn('locality_id',$sub_locality)->orderBy('products.id', 'desc');
+                 $query = $query->whereIn('locality_id',$sub_locality);
             }
         }
         if ($searchTerm->amenities) {
