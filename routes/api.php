@@ -33,7 +33,7 @@ Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
 Route::post('/store_property_image', 'App\Http\Controllers\Api\ProductImgController@store');
 Route::get('/delete_property_img', 'App\Http\Controllers\Api\ProductImgController@delete_product_img_crm');
-Route::get('/get_all_property_userDeatils', 'App\Http\Controllers\Api\ProductController@get_all_property_userDeatils');
+Route::get('/get_all_property_userDetails', 'App\Http\Controllers\Api\ProductController@get_all_property_userDetails');
 Route::post('/create_product_rent', 'App\Http\Controllers\Api\ProductController@crm_create_product_rent');
 Route::post('/update_product_rent', 'App\Http\Controllers\Api\ProductController@crm_update_product_rent');																			
 Route::post('wishlist_crm', 'App\Http\Controllers\Api\WishlistController@Crm_store');

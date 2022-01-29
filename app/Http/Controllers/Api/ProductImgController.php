@@ -77,7 +77,7 @@ class ProductImgController extends Controller
     { 
         $request->validate([
                 'product_id' => 'required|integer',
-                // 'file'=>'required',
+                'file'=>'required',
                 'user_id'=>'required|integer'
             ]);
 
@@ -109,8 +109,8 @@ class ProductImgController extends Controller
                     return response()->json([
                          'message' =>'FAIL',
                          'description' => 'Please Select Product Image',
-                         'status'=>200
-                    ], 200);
+                         'status'=>204
+                    ], 204);
                 }
             }else{
                 return response() -> json([
