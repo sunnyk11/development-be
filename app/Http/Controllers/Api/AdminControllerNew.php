@@ -65,7 +65,7 @@ class AdminControllerNew extends Controller
         }
         return response()->json([
             'roles' => $roles,
-            'permissions' => array_unique($permissions)
+            'permissions' => $permissions
         ]);
     }
 }

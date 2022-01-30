@@ -1241,9 +1241,9 @@ class AuthController extends Controller
             $token = $tokenResult->token;
             $token->expires_at = Carbon::now()->addWeeks(20);
             $token->save();
-
+			$user_string = http_build_query($finduser->toArray());
             //return redirect()->to('https://www.housingstreet.com/login?token='.$tokenResult->accessToken.'&data='.$finduser);
-            return redirect()->to(env('APP_REDIRECT_URL').'/login?token='.$tokenResult->accessToken.'&data='.$finduser);
+            return redirect()->to(env('APP_REDIRECT_URL').'/login?token='.$tokenResult->accessToken.'&'.$user_string);
 
         // return response()->json([
 
