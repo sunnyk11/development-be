@@ -185,10 +185,10 @@ class ProductImgController extends Controller
             ], 401);
 
         $image_result= Product_img::where([ 'user_id'=> $user_id,'product_id'=> $pro_id , 'id'=>$request->product_id ])->first();
-        // if(!empty($image_result['image'])){
-        //     $image_path='storage/'.$image_result['image'];
-        //     unlink($image_path);
-        // }
+        if(!empty($image_result['image'])){
+            $image_path='storage/'.$image_result['image'];
+            unlink($image_path);
+        }
         Product_img::where([ 'user_id'=> $user_id,'product_id'=> $pro_id , 'id'=>$request->product_id ])->delete();
 
         return response()->json([
@@ -206,10 +206,16 @@ class ProductImgController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
+                $image_result= Product_img::where(['product_id'=> $request->product_id , 'id'=>$request->pro_image_id ])->first();
+            if(!empty($image_result['image'])){
+                $image_path='storage/'.$image_result['image'];
+                unlink($image_path);
+            }
             Product_img::where(['product_id'=>$request->product_id, 'id'=>$request->pro_image_id])->delete();
 
                 return response()->json([
                     'message' => 'SUCCESS',
+                    'description'=>'Image Successfully deleted',
                     'status'=>200
                 ], 200);
             }else{
@@ -223,10 +229,6 @@ class ProductImgController extends Controller
         }catch(\Exception $e) {
             return $this->getExceptionResponse1($e);
         }  
-
-        return response()->json([
-            'message' => 'Image Successfully deleted',
-        ], 201);
 
     }
 }
