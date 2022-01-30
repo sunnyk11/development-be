@@ -78,6 +78,7 @@ class ProductImgController extends Controller
         $request->validate([
                 'product_id' => 'required|integer',
                 'file'=>'required',
+                'file.*' => 'image|mimes:jpeg,jpg,png|max:20480',
                 'user_id'=>'required|integer'
             ]);
 
