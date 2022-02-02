@@ -278,7 +278,7 @@ class product extends Model
             $query = $query->orderBy('products.id', 'desc');
         }
         if ($searchTerm->property_status == "viewed") {
-            $query = $query->where('view_counter', '>=',25)->orderBy('view_counter', 'desc');
+            $query = $query->orderBy('view_counter', 'desc');
         }
         $sub_locality=$searchTerm->sub_locality;
         $locality=$searchTerm->locality;
