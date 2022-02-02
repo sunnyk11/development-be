@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use DB;
 use App\Models\Role;
 use App\Models\Permission;
+use App\Models\User;
 
 class RolesPermissionsController extends Controller
 {
@@ -95,5 +96,40 @@ class RolesPermissionsController extends Controller
         return response() -> json ([
             'message' => 'The role has been deleted.'
         ]); 
+    }
+
+    public function get_user_roles($user_id) {
+        $roles = DB::table('roles')->get();
+        $internal_user_roles =  DB::table('user_roles_pivot')->where('user_id', $user_id)->get();
+        foreach($roles as $role) {
+            $role->status = false;
+        }
+        foreach($internal_user_roles as $val) {
+            foreach($roles as $val1) {
+                if($val->role_id == $val1->id) {
+                    $val1->status = true;
+                }
+            }
+        }
+        return $roles;
+    }
+
+    public function edit_user_roles(Request $request) {
+        $request->validate([
+            'user_id' => 'required'
+        ]);
+
+        $user = User::where('id', $request->user_id)->first();
+        $user->roles()->detach();
+        $roles_id = array();
+        foreach($request->rolesArray['EditRolesArray'] as $role => $value) { 
+            if($value == true) {
+                $roles_id[] = DB::table('roles')->where('role_name', $role)->first()->id;
+            }
+        }
+        if($roles_id != null) {
+            $user->roles()->attach($roles_id);
+        }
+
     }
 }

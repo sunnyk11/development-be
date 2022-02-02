@@ -158,7 +158,11 @@ Route::group([
         
         Route::post('generate_invoice', 'App\Http\Controllers\PlansController@generate_invoice');
         Route::post('generate_rent_invoice', 'App\Http\Controllers\PlansController@generate_rent_invoice');
-
+        Route::get('get_all_internal_users', 'App\Http\Controllers\Api\AuthController@get_all_internal_users');
+        Route::get('get_internal_user_details/{id}', 'App\Http\Controllers\Api\AuthController@get_internal_user_details');
+        Route::get('get_user_roles/{id}', 'App\Http\Controllers\Api\RolesPermissionsController@get_user_roles');
+        Route::post('edit_user_roles', 'App\Http\Controllers\Api\RolesPermissionsController@edit_user_roles');
+        Route::get('delete_internal_user/{id}', 'App\Http\Controllers\Api\AuthController@delete_internal_user');
        
     });
     // Route::get('/home', 'App\Http\Controllers\Api\HomeController@index')->name('home');

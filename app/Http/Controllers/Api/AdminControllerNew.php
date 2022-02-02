@@ -58,6 +58,7 @@ class AdminControllerNew extends Controller
 
     public function get_user_permissions($user_id) {
         $roles = User::where(['id' => $user_id])->with('roles')->first();
+        $permissions = array();
         foreach($roles['roles'] as $role => $value) {
             foreach($value['permissions'] as $permission => $value1) {
                 $permissions[] = $value1['permission_name'];

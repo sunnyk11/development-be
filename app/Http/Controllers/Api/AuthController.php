@@ -309,6 +309,25 @@ class AuthController extends Controller
         ], 201);
     }
 
+    public function get_all_internal_users() {
+        $internal_users =  User::where('internal_user', 'Yes')->with('roles')->get();
+        return $internal_users;
+    }
+
+    public function get_internal_user_details($user_id) {
+        $internal_user_details =  DB::table('user_roles_pivot')->where('user_id', $user_id)->get();
+        return $internal_user_details;        
+    }
+
+    public function delete_internal_user($user_id) {
+        $user = User::where('id', $user_id)->first();
+        $user->roles()->detach();
+        $user->delete();
+        return response() -> json ([
+            'message' => 'The user has been deleted.'
+        ]); 
+    }
+
     public function create_user_role(Request $request){
 
         $request->validate([
