@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 Route::get('/get_version', function () {
-    return env('App_version', 'Please define App Version');
+    // return env('App_version', 'Please define App Version');
+   return  config('services.App_version');
 });
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');
 //Route::resource('/blog', PostsController::class);

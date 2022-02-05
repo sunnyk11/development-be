@@ -36,5 +36,8 @@ return [
         //'redirect' => 'https://admin.housingstreet.com/api/auth/callback',
 		'redirect' => 'http://localhost:8000/api/auth/callback',
     ],
+    'App_version'=>[
+        '1.0.0'
+    ],
 
 ];
