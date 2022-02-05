@@ -20,9 +20,11 @@ class DatabaseSeeder extends Seeder
         // $this->call(MoreInfoSeeder::class);
         /* Seeder added by Radhika */
         //  $this->call(permissionsSeeder::class);
+        // $this->call(InvoiceDataTableSeeder::class);
 
         // iqbal files seeder**************************
-        $this->call(AmenitiesSeeder::class);
+        // $this->call(AmenitiesSeeder::class);
+        $this->call(plans_features_seeder::class);
         // $this->call(Property_typeSeeder::class);
         // $this->call(maintenance_condition::class);
         // $this->call(ageement_duration::class);

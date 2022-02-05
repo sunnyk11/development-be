@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Route;
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
-
+Route::get('/get_version', function () {
+    return env('App_version', 'Please define App Version');
+});
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');
 //Route::resource('/blog', PostsController::class);
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
