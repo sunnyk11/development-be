@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
 
         // iqbal files seeder**************************
         // $this->call(AmenitiesSeeder::class);
-        $this->call(plans_features_seeder::class);
+        // $this->call(plans_features_seeder::class);
         // $this->call(Property_typeSeeder::class);
         // $this->call(maintenance_condition::class);
         // $this->call(ageement_duration::class);
