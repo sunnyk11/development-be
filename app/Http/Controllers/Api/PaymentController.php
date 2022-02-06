@@ -387,8 +387,13 @@ class PaymentController extends Controller
                 $user_email = $order_details[0]->user_email;
 
                 $todayDate = Carbon::now()->format('Y-m-d');
+                
+                
+               $exist_invoice= [
+                  'invoice_no' => $invoice_id
+                ];
 
-                $invoice = new invoices([
+                $invoice =[
                     'invoice_no' => $invoice_id,
                     'plan_name' => $order_details[0]->plan_name,
                     'plan_id' => $order_details[0]->plan_id,
@@ -408,9 +413,9 @@ class PaymentController extends Controller
                     'payment_received' => 'Yes',
                     'property_uid' => $order_details[0]->property_uid,
                     'property_amount' => $order_details[0]->expected_rent     
-                ]);
+                 ];
 
-                $invoice->save();
+               invoices::updateOrCreate($exist_invoice, $invoice);
                 
                 product::where('id', $order_details[0]->property_id)->update(['order_status' => '1']);
                 /* Wishlist disabled by ID */

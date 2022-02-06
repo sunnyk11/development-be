@@ -15,8 +15,7 @@ class AddFieldsToProductsTable extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->string('video_link')->after('map_longitude')->nullable();
-            $table->integer('pincode')->after('locality')->nullable();
-            $table->boolean('draft')->after('delete_flag')->default(0);
+            $table->enum('draft', ['0', '1'])->default('0')->after('video_link');
             $table->integer('price_negotiable')->change();
         });
     }

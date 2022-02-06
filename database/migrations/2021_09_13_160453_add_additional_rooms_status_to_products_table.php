@@ -14,7 +14,7 @@ class AddAdditionalRoomsStatusToProductsTable extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->boolean('additional_rooms_status')->before('additional_rooms')->nullable();
+            $table->enum('additional_rooms_status', ['0', '1'])->default('1')->after('area_unit');
         });
     }
 

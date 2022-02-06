@@ -43,6 +43,9 @@ class ProductController extends Controller
     public function product_city_details()
     {
      $chattarpur_id=area_locality::select('locality_id')->where(['locality' =>'CHATTARPUR','status' => '1'])->first();
+     // return count($chattarpur_id);
+     if($chattarpur_id){
+      
      $locality_data=product::where(['locality_id' =>$chattarpur_id['locality_id'], 'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
       $Chattarpur_data = $locality_data->groupBy('locality_id')->map(function ($row) {return $row->count();});
       $chattarpur=[];
@@ -65,6 +68,14 @@ class ProductController extends Controller
             'data'=>$city_data,
             'Chattarpur_data'=> $chattarpur 
         ], 200);
+     }else{
+      $city_data=[];
+      $chattarpur=[];
+        return response()->json([
+            'data'=>$city_data,
+            'Chattarpur_data'=> $chattarpur 
+        ], 200);
+     }
     }
 
     public function product_category_details()
@@ -458,11 +469,9 @@ class ProductController extends Controller
         // step 2
         $data->address = $data2['address'];
         $data->city = $data2['city'];
-        $data->locality =$data2['locality'];
-        $data->nearest_landmark = $data2['nearest_place'];
+        // $data->locality =$data2['locality'];
         $data->map_latitude = $data2['map_latitude'];
         $data->map_longitude = $data2['map_longitude'];
-        $data->pincode= $data2['pincode'];
 
         // step 3
         $data->additional_rooms=$addtional_room;
@@ -541,12 +550,9 @@ class ProductController extends Controller
 
             // step 2
             'address' => $data2['address'],
-            'city' => $data2['city'],
-            'locality' =>  $data2['locality'],
-            'nearest_landmark' =>  $data2['nearest_place'],
+            // 'locality' =>  $data2['locality'],
             'map_latitude' => $data2['map_latitude'],
             'map_longitude' => $data2['map_longitude'],
-            'pincode' =>  $data2['pincode'],
 
             // step 3
             'additional_rooms_status' => $data3['additional_rooms'],
@@ -699,7 +705,6 @@ class ProductController extends Controller
         // step 2
         $data->address = $data2['address'];
         $data->address_details = $data2['address_details'];
-        $data->state_id = $data2['city'];
         $data->district_id = $data2['district_id'];
         $data->locality_id =$data2['locality'];
         $data->sub_locality_id =$data2['sub_locality'];
@@ -800,7 +805,6 @@ class ProductController extends Controller
             // step 2
             'address_details' =>  $data2['address_details'],
             'address' => $data2['address'],
-            'state_id' => $data2['city'],
             'district_id' =>$data2['district_id'],
             'locality_id' =>  $data2['locality'],
             'sub_locality_id' => $data2['sub_locality'],
@@ -1062,12 +1066,9 @@ class ProductController extends Controller
 
         // step 2
         $data->address = $data2['address'];
-        $data->city = $data2['city'];
-        $data->locality =$data2['locality'];
-        $data->nearest_landmark = $data2['nearest_place'];
+        // $data->locality =$data2['locality'];
         $data->map_latitude = $data2['map_latitude'];
         $data->map_longitude = $data2['map_longitude'];
-        $data->pincode= $data2['pincode'];
 
         // step 3
         $data->additional_rooms=$addtional_room;
@@ -1869,11 +1870,6 @@ class ProductController extends Controller
             // 'available_for' => 'required',
             // 'brokerage_charges' => 'required',
             // 'type' => 'required',
-            // 'product_image1' => 'required',
-            // 'product_image2' => 'required',
-            // 'product_image3' => 'required',
-            // 'product_image4' => 'required',
-            // 'product_image5' => 'required',
             'bedroom' => 'required',
             'bathroom' => 'required',
             'balconies' => 'required',
@@ -1906,7 +1902,6 @@ class ProductController extends Controller
             'build_name' => 'required',
             'willing_to_rent_out_to' => 'required',
             'agreement_type' => 'required',
-            'nearest_landmark' => 'required',
             'map_latitude' => 'required',
             'map_longitude' => 'required',
             'delete_flag' => 'required',
@@ -1924,12 +1919,11 @@ class ProductController extends Controller
 
         $data->view_counter = $request->view_counter;
         $data->address = $request->address;
-        $data->city = $request->city;
         $data->rent_cond = $request->rent_cond;
         $data->rent_availability = $request->rent_availability;
         $data->sale_availability = $request->sale_availability;
         $data->possession_by = $request->possession_by;
-        $data->locality = $request->locality;
+        // $data->locality = $request->locality;
         $data->display_address = $request->display_address;
         $data->ownership = $request->ownership;
         $data->expected_pricing = $request->expected_pricing;
@@ -1943,11 +1937,6 @@ class ProductController extends Controller
         $data->available_for = $request->available_for;
         $data->brokerage_charges = $request->brokerage_charges;
         $data->type = $request->type;
-        $data->product_image1 = $request->product_image1;
-        $data->product_image2 = $request->product_image2;
-        $data->product_image3 = $request->product_image3;
-        $data->product_image4 = $request->product_image4;
-        $data->product_image5 = $request->product_image5;
         $data->bedroom = $request->bedroom;
         $data->bathroom = $request->bathroom;
         $data->balconies = $request->balconies;
@@ -1980,7 +1969,6 @@ class ProductController extends Controller
         $data->build_name = $request->build_name;
         $data->willing_to_rent_out_to = $request->willing_to_rent_out_to;
         $data->agreement_type = $request->agreement_type;
-        $data->nearest_landmark = $request->nearest_landmark;
         $data->map_latitude = $request->map_latitude;
         $data->map_longitude = $request->map_longitude;
         $data->delete_flag = $request->delete_flag;

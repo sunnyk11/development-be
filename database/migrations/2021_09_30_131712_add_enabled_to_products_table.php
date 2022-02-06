@@ -14,7 +14,7 @@ class AddEnabledToProductsTable extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('enabled')->after('product_uid')->default('no');
+            $table->enum('enabled', ['no', 'yes'])->default('no')->after('delete_flag');
         });
     }
 

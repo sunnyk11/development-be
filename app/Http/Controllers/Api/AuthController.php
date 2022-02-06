@@ -402,7 +402,6 @@ class AuthController extends Controller
             'email' => 'required|string|unique:users',
             'other_mobile_number' => 'required|integer',
             'address' => 'required',
-            'city' => 'required',
             'pan_number' => 'required',
             'aadhar_number' => 'required',
             'profile_pic' => 'required',
@@ -428,7 +427,6 @@ class AuthController extends Controller
             'email' => $request->email,
             'other_mobile_number' => $request->other_mobile_number,
             'address' => $request->address,
-            'city' => $request->city,
             'pan_number' => $request->pan_number,
             'aadhar_number' => $request->aadhar_number,
             'profile_pic' => 'profile_image_file/'.$imageName,
@@ -575,11 +573,63 @@ class AuthController extends Controller
     
         $request_time = now();
         $now = strtotime($request_time);
-        $response = Http::post('https://admincrm.housingstreet.com/api/Lead/SaveBuyer', [
+        
+        $crmp_api = getenv("crmp_api");
+        $response = Http::post($crmp_api, [
             'BuyerEmail' => $user[0]['email'],
             'PhoneNo' => $user[0]['other_mobile_number'],
             'BuyerName' => $user[0]['name'],
-            'Source' => 'Web'
+            'Source' => 'Web',
+            'usertype'=> 'Existing'
+        ]);
+        
+        $date = strtotime($response->headers()['Date'][0]);
+        
+        $crm_data = new crmApiCalls([
+            'response_body' => $response->body(),
+            'response_client_error' => $response->clientError(),
+            'response_fail' => $response->failed(),
+            'response_server_error' => $response->serverError(),
+            'response_status' => $response->status(),
+            'response_success' => $response->successful(),
+            'request_time' => $request_time,
+            'response_time' => date('Y-m-d H:i:s', $date),
+            'user_email' => $user[0]['email'],
+            'user_phone' => $user[0]['other_mobile_number'],
+            'user_name' => $user[0]['name'],
+            'source' => 'Web' 
+        ]);
+
+        $crm_data->save();
+
+        return response()->json([
+            'message' => 'Successfully added lead',
+            'response_success' => $response->successful(),
+            'response_fail' => $response->failed(),
+            'response_client_error' => $response->clientError(),
+            'response_server_error' => $response->serverError(),
+            'response_body' => $response->body(),
+            'response_json' => $response->json(),
+            'response_status' => $response->status(),
+            'response_headers' => date('Y-m-d H:i:s', $date),
+            'response' => $response
+        ], 201);
+    }
+    
+    public function crm_call_appointment(Request $request) {
+        $user = User::where('id', $request['id'])->get();
+    
+        $request_time = now();
+        $now = strtotime($request_time);
+        
+        $crmp_api = getenv("crmp_api");
+        $response = Http::post($crmp_api, [
+            'BuyerEmail' => $user[0]['email'],
+            'PhoneNo' => $user[0]['other_mobile_number'],
+            'BuyerName' => $user[0]['name'],
+            'Source' => 'Web',
+            'Appointment'=>'Appointment Fixed',
+            'AppointmentTime' => $request_time
         ]);
         
         $date = strtotime($response->headers()['Date'][0]);
@@ -635,7 +685,8 @@ class AuthController extends Controller
         if ($verification->valid) {
             User::where('other_mobile_number', $data['phone_number'])->update(['phone_number_verification_status' => 1]);
 
-            $response = Http::post('https://admincrm.housingstreet.com/api/Lead/SaveBuyer', [
+            $crmp_api = getenv("crmp_api");
+            $response = Http::post($crmp_api, [
                 'BuyerEmail' => $data['email_address'],
                 'PhoneNo' => $data['phone_number'],
                 'BuyerName' => $data['name_first'],
@@ -681,11 +732,13 @@ class AuthController extends Controller
             $user = User::where('id', $data['user_id'])->get();
             $request_time = now();
             $now = strtotime($request_time);
-            $response = Http::post('https://admincrm.housingstreet.com/api/Lead/SaveBuyer', [
+            $crmp_api = getenv("crmp_api");
+            $response = Http::post($crmp_api, [
                 'BuyerEmail' => $user[0]['email'],
                 'PhoneNo' => $user[0]['other_mobile_number'],
                 'BuyerName' => $user[0]['name'],
-                'Source' => 'Web'
+                'Source' => 'Web',
+                'UserType'=>'New'
             ]);
 
             $date = strtotime($response->headers()['Date'][0]);
@@ -1157,17 +1210,8 @@ class AuthController extends Controller
         return $roles = DB::table('user_roles')->get();
     }
 
-    public function get_areas(Request $request) {
 
-        return $areas = DB::table('areas')->select('area','pincode','id')->get();
-    }
 
-    public function get_pincodebyid(Request $request) {
-         $data = DB::table('areas')->select('area','pincode','id')->where('id', $request->id)->first();
-        return response()->json([
-            'data' =>$data,
-        ], 200);
-    }
 
     /* Function to fetch Individual Role details */
 

@@ -105,12 +105,12 @@ Route::group([
     Route::get('/get_district_byid', 'App\Http\Controllers\Api\AreaDistrictController@get_district_byid');
     Route::get('/get_locality_byid', 'App\Http\Controllers\Api\AreaLocalityController@get_locality_byid');
 
-    Route::post('/get_pincodebyid', 'App\Http\Controllers\Api\AuthController@get_pincodebyid');																						
     Route::post('/owner_signup', 'App\Http\Controllers\Api\AuthController@owner_signup');
     Route::post('/dealer_signup', 'App\Http\Controllers\Api\AuthController@dealer_company_signup');
     Route::post('/lawyer_signup', 'App\Http\Controllers\Api\AuthController@lawyer_signup');
 
     Route::post('/crm_api_call', 'App\Http\Controllers\Api\AuthController@crm_api_call');
+    Route::post('/crm_call_appionment', 'App\Http\Controllers\Api\AuthController@crm_call_appointment');
 
     Route::post('/verify', 'App\Http\Controllers\Api\AuthController@verify');
 	Route::post('/verify_mob', 'App\Http\Controllers\Api\AuthController@verify_mob');	
@@ -242,8 +242,8 @@ Route::group([
         Route::get('/requ_display', 'App\Http\Controllers\Api\RequirementController@display');
         Route::post('/requirement_delete', 'App\Http\Controllers\Api\RequirementController@delete');
 
-        Route::post('/save_search', 'App\Http\Controllers\Api\SavedsearchesController@store');
-        Route::get('/get_search', 'App\Http\Controllers\Api\SavedsearchesController@index');
+        // Route::post('/save_search', 'App\Http\Controllers\Api\SavedsearchesController@store');
+        // Route::get('/get_search', 'App\Http\Controllers\Api\SavedsearchesController@index');
         Route::post('/update_product', 'App\Http\Controllers\Api\ProductController@update_product');
 
         Route::get('/views', 'App\Http\Controllers\Api\ProductController@dashboard_indexer');
