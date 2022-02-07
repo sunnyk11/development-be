@@ -320,7 +320,15 @@ class PlansController extends Controller
     }
 
     public function get_invoice_details($invoiceID) {
-        return $order_details = DB::table('invoices')->where('invoice_no', $invoiceID)->get();
+        try{
+            $data =invoices::with('UserDetail','property_status')->where([
+                ['invoice_no', $invoiceID]])->first();
+            return response()->json([
+                'data' =>$data,
+            ], 201);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
     }
 
     public function product_invoice_Details(request $request) {
@@ -343,9 +351,16 @@ class PlansController extends Controller
     }
 
     public function get_all_user_invoices($emailID) {
-        return $invoice_details = DB::table('invoices')->where([
-            ['user_email', $emailID]
-        ])->get();
+        
+      try{
+            $data =invoices::with('productDetails')->where([
+                ['user_email', $emailID]])->get();
+            return response()->json([
+                'data' =>$data,
+            ], 201);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
     }
 
     public function get_credit_details($email) {
@@ -370,9 +385,8 @@ class PlansController extends Controller
 
     public function update_invoice_details(Request $request) {
 
-        product::where('product_uid', $request->product_id)->update(['enabled' => 'yes']);        
-        invoices::where('invoice_no', $request->invoice_id)->update(['plan_status' => 'used', 'property_uid' => $request->product_id, 'property_amount' => $request->product_price]);
-
+        product::where('product_uid', $request->product_id)->update(['enabled' => 'yes']);   
+        invoices::where('invoice_no', $request->invoice_id)->update(['plan_status' => 'used', 'property_uid' => $request->product_id, 'property_amount' => $request->product_price]);     
         return response()->json([
             'message' => 'Invoice details updated'
         ], 201);

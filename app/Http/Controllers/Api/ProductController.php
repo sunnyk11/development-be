@@ -705,6 +705,7 @@ class ProductController extends Controller
         // step 2
         $data->address = $data2['address'];
         $data->address_details = $data2['address_details'];
+        $data->state_id = $data2['city'];
         $data->district_id = $data2['district_id'];
         $data->locality_id =$data2['locality'];
         $data->sub_locality_id =$data2['sub_locality'];
@@ -805,6 +806,7 @@ class ProductController extends Controller
             // step 2
             'address_details' =>  $data2['address_details'],
             'address' => $data2['address'],
+             'state_id' => $data2['city'],
             'district_id' =>$data2['district_id'],
             'locality_id' =>  $data2['locality'],
             'sub_locality_id' => $data2['sub_locality'],

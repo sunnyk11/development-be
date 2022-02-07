@@ -416,7 +416,10 @@ class PaymentController extends Controller
                  ];
 
                invoices::updateOrCreate($exist_invoice, $invoice);
-                
+               
+               DB::table('plans_rent_orders')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);  
+               DB::table('plans_rent_orders')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Rented']);
+                            
                 product::where('id', $order_details[0]->property_id)->update(['order_status' => '1']);
                 /* Wishlist disabled by ID */
                 Wishlist::where('product_id', $order_details[0]->property_id)->update(['status' => '0']);

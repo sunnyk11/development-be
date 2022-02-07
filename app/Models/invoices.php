@@ -30,4 +30,19 @@ class invoices extends Model
                            'property_uid',
                            'property_amount'
                         ];
+                        
+    public function productDetails()
+    {
+        return $this->hasOne('App\Models\product', 'product_uid','property_uid')->select('id','product_uid','build_name');
+    }
+    
+    public function UserDetail()
+    {
+        return $this->hasOne('App\Models\User', 'id','user_id');
+    }
+    
+    public function property_status()
+    {
+        return $this->hasOne('App\Models\plansRentOrders', 'invoice_no','invoice_no');
+    }
 }
