@@ -16,6 +16,9 @@ use App\Models\LetOutPlansNew;
 use App\Models\PropertyPlans;
 use App\Models\plansFeaturesPivot;
 use App\Models\orderPlanFeatures; 
+use App\Models\Wishlist;
+use App\Models\Product_Comparision;
+use App\Http\Controllers\Api\Authicationcheck;
 
 class PlansController extends Controller
 {
@@ -326,6 +329,76 @@ class PlansController extends Controller
             return response()->json([
                 'data' =>$data,
             ], 201);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
+    }
+
+    public function invoice_status_change(Request $request) {
+         $request->validate([
+                'invoice_no' => 'required',
+                'property_uid' => 'required|integer'
+            ]);
+         try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $order_details = DB::table('plans_rent_orders')->where('invoice_no', $request->invoice_no)->first();
+                // return $order_details;
+                if($order_details){
+                    if($order_details->payment_status == 'UNPAID'){
+                         DB::table('plans_rent_orders')->where(['property_uid'=> $request->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);                  
+                         plansRentOrders::where(['property_uid'=>$request->property_uid,'invoice_no'=>$request->invoice_no])->update(['payment_status' => 'PAID','property_status' => 'Property Rented']);
+
+                         // invoice table  
+                         $todayDate = Carbon::now()->format('Y-m-d');  
+
+                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'amount_paid' => $order_details->total_amount,'property_amount'=> $order_details->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','property_uid'=>$order_details->property_uid]);
+                        if($invoices_data){
+
+                          product::where('id', $order_details->property_id)->update(['order_status' => '1']);
+                        /* Wishlist disabled by ID */
+                        Wishlist::where('product_id', $order_details->property_id)->update(['status' => '0']);
+                          /* Product comparison disabled by ID */
+                        Product_Comparision::where('product_id', $order_details->property_id)->update(['status' => '0']);
+
+                            return response()->json([
+                                 'message' =>'SUCCESS',
+                                 'description' => 'Invoice Successfully Paid',
+                                 'status'=>200
+                             ], 200);
+                        }else{
+                                return response()->json([
+                                     'message' =>'FAIL',
+                                     'description' => 'Invoice details not Updated !!!...',
+                                     'status'=>200
+                                 ], 200);
+                        }
+                    
+                    }else{
+
+                    return response()->json([
+                         'message' =>'SUCCESS',
+                         'description' => 'Invoice Already Paid',
+                         'status'=>200
+                     ], 200);
+
+                    }
+                }else{
+                    return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'Invoice details is Invalid !!!...',
+                         'status'=>200
+                     ], 200);
+
+                }
+            }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }  
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
         }  

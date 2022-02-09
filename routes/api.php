@@ -34,6 +34,7 @@ Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_p
 
 Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get_property_byid');
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
+Route::post('/invoice_status_change', 'App\Http\Controllers\PlansController@invoice_status_change');
 Route::post('/store_property_image', 'App\Http\Controllers\Api\ProductImgController@store');
 Route::get('/delete_property_img', 'App\Http\Controllers\Api\ProductImgController@delete_product_img_crm');
 Route::get('/get_all_property_userDetails', 'App\Http\Controllers\Api\ProductController@get_all_property_userDetails');
@@ -49,7 +50,7 @@ Route::get('posts_latest', 'App\Http\Controllers\PostController@index_latest');
 
 Route::get('posts/{post}', 'App\Http\Controllers\PostController@show');
 Route::middleware('auth:api')->post('posts/update/{slug}', 'App\Http\Controllers\PostController@update');
-Route::middleware('auth:api')->delete('posts/delete/{slug}', 'App\Http\Controllers\PostController@destroy');
+Route::middleware('auth:api')->post('posts/delete/{slug}', 'App\Http\Controllers\PostController@destroy');
 
 Route::get('get_enabled_rent_plans', 'App\Http\Controllers\PlansController@get_enabled_rent_plans');																									
 Route::get('get_all_rent_plans', 'App\Http\Controllers\PlansController@get_all_rent_plans');
