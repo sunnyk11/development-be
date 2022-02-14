@@ -21,27 +21,40 @@ class RolesPermissionsController extends Controller
     public function create_role(Request $request) {
 
         $request->validate([
-            'roleName' => 'required'
+            'role_name' => 'required|unique:roles'
         ]);
 
         $role = new Role([
-            'role_name' => $request->roleName
+            'role_name' => $request->role_name,
+            'description' =>$request->roleDesc
         ]);
         
-        $result = $role->save();
 
         //return $request->permissionsArray;
         //return gettype($request->permissionsArray);
+        $permission_id=[];
         foreach($request->permissionsArray as $permission => $value) {
             if($value == true) {
                 $permission_id[] = DB::table('permissions')->where('permission_name', $permission)->first()->id;
             }
         }
         //return $permission_id;
-        $role->permissions()->attach($permission_id);
-        //$permissions = DB::table('permissions')->get();
-        
-        //return $result;
+        if(count($permission_id)){
+              $result = $role->save();
+              $role->permissions()->attach($permission_id);
+            return response() -> json([
+                'message' => 'SUCCESS',
+                'description'=>'Roles SUCCESSfully Created',
+                'status'=> 200,
+            ]);
+        }else{
+
+            return response() -> json([
+                'message' => 'FAIL',
+                'error'=>'Atleast One Selected Permission',
+                'status'=> 401,
+            ]);
+        }
 
     }
 
@@ -76,13 +89,30 @@ class RolesPermissionsController extends Controller
 
         $role = Role::where('id', $request->role_id)->first();
         $role->permissions()->detach();
-
+        $permission_id=[];
         foreach($request->permissionsArray['EditPermissionsArray'] as $permission => $value) { 
             if($value == true) {
                 $permission_id[] = DB::table('permissions')->where('permission_name', $permission)->first()->id;
             }
         }
-        $role->permissions()->attach($permission_id);
+
+        //return $permission_id;
+        if(count($permission_id)){
+              $result = $role->save();
+              $role->permissions()->attach($permission_id);
+            return response() -> json([
+                'message' => 'SUCCESS',
+                'description'=>'Roles SUCCESSfully Created',
+                'status'=> 200,
+            ]);
+        }else{
+
+            return response() -> json([
+                'message' => 'FAIL',
+                'error'=>'Atleast One Selected Permission',
+                'status'=> 401,
+            ]);
+        }
     }
 
     public function delete_role(Request $request) {

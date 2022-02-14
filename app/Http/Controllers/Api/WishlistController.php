@@ -107,7 +107,9 @@ class WishlistController extends Controller
 
         }else{
           return response()->json([
+            'message' => 'Wishlist Already ',
             'data' =>$Wishlist,
+            'status'  => 200
         ], 201);           
         }
     }
