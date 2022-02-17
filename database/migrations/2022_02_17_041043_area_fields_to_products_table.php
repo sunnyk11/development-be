@@ -14,7 +14,7 @@ class AreaFieldsToProductsTable extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            //
+            $table->string('area')->after('area_unit')->nullable();
         });
     }
 
