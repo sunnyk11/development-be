@@ -35,6 +35,9 @@ Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_p
 Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get_property_byid');
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
 Route::post('/invoice_status_change', 'App\Http\Controllers\PlansController@invoice_status_change');
+
+Route::post('property_live_bycrm', 'App\Http\Controllers\PlansController@property_livebycrm');
+Route::get('/get_plan_by_user', 'App\Http\Controllers\PlansController@get_plan_by_user');
 Route::post('/store_property_image', 'App\Http\Controllers\Api\ProductImgController@store');
 Route::get('/delete_property_img', 'App\Http\Controllers\Api\ProductImgController@delete_product_img_crm');
 Route::get('/get_all_property_userDetails', 'App\Http\Controllers\Api\ProductController@get_all_property_userDetails');
@@ -155,6 +158,7 @@ Route::group([
         Route::get('get_property_details/{id}', 'App\Http\Controllers\PlansController@get_property_details');
         Route::get('update_property_details/{id}', 'App\Http\Controllers\PlansController@update_property_details');
         Route::get('update_invoice_details', 'App\Http\Controllers\PlansController@update_invoice_details');
+
         
         Route::get('get_credit_details/{id}', 'App\Http\Controllers\PlansController@get_credit_details');
         Route::get('get_total_credit/{id}', 'App\Http\Controllers\PlansController@get_total_credit');

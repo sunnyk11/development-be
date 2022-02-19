@@ -70,7 +70,7 @@ class PaymentController extends Controller
             $body["CHECKSUMHASH"] = $paytmChecksum;
             
             $jsonbody = json_encode($body);
-            error_log($jsonbody);
+            // error_log($jsonbody);
          
             return response()->json([
                 'data' => $body,
@@ -167,7 +167,7 @@ class PaymentController extends Controller
              $body["CHECKSUMHASH"] = $paytmChecksum;
              
              $jsonbody = json_encode($body);
-             error_log($jsonbody);
+            //  error_log($jsonbody);
           
              return response()->json([
                  'data' => $body,
@@ -328,7 +328,7 @@ class PaymentController extends Controller
              $body["CHECKSUMHASH"] = $paytmChecksum;
              
              $jsonbody = json_encode($body);
-             error_log($jsonbody);
+            //  error_log($jsonbody);
           
              return response()->json([
                  'data' => $body,

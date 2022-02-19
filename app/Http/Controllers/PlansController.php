@@ -347,13 +347,13 @@ class PlansController extends Controller
                 // return $order_details;
                 if($order_details){
                     if($order_details->payment_status == 'UNPAID'){
-                         DB::table('plans_rent_orders')->where(['property_uid'=> $request->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);                  
-                         plansRentOrders::where(['property_uid'=>$request->property_uid,'invoice_no'=>$request->invoice_no])->update(['payment_status' => 'PAID','property_status' => 'Property Rented']);
+                         DB::table('plans_rent_orders')->where(['property_uid'=> $request->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User','payment_status'=>'CANCLE']);                  
+                         plansRentOrders::where(['property_uid'=>$request->property_uid,'invoice_no'=>$request->invoice_no])->update(['payment_status' => 'PAID','property_status' => 'Property Rented','payment_status'=>'PAID','transaction_status'=>'TXN_SUCCESS','amount_paid'=>$order_details->total_amount]);
 
                          // invoice table  
                          $todayDate = Carbon::now()->format('Y-m-d');  
 
-                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'amount_paid' => $order_details->total_amount,'property_amount'=> $order_details->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','property_uid'=>$order_details->property_uid]);
+                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'amount_paid' => $order_details->total_amount,'property_amount'=> $order_details->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','property_uid'=>$order_details->property_uid]);
                         if($invoices_data){
 
                           product::where('id', $order_details->property_id)->update(['order_status' => '1']);
@@ -423,6 +423,35 @@ class PlansController extends Controller
         ])->get();
     }
 
+    public function get_plan_by_user(Request $request) {
+      $request->validate([
+                'user_id' => 'required|integer',
+            ]);
+
+        $user_id = $request->input('user_id');
+
+      try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $data =invoices::where([['user_id', $user_id],['plan_type', 'Let Out']])->get();
+                return response()->json([
+                    'data' =>$data,
+                ], 200);
+
+            }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            } 
+
+      }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
+    }
+
     public function get_all_user_invoices($emailID) {
         
       try{
@@ -464,6 +493,40 @@ class PlansController extends Controller
             'message' => 'Invoice details updated'
         ], 201);
     }
+
+    public function property_livebycrm(Request $request) {
+         $request->validate([
+                'invoice_no' => 'required',
+                'property_uid' => 'required|integer'
+            ]);
+
+         try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $product_price = product::select('expected_rent')->where('product_uid', $request->property_uid)->first();
+                
+                product::where('product_uid', $request->property_uid)->update(['enabled' => 'yes']);   
+                invoices::where('invoice_no', $request->invoice_no)->update(['plan_status' => 'used', 'property_uid' => $request->property_uid,'property_amount' => $product_price->expected_rent]);     
+                return response()->json([
+                    'message' =>'SUCCESS',
+                     'description' => 'Property Successfully Lived',
+                     'status'=>200
+                ], 200);
+
+                 }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }  
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
+
+    }
+    
 
     public function generate_invoice(Request $request) {
         try {

@@ -251,7 +251,7 @@ class ProductController extends Controller
      {
         try{
              $locality_id = $request->locality_id;  
-              $productArray = product::with('UserDetail','Property_area_unit','product_img','product_comparision','Property_Type','product_state','product_locality','Single_wishlist','Property_area_unit')->where(['locality_id'=> $locality_id,'delete_flag'=> 0,'draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(4)->get();
+              $productArray = product::with('UserDetail','Property_area_unit','product_img','product_comparision','Property_Type','product_state','product_locality','Single_wishlist','Property_area_unit')->where(['locality_id'=> $locality_id,'delete_flag'=> '0','draft'=> '0','order_status'=> 0, 'enabled' => 'yes'])->orderBy('id', 'desc')->take(4)->get();
               return response()->json([
               'data' =>$productArray,
             ], 201);
