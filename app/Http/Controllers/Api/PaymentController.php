@@ -19,6 +19,7 @@ use App\Models\Product_Comparision;
 use App\Models\planCredit;
 use Carbon\Carbon;
 use App\Models\invoices;
+use App\Models\UserProductCount;
 
 class PaymentController extends Controller
 {
@@ -103,9 +104,15 @@ class PaymentController extends Controller
                 'errorMessage'       =>  $request->errorMessage,
                 'errorCode'          =>  $request->errorCode
             ];  
+            $exist_order= [
+                'order_id' =>$request->ORDERID
+              ];
+            // plansTransaction::create($plan_transaction);
+            
+            plansTransaction::updateOrCreate($exist_order, $pro_tranaction);
 
             // transaction save on database by Unique order id
-            product_transaction::create($pro_tranaction);
+            // product_transaction::create($pro_tranaction);
 
             // transaction status update
             product_order::where('orderId', $request->ORDERID)->update(['transaction_status' => $request->STATUS]);
@@ -119,6 +126,7 @@ class PaymentController extends Controller
             // product disable after payment
             if($request->STATUS == 'TXN_SUCCESS'){ 
               product::where('id', $product_id->id)->update(['order_status' => '1']);
+              UserProductCount::where('product_id', $order_details->property_id)->update(['status' => '0']);
               /* Wishlist disabled by ID */
               Wishlist::where('product_id', $product_id->id)->update(['status' => '0']);
                 /* Product comparison disabled by ID */
@@ -208,9 +216,13 @@ class PaymentController extends Controller
                 'errorMessage'       =>  $request->errorMessage,
                 'errorCode'          =>  $request->errorCode
             ];  
-
-            // transaction save on database by Unique order id
-            plansTransaction::create($plan_transaction);
+            
+            $exist_order= [
+                'order_id' =>$request->ORDERID
+              ];
+            // plansTransaction::create($plan_transaction);
+            
+            plansTransaction::updateOrCreate($exist_order, $plan_transaction);
 
             // transaction status update
             plansOrders::where('order_id', $request->ORDERID)->update(['transaction_status' => $request->STATUS]);
@@ -242,8 +254,12 @@ class PaymentController extends Controller
                 $credit->save();
 
                 $todayDate = Carbon::now()->format('Y-m-d');
+                
+               $exist_invoice= [
+                'invoice_no' => $invoice_id
+              ];
 
-                $invoice = new invoices([
+                $invoice =[
                     'invoice_no' => $invoice_id,
                     'plan_name' => $order_details[0]->plan_name,
                     'plan_id' => $order_details[0]->plan_id,
@@ -261,9 +277,10 @@ class PaymentController extends Controller
                     'transaction_status' => $request->STATUS,
                     'payment_mode' => 'Online',
                     'payment_received' => 'Yes'     
-                ]);
+                ];
 
-                $invoice->save();
+                invoices::updateOrCreate($exist_invoice, $invoice);
+                // $invoice->save();
                 
                 /*$total_credit = DB::table('total_credits')->where('user_email', $user_email)->get();
                 if($total_credit->isEmpty()) {
@@ -364,9 +381,15 @@ class PaymentController extends Controller
                 'errorMessage'       =>  $request->errorMessage,
                 'errorCode'          =>  $request->errorCode
             ];  
+            
 
             // transaction save on database by Unique order id
-            plansTransaction::create($plan_transaction);
+            $exist_order= [
+                'order_id' =>$request->ORDERID
+              ];
+            // plansTransaction::create($plan_transaction);
+            
+            plansTransaction::updateOrCreate($exist_order, $plan_transaction);
 
             // transaction status update
             plansRentOrders::where('order_id', $request->ORDERID)->update(['transaction_status' => $request->STATUS]);
@@ -421,6 +444,9 @@ class PaymentController extends Controller
                DB::table('plans_rent_orders')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Rented']);
                             
                 product::where('id', $order_details[0]->property_id)->update(['order_status' => '1']);
+                
+                UserProductCount::where('product_id', $order_details[0]->property_id)->update(['status' => '0']);
+             
                 /* Wishlist disabled by ID */
                 Wishlist::where('product_id', $order_details[0]->property_id)->update(['status' => '0']);
                   /* Product comparison disabled by ID */

@@ -238,7 +238,7 @@ class ProductController extends Controller
       public function search_prod_by_city(Request $request){
         try{
              $locality_id = $request->locality_id;
-            $productSimilar=product::with('UserDetail','Property_area_unit','Property_Type','product_img','product_state','product_locality')->where(['locality_id'=> $locality_id,'delete_flag'=>0,'draft'=>'0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(4)->get();
+            $productSimilar=product::with('UserDetail','Property_area_unit','Property_Type','product_img','product_state','product_locality')->where(['locality_id'=> $locality_id,'delete_flag'=>'0','draft'=>'0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(4)->get();
                 return response()-> json([
                     'data' => $productSimilar,
                 ]);
@@ -251,7 +251,7 @@ class ProductController extends Controller
      {
         try{
              $locality_id = $request->locality_id;  
-              $productArray = product::with('UserDetail','Property_area_unit','product_img','product_comparision','Property_Type','product_state','product_locality','Single_wishlist','Property_area_unit')->where(['locality_id'=> $locality_id,'delete_flag'=> '0','draft'=> '0','order_status'=> 0, 'enabled' => 'yes'])->orderBy('id', 'desc')->take(4)->get();
+              $productArray = product::with('UserDetail','Property_area_unit','product_img','product_comparision','Property_Type','product_state','product_locality','Single_wishlist','Property_area_unit')->where(['locality_id'=> $locality_id,'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(4)->get();
               return response()->json([
               'data' =>$productArray,
             ], 201);
@@ -353,7 +353,7 @@ class ProductController extends Controller
             'city' => 'required'
         ]);
         $user_id = Auth::user()->id;
-        $product = product::Where(['city' =>  $request->city,'delete_flag' => 0,'draft'=> '0','order_status'=> '0'])->with('UserDetail','product_img','product_comparision','Property_Type')->get();
+        $product = product::Where(['city' =>  $request->city,'delete_flag' => '0','draft'=> '0','order_status'=> '0'])->with('UserDetail','product_img','product_comparision','Property_Type')->get();
 
         $Wishlist=Wishlist::where('user_id', $user_id)->orderBy('id', 'asc')->get();
         $productcount = count($product);

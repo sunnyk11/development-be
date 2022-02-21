@@ -19,6 +19,7 @@ use App\Models\orderPlanFeatures;
 use App\Models\Wishlist;
 use App\Models\Product_Comparision;
 use App\Http\Controllers\Api\Authicationcheck;
+use App\Models\UserProductCount;
 
 class PlansController extends Controller
 {
@@ -357,6 +358,7 @@ class PlansController extends Controller
                         if($invoices_data){
 
                           product::where('id', $order_details->property_id)->update(['order_status' => '1']);
+                          UserProductCount::where('product_id', $order_details->property_id)->update(['status' => '0']);
                         /* Wishlist disabled by ID */
                         Wishlist::where('product_id', $order_details->property_id)->update(['status' => '0']);
                           /* Product comparison disabled by ID */
@@ -434,7 +436,7 @@ class PlansController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $data =invoices::where([['user_id', $user_id],['plan_type', 'Let Out']])->get();
+                $data =invoices::where(['user_id'=> $user_id,'plan_type'=> 'Let Out','payment_status'=>'PAID'])->get();
                 return response()->json([
                     'data' =>$data,
                 ], 200);
@@ -494,7 +496,7 @@ class PlansController extends Controller
         ], 201);
     }
 
-    public function property_livebycrm(Request $request) {
+    public function property_live_bycrm(Request $request) {
          $request->validate([
                 'invoice_no' => 'required',
                 'property_uid' => 'required|integer'

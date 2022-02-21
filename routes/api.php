@@ -36,7 +36,7 @@ Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
 Route::post('/invoice_status_change', 'App\Http\Controllers\PlansController@invoice_status_change');
 
-Route::post('property_live_bycrm', 'App\Http\Controllers\PlansController@property_livebycrm');
+Route::post('property_live_bycrm', 'App\Http\Controllers\PlansController@property_live_bycrm');
 Route::get('/get_plan_by_user', 'App\Http\Controllers\PlansController@get_plan_by_user');
 Route::post('/store_property_image', 'App\Http\Controllers\Api\ProductImgController@store');
 Route::get('/delete_property_img', 'App\Http\Controllers\Api\ProductImgController@delete_product_img_crm');
