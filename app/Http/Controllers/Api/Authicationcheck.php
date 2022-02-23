@@ -35,9 +35,9 @@ class Authicationcheck extends Controller
     public function  static_data(){
         try{
             $static_data_array=[];
-            $bedroom=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
-            $bathroom=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
-            $balconies=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
+            $bedroom=[['number'=>'0'],['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
+            $bathroom=[['number'=>'0'],['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
+            $balconies=[['number'=>'0'],['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
             $area_unit=area_unit::select('id','unit','status')->where('status', '1')->orderBy('id', 'asc')->get();
             $property_type=Property_type::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
 
@@ -48,10 +48,10 @@ class Authicationcheck extends Controller
             $total_floors=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
             $security_deposit=[['months'=>'1'],['months'=>'2'],['months'=>'3'],['months'=>'4'],['months'=>'5'],['months'=>'6']];
             $maintenance_charge_condition=property_maintenance_condition::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
-            $parking_covered_count=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5']];
-            $parking_open_count=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5']];
+            $parking_covered_count=[['number'=>'0'],['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5']];
+            $parking_open_count=[['number'=>'0'],['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5']];
             $willing_to_rent=property_willing_rent_out::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
-            $month_of_notic=[['id'=>1,'months'=>'1'],['id'=>2,'months'=>'2'],['id'=>3,'months'=>'3'],['id'=>4,'months'=>'4'],['id'=>5,'months'=>'5'],['id'=>6,'months'=>'6']];
+            $month_of_notic=[['id'=>0,'months'=>'0'],['id'=>1,'months'=>'1'],['id'=>2,'months'=>'2'],['id'=>3,'months'=>'3'],['id'=>4,'months'=>'4'],['id'=>5,'months'=>'5'],['id'=>6,'months'=>'6']];
              $agreement_duration=property_ageement_duration::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
             $agreement_type=property_ageement_type::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
             $amenities_data=Amenitie::select('id','name','IsEnable')->where('IsEnable', '1')->orderBy('id', 'asc')->get();
