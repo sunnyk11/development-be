@@ -967,7 +967,7 @@ class ProductController extends Controller
 
             $user_id = Auth::user()->id;
 
-            $data = product::with('product_img')->where('user_id', $user_id)->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->paginate(2);
+            $data = product::with('product_img')->where('user_id', $user_id)->where(['delete_flag'=> '0','draft'=> '0'])->orderBy('id', 'desc')->paginate(5);
             //$tableq = DB::table('users')->select('id','name','email','profile_pic')->get();
             return response()->json([
                 //'users'=> $tableq,
@@ -982,7 +982,7 @@ class ProductController extends Controller
     {
         try{
             $user_id = Auth::user()->id;
-            $data = product::with('product_img')->where(['delete_flag'=> '0','draft'=> '1','order_status'=> '0','user_id'=>  $user_id])->orderBy('id', 'desc')->paginate(2);
+            $data = product::with('product_img')->where(['delete_flag'=> '0','draft'=> '1','order_status'=> '0','user_id'=>  $user_id])->orderBy('id', 'desc')->paginate(5);
             return response()->json([
                 'data' =>$data,
             ], 200);
@@ -1167,8 +1167,6 @@ class ProductController extends Controller
             'message' => 'Successfully Updated',
             'data' => $data
         ]);
-
-
     }
 
     public function get_proeprty_id(Request $request){

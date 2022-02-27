@@ -212,6 +212,9 @@ class product extends Model
     //  {
     //      return $this->hasMany('App\Models\plansRentOrders', 'property_id','id');
     //  }
+	public function property_invoice() {
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['plan_type'=> 'Let Out']);
+    }
 	public function letout_invoice() {
         return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Let Out']);
     }

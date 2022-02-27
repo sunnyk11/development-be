@@ -35,6 +35,9 @@ Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_p
 Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get_property_byid');
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
 Route::post('/invoice_status_change', 'App\Http\Controllers\PlansController@invoice_status_change');
+Route::post('/cancelled_deal', 'App\Http\Controllers\PlansController@cancelled_deal');
+    Route::get('rent_property_slip', 'App\Http\Controllers\Api\ProductController@rent_property_slip');
+
 
 Route::post('property_live_bycrm', 'App\Http\Controllers\PlansController@property_live_bycrm');
 Route::get('/get_plan_by_user', 'App\Http\Controllers\PlansController@get_plan_by_user');
@@ -189,6 +192,7 @@ Route::post('/delete_role', 'App\Http\Controllers\Api\RolesPermissionsController
 Route::group([
     'prefix' => 'product'
 ], function () {
+    Route::get('property_rent_slip', 'App\Http\Controllers\Api\ProductController@property_rent_slip');
     Route::get('/feature_property', 'App\Http\Controllers\Api\ProductController@feature_property');
     Route::get('/getRecently_viewProperty', 'App\Http\Controllers\Api\ProductController@Recently_view');
     Route::get('/get_product', 'App\Http\Controllers\Api\ProductController@product_city_details');

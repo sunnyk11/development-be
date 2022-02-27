@@ -980,6 +980,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        // return $request->all();
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -992,6 +993,8 @@ class AuthController extends Controller
             ], 401);
         }
         $user = $request->user();
+        $user_misc = $request->user()->only(['phone_number_verification_status','user_role', 'profile_pic','userSelect_type','other_mobile_number']);
+    
 
         if ($user->blocked == 1) {
             return response()->json([
@@ -1021,7 +1024,7 @@ class AuthController extends Controller
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
             )->toDateTimeString(),
-            'misc' => $user,
+            'misc' => $user_misc,
             'user_data' => $user_data
         ];
         return response()->json([
