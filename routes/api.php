@@ -151,6 +151,7 @@ Route::group([
         Route::post('post_selected_plan','App\Http\Controllers\PlansController@post_selected_plan');
         Route::post('post_selected_rent_plan','App\Http\Controllers\PlansController@post_selected_rent_plan');
         Route::get('get_order_details/{id}', 'App\Http\Controllers\PlansController@get_order_details');
+        Route::get('user_plan_availability', 'App\Http\Controllers\PlansController@user_plan_availability');
         Route::get('get_rent_order_details/{id}', 'App\Http\Controllers\PlansController@get_rent_order_details');
         Route::get('get_invoice_details/{id}', 'App\Http\Controllers\PlansController@get_invoice_details');
         Route::get('product_invoice_Details', 'App\Http\Controllers\PlansController@product_invoice_Details');

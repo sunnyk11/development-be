@@ -8,6 +8,7 @@ use App\Models\LetOutPlans;
 use App\Models\plansOrders;
 use App\Models\plansRentOrders;
 use DB;
+use Auth;
 use App\Models\planCredit;
 use Carbon\Carbon;
 use App\Models\invoices;
@@ -151,6 +152,19 @@ class PlansController extends Controller
     public function get_letout_features() {
         $plan_details = PropertyPlans::where(['plan_type' => 'Let Out','plan_status'=> 'enabled'])->with('features')->get();
         return $plan_details;
+    }
+
+    public function user_plan_availability()
+    {
+        try{
+            $user_id = Auth::user()->id;
+            $data=invoices::where([['user_id','=',$user_id],['plan_name','!=','Standard'],['payment_status','=','PAID']])->get();
+                return response()->json([
+                    'data' => $data
+                ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+      } 
     }
 
     public function post_selected_plan(Request $request) {
@@ -335,25 +349,25 @@ class PlansController extends Controller
         }  
     }
 
-    public function rent_property_slip(Request $request) {
-         $request->validate([
-                'property_id' => 'required',
-            ]);
-        try{
-            $token  = $request->header('authorization');
-            $object = new Authicationcheck();
-            if($object->authication_check($token) == true){
-                 $productID = $request->property_id;
-               $data= product::with('property_invoice')->where('id', $productID)->first();
-                return response()->json([
-                    'data' =>$data,
-                  ], 200);
-            }
-        }catch(\Exception $e) {
-            return $this->getExceptionResponse($e);
-        }  
-    } 
 
+    public function rent_property_slip(Request $request) {
+        $request->validate([
+               'property_id' => 'required',
+           ]);
+       try{
+           $token  = $request->header('authorization');
+           $object = new Authicationcheck();
+           if($object->authication_check($token) == true){
+                $productID = $request->property_id;
+              $data= product::with('property_invoice')->where('id', $productID)->first();
+               return response()->json([
+                   'data' =>$data,
+                 ], 200);
+           }
+       }catch(\Exception $e) {
+           return $this->getExceptionResponse($e);
+       }  
+   } 
 
     public function cancelled_deal(Request $request) {
          $request->validate([
