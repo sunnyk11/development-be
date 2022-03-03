@@ -46,7 +46,7 @@ class ProductController extends Controller
      // return count($chattarpur_id);
      if($chattarpur_id){
       
-     $locality_data=product::where(['locality_id' =>$chattarpur_id['locality_id'], 'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
+     $locality_data=product::where(['locality_id' =>$chattarpur_id['locality_id'], 'rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
       $Chattarpur_data = $locality_data->groupBy('locality_id')->map(function ($row) {return $row->count();});
       $chattarpur=[];
       if(count($Chattarpur_data)>0){
@@ -54,9 +54,9 @@ class ProductController extends Controller
          array_push($chattarpur,$chattarpur_array);
     }
     // all data for delhi location 
-        $product_data=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
+        $product_data=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0','rent_availability'=>'1', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
         $grouped = $product_data->groupBy('state_id')->map(function ($row) {return $row->count();});
-       $data=product::select('id','state_id')->where(['state_id'=> 1,'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('state_id')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
+       $data=product::select('id','state_id')->where(['state_id'=> 1,'delete_flag'=> '0','rent_availability'=>'1','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('state_id')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
 
         $city_data=[];
         foreach ($data as $key => $value) {
@@ -178,9 +178,17 @@ class ProductController extends Controller
     }
     public function User_propertysearchlist(Request $request)
     {
+      
+         if($request->product_id){
+              $request->validate([
+                         'product_id' => 'required|min:9'
+                      ]);        
+           }
+         
       try{
         $current_date= Carbon::now()->format('Y-m-d H:i:s');
-        $product = product::with('product_img_listing','listing_wishlist','listing_pro_comp','Property_Type','pro_user_details','Property_area_unit','product_state','product_locality')->select('products.id as product_id','products.build_name','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",order_plan_features.plan_created_at)  as "plans_day_left"'))
+        $product = product::with('product_img_listing','listing_wishlist','listing_pro_comp','Property_Type','pro_user_details','Property_area_unit','product_state','product_locality')
+        ->select('products.id as product_id','products.build_name','products.area','products.available_for','products.furnishing_status','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",order_plan_features.plan_created_at)  as "plans_day_left"'))
             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
             ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes','invoices.plan_type'=>'Let Out'])
@@ -200,7 +208,8 @@ class ProductController extends Controller
       
       try{
         $current_date= Carbon::now()->format('Y-m-d H:i:s');
-        $product = product::with('product_img_listing','Property_Type','pro_user_details','Property_area_unit','product_state','product_locality')->select('products.id as product_id','products.build_name','products.user_id','products.order_status','products.rent_availability','products.sale_availability','products.state_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",order_plan_features.plan_created_at)  as "plans_day_left"'))
+        $product = product::with('product_img_listing','Property_Type','pro_user_details','Property_area_unit','product_state','product_locality')
+        ->select('products.id as product_id','products.area','products.available_for','products.furnishing_status','products.build_name','products.user_id','products.order_status','products.rent_availability','products.sale_availability','products.state_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",order_plan_features.plan_created_at)  as "plans_day_left"'))
             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
             ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes','invoices.plan_type'=>'Let Out'])
@@ -250,8 +259,14 @@ class ProductController extends Controller
      public function loginSimilarproperty(Request $request)
      {
         try{
+            $current_date= Carbon::now()->format('Y-m-d H:i:s');
+    
              $locality_id = $request->locality_id;  
-              $productArray = product::with('UserDetail','Property_area_unit','product_img','product_comparision','Property_Type','product_state','product_locality','Single_wishlist','Property_area_unit')->where(['locality_id'=> $locality_id,'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(4)->get();
+              $productArray = product::with('UserDetail','Property_area_unit','product_img','product_comparision','Property_Type','product_state','product_locality','Single_wishlist','Property_area_unit')
+             ->select('products.*','invoices.id as invoice_id','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",order_plan_features.plan_created_at)  as "plans_day_left"'))
+             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
+             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')->where(['locality_id'=> $locality_id,'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])
+              ->orderBy('products.id', 'desc')->take(4)->get();
               return response()->json([
               'data' =>$productArray,
             ], 201);
@@ -268,7 +283,15 @@ class ProductController extends Controller
             ]);
             $prod_id = $request->id;
             $user_id = Auth::user()->id;
-            $product = product::where(['delete_flag'=> '0','enabled' => 'yes', 'draft'=> '0','id'=>$prod_id])->with('amenities','Property_Type','product_img','product_comparision','Single_wishlist','UserDetail','product_state','product_district','product_locality','product_sub_locality','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration')->orderBy('id', 'desc')->first();
+
+            $current_date= Carbon::now()->format('Y-m-d H:i:s');
+
+            $product = product::with('amenities','Property_Type','product_img','product_comparision','Single_wishlist','UserDetail','product_state','product_district','product_locality','product_sub_locality','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration')
+             ->select('products.*','invoices.id as invoice_id','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",order_plan_features.plan_created_at)  as "plans_day_left"'))
+            ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
+            ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
+            ->where(['delete_flag'=> '0','enabled' => 'yes', 'draft'=> '0','products.id'=>$prod_id])
+              ->first();
 
             product::where('id', $prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);
                 return response()-> json([

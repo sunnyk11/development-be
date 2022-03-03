@@ -229,6 +229,11 @@ class product extends Model
         // if ($searchTerm->location) {
         //    $query = $query->where('address', 'like', "%" . $searchTerm->location . "%");
         // }
+        if ($searchTerm->product_id) {
+            $product_id=substr($searchTerm->product_id,8);
+            $id= (int)($product_id);
+           $query = $query->where('products.id',$id);
+        }
         if ($searchTerm->city) {
            $query = $query->where('state_id','1');
         }
