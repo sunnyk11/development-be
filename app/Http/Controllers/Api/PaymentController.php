@@ -67,7 +67,9 @@ class PaymentController extends Controller
                 "EMAIL"            =>  $EMAIL
             ];
              
-            $paytmChecksum = PaytmChecksum::generateSignature($body, 'G1wjysZljdRKqMzm');
+            $Payment_argument=getenv("Payment_Parameter");
+            $paytmChecksum = PaytmChecksum::generateSignature($body,$Payment_argument);
+            // $paytmChecksum = PaytmChecksum::generateSignature($body, 'G1wjysZljdRKqMzm');
             $body["CHECKSUMHASH"] = $paytmChecksum;
             
             $jsonbody = json_encode($body);
@@ -171,7 +173,10 @@ class PaymentController extends Controller
                  "EMAIL"            =>  $EMAIL
              ];
               
-             $paytmChecksum = PaytmChecksum::generateSignature($body, 'G1wjysZljdRKqMzm');
+             
+             $Payment_argument=getenv("Payment_Parameter");
+             $paytmChecksum = PaytmChecksum::generateSignature($body,$Payment_argument);
+            //  $paytmChecksum = PaytmChecksum::generateSignature($body, 'G1wjysZljdRKqMzm');
              $body["CHECKSUMHASH"] = $paytmChecksum;
              
              $jsonbody = json_encode($body);
@@ -300,6 +305,10 @@ class PaymentController extends Controller
                 } */
                 
                 //$angular_url = env('angular_url').'invoice?'.'invoice_no='.$invoice_id;
+
+              // $property_uid=invoices::select('property_uid')->where('order_id', )->first();
+
+
                 $angular_url = env('angular_url').'agent/my-properties';
             }
             else {
@@ -340,8 +349,8 @@ class PaymentController extends Controller
                  "MOBILE_NO"        => $MOBILE_NO,
                  "EMAIL"            => $EMAIL
              ];
-              
-             $paytmChecksum = PaytmChecksum::generateSignature($body, 'G1wjysZljdRKqMzm');
+             $Payment_argument=getenv("Payment_Parameter");
+             $paytmChecksum = PaytmChecksum::generateSignature($body,$Payment_argument);
              $body["CHECKSUMHASH"] = $paytmChecksum;
              
              $jsonbody = json_encode($body);
@@ -439,6 +448,8 @@ class PaymentController extends Controller
                  ];
 
                invoices::updateOrCreate($exist_invoice, $invoice);
+
+             invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out'])->update(['payment_status' => 'PAID']);
                
                DB::table('plans_rent_orders')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);  
                DB::table('plans_rent_orders')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Rented']);

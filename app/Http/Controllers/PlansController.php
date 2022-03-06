@@ -168,6 +168,7 @@ class PlansController extends Controller
     }
 
     public function post_selected_plan(Request $request) {
+    //    return   $request->plan_features_data;
         // return $request->plan_features_data['features']['4']['feature_value'];
         $data = json_decode($request->plan_features_data, true);
     
@@ -197,25 +198,46 @@ class PlansController extends Controller
                 'payment_type' => $request->payment_type
                 
             ]);
-
-            $plan_features = new orderPlanFeatures([
-                'order_id' => $order_id,
-                'plan_id' => $data['id'],
-                'plan_name' => $data['plan_name'],
-                'plan_type' => $data['plan_type'],
-                'plan_status' => $data['plan_status'],
-                'payment_type' => $data['payment_type'],
-                'special_tag' => $data['special_tag'],
-                'actual_price_days' => $data['actual_price_days'],
-                'discount_status' => $data['discount'],
-                'discounted_price_days' => $data['discounted_price_days'],
-                'discount_percentage' => $data['discount_percentage'],
-                'client_visit_priority'=>$data['features']['5']['feature_value'],
-                'product_plans_days'=>$data['features']['4']['feature_value'],
-                'plan_created_at' => $data['created_at'],
-                'plan_updated_at' => $data['updated_at'],
-                'features' => json_encode($data['features'])
-            ]);
+            if($data['plan_name'] == 'Standard'){
+                $plan_features = new orderPlanFeatures([
+                    'order_id' => $order_id,
+                    'plan_id' => $data['id'],
+                    'plan_name' => $data['plan_name'],
+                    'plan_type' => $data['plan_type'],
+                    'plan_status' => $data['plan_status'],
+                    'payment_type' => $data['payment_type'],
+                    'special_tag' => $data['special_tag'],
+                    'actual_price_days' => $data['actual_price_days'],
+                    'discount_status' => $data['discount'],
+                    'discounted_price_days' => $data['discounted_price_days'],
+                    'discount_percentage' => $data['discount_percentage'],
+                    'client_visit_priority'=>$data['features']['4']['feature_value'],
+                    'product_plans_days'=>$data['features']['3']['feature_value'],
+                    'plan_created_at' => $data['created_at'],
+                    'plan_updated_at' => $data['updated_at'],
+                    'features' => json_encode($data['features'])
+                ]);
+            }else{
+                $plan_features = new orderPlanFeatures([
+                    'order_id' => $order_id,
+                    'plan_id' => $data['id'],
+                    'plan_name' => $data['plan_name'],
+                    'plan_type' => $data['plan_type'],
+                    'plan_status' => $data['plan_status'],
+                    'payment_type' => $data['payment_type'],
+                    'special_tag' => $data['special_tag'],
+                    'actual_price_days' => $data['actual_price_days'],
+                    'discount_status' => $data['discount'],
+                    'discounted_price_days' => $data['discounted_price_days'],
+                    'discount_percentage' => $data['discount_percentage'],
+                    'client_visit_priority'=>$data['features']['5']['feature_value'],
+                    'product_plans_days'=>$data['features']['4']['feature_value'],
+                    'plan_created_at' => $data['created_at'],
+                    'plan_updated_at' => $data['updated_at'],
+                    'features' => json_encode($data['features'])
+                ]);
+            }
+            
         }
 
         else if($request->plan_type == 'Rent') {
@@ -363,7 +385,13 @@ class PlansController extends Controller
                return response()->json([
                    'data' =>$data,
                  ], 200);
-           }
+           }else{
+            return response() -> json([
+                'message' => 'FAIL',
+                'description'=>'Unauthication',
+                'status'=> 401,
+            ]);
+        }
        }catch(\Exception $e) {
            return $this->getExceptionResponse($e);
        }  
@@ -628,12 +656,18 @@ class PlansController extends Controller
     }
 
     public function update_invoice_details(Request $request) {
-
+        try {
+         $todayDate = Carbon::now()->format('Y-m-d');
         product::where('product_uid', $request->product_id)->update(['enabled' => 'yes']);   
-        invoices::where('invoice_no', $request->invoice_id)->update(['plan_status' => 'used', 'property_uid' => $request->product_id, 'property_amount' => $request->product_price]);     
+        invoices::where('invoice_no', $request->invoice_id)->update(['plan_status' => 'used','plan_apply_date'=> $todayDate, 'property_uid' => $request->product_id, 'property_amount' => $request->product_price]);     
         return response()->json([
             'message' => 'Invoice details updated'
         ], 201);
+
+        } 
+         catch (\Exception $e) {
+             return $this->getExceptionResponse($e);
+         }
     }
 
     public function property_live_bycrm(Request $request) {

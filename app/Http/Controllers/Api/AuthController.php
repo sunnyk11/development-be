@@ -977,10 +977,32 @@ class AuthController extends Controller
             return $this->getExceptionResponse($e);
         }
     }
+    public function user_status_changes(Request $request){
+        // return $request->user_id;
+        try{
+            $request -> validate([
+                    'user_id' => 'required|integer'
+                ]);
+            $data= User::select('blocked')->where('id', $request->user_id)->first();
+            if($data['blocked']=='1'){
+                User::where('id', $request->user_id)->update(['blocked' =>'0']);
+            }else{
+                User::where('id',$request->user_id)->update(['blocked' =>'1']);
+            }
+            return response()->json([
+                'message' => 'User Status Chages',
+                'status'=> 200
+            ]);
+
+           
+         }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
 
     public function login(Request $request)
     {
-        // return $request->all();
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -1000,7 +1022,7 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Your account is blocked'
             ], 403);
-        }
+        }else{
 
         $tokenResult = $user->createToken('Personal Access Token');
         $token = $tokenResult->token;
@@ -1030,6 +1052,8 @@ class AuthController extends Controller
         return response()->json([
             'data' => $data
         ]);
+
+        }
     }
 
     public function logout(Request $request)
