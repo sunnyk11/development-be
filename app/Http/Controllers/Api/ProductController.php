@@ -179,7 +179,7 @@ class ProductController extends Controller
      public function property_rent_slip(Request $request) {
        try{
             $productID = $request->property_id;
-          $data= product::with('property_invoice')->where('id', $productID)->first();
+          $data= product::with('property_invoice','maintenance_condition')->where('id', $productID)->first();
            return response()->json([
                'data' =>$data,
              ], 200);
@@ -703,7 +703,7 @@ class ProductController extends Controller
         $db_img_length=count($DB_img);
 
        // product images functionalty
-        if($db_img_length<5){
+        if($db_img_length<10){
             $product_image= $request->input('images');
             $Product_img_length=count($product_image);   
             if($Product_img_length>0){
@@ -966,19 +966,7 @@ class ProductController extends Controller
                 'message' => 'Unauthorised User',
             ], 401);
 
-         // product img delete
-       //  $product_img=Product_img::select('image')->where('product_id', $request->product_id)->get();
-       //  $img_lenght=count($product_img);
-
-       // if($img_lenght>0){
-       //      for ($i=0; $i<$img_lenght ; $i++) { 
-       //       $image_path='storage/'.$product_img[$i]['image'];
-       //        unlink($image_path);
-       //      }
-       //  }
-        // product::where('id', $request->product_id)->delete();
-
-        product::where('id', $request->product_id)->update(['delete_flag' => 1 ]);
+        product::where('id', $request->product_id)->update(['delete_flag' => '1' ]);
 
         // propduct count inactive
         UserProductCount::where('product_id', $request->product_id)->update(['status' => '0']);
@@ -1297,7 +1285,7 @@ class ProductController extends Controller
                 ]);
             }       
         }catch(\Exception $e) {
-            return $this->getExceptionResponse($e);
+            return $this->getExceptionResponse1($e);
         }    
 
      }
@@ -1560,7 +1548,7 @@ class ProductController extends Controller
             }
         
         }catch(\Exception $e) {
-              return $this->getExceptionResponse($e);
+              return $this->getExceptionResponse1($e);
         }  
     
     }
@@ -1738,7 +1726,7 @@ class ProductController extends Controller
         $db_img_length=count($DB_img);
 
        // product images functionalty
-        if($db_img_length<5){
+        if($db_img_length<10){
             $product_image= $request->input('images');
             $Product_img_length=count($product_image);   
             if($Product_img_length>0){

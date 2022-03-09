@@ -28,6 +28,7 @@ class invoices extends Model
                            'payment_received',
                            'plan_status',
                            'property_uid',
+                           'plan_apply_date',
                            'property_amount'
                         ];
                         

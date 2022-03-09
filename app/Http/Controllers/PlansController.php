@@ -10,6 +10,7 @@ use App\Models\plansRentOrders;
 use DB;
 use Auth;
 use App\Models\planCredit;
+use App\Models\User;
 use Carbon\Carbon;
 use App\Models\invoices;
 use App\Models\product;
@@ -166,6 +167,181 @@ class PlansController extends Controller
             return $this->getExceptionResponse($e);
       } 
     }
+    public function purchasedplan_propertylive(Request $request){
+
+        $request->validate([
+            'user_id' => 'required',
+            'plan_name' => 'required',
+            'property_id' => 'required'
+        ]);
+        try{
+           $token  = $request->header('authorization');
+           $object = new Authicationcheck();
+           if($object->authication_check($token) == true){
+
+                $user = User::select('id','email')->where('id', $request->user_id)->first();
+                if($user){
+
+                      $property_details = product::select('id','product_uid','expected_rent','build_name','enabled','draft')->where(['delete_flag'=> '0','id'=>$request->property_id])->orderBy('id', 'asc')->first();
+                      // ['enabled' => 'yes']
+                    if($property_details){
+                        if($property_details['enabled']!='yes'){
+                            if($property_details['draft']==0){
+                                $plan_type='Let Out';
+                        if($plan_type == 'Let Out' && $request->plan_name == 'Standard') {
+                            $order_id = 'OR'.rand (10,100).time();
+                             $year = Carbon::now()->format('y');
+                                $month = Carbon::now()->format('m');
+                                $day = Carbon::now()->format('d');
+                                $hour = Carbon::now()->format('h');
+                                $minute = Carbon::now()->format('i');
+                                $second = Carbon::now()->format('s');
+                            $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second;
+         
+                         $plan_details = PropertyPlans::where([['plan_type','=','Let Out'],['plan_name','=', $request->plan_name],['plan_status','=','enabled']])->with('features')->first();
+                         $plan_price =
+                            $plan = new plansOrders([
+                                'user_id' => $user['id'],
+                                'user_email' => $user['email'],
+                                'order_id' => $order_id,
+                                'plan_type' => $plan_details['plan_type'],
+                                'plan_name' => $plan_details['plan_name'],
+                                'plan_id' => $plan_details['id'],
+                                'expected_rent' => $property_details['expected_rent'],
+                                'plan_price' => $property_details['expected_rent'] / (30 / $plan_details['actual_price_days']),
+                                'invoice_no'=>$invoice_id,
+                                'payment_type' => $plan_details['payment_type']
+                                
+                            ]);
+
+                                $plan_features = new orderPlanFeatures([
+                                    'order_id' => $order_id,
+                                    'plan_id' => $plan_details['id'],
+                                    'plan_name' => $plan_details['plan_name'],
+                                    'plan_type' => $plan_details['plan_type'],
+                                    'plan_status' => $plan_details['plan_status'],
+                                    'payment_type' => $plan_details['payment_type'],
+                                    'special_tag' => $plan_details['special_tag'],
+                                    'actual_price_days' => $plan_details['actual_price_days'],
+                                    'discount_status' => $plan_details['discount'],
+                                    'discounted_price_days' => $plan_details['discounted_price_days'],
+                                    'discount_percentage' => $plan_details['discount_percentage'],
+                                    'client_visit_priority'=> $plan_details['features']['4']['feature_value'],
+                                    'product_plans_days'=> $plan_details['features']['3']['feature_value'],
+                                    'plan_created_at' => $plan_details['created_at'],
+                                    'plan_updated_at' => $plan_details['updated_at'],
+                                    'features' => json_encode($plan_details['features'])
+                                ]);
+
+                            $plan->save();
+                            $plan_features->save();
+                            $order_id=$plan->order_id;
+
+                            $order_details = DB::table('plans_orders')->where('order_id', $order_id)->first();
+                            $payment_type = $order_details->payment_type;
+
+                            $credit = new planCredit([
+                                'user_id' => $order_details->user_id,
+                                'user_email' => $order_details->user_email,
+                                'payment_status' => 'UNPAID',
+                                'credits' => $order_details->expected_rent,
+                                'invoice_no' => $invoice_id
+                            ]);
+
+                            $credit->save();
+
+
+                            // if($payment_type == 'Post') {
+
+                                $todayDate = Carbon::now()->format('Y-m-d');
+
+                                $invoice = new invoices([
+                                    'invoice_no' => $invoice_id,
+                                    'plan_name' => $order_details->plan_name,
+                                    'plan_id' => $order_details->plan_id,
+                                    'plan_type' => $order_details->plan_type,
+                                    'payment_type' => $order_details->payment_type,
+                                    'order_id' => $order_details->order_id,
+                                    'expected_rent' => $order_details->expected_rent,
+                                    'plan_price' => $order_details->plan_price,
+                                    'payment_status' => 'UNPAID',
+                                    'plan_status'=>'used',
+                                    'user_email' => $order_details->user_email,
+                                    'user_id' => $order_details->user_id,
+                                    'invoice_generated_date' => $todayDate,
+                                    'invoice_paid_date'=>$todayDate,
+                                    'plan_apply_date'=>$todayDate,
+                                    'property_uid'=>$property_details['product_uid'],
+                                    'property_amount'=>$property_details['expected_rent'],
+                                    'payment_received' => 'No'  
+                                ]);
+
+                                $invoice_details=$invoice->save();
+                                if($invoice_details){
+                                $property_deta=product::where('id',$request->property_id)->update(['enabled' => 'yes']);
+                                    return response()->json([
+                                         'message' =>'SUCCESS',
+                                         'description' => 'Standard Plan purchased & property live',
+                                         'status'=>200
+                                     ], 200);
+                                }
+                            }else{
+
+                                 return response()->json([
+                                     'message' =>'FAIL',
+                                     'description' => 'Plans details is Invalid !!!...',
+                                     'status'=>201
+                                 ], 201);
+                            }
+
+
+                            }else{
+                                 return response()->json([
+                                     'message' =>'FAIL',
+                                     'description' => 'Property Draft Mode. Plz final submision !!!...',
+                                     'status'=>204
+                                 ], 204);
+                            }
+
+                        
+                        }else{
+                         return response()->json([
+                             'message' =>'FAIL',
+                             'description' => 'Property Already Lived !!!...',
+                             'status'=>204
+                         ], 204);
+                        }
+
+                    }else{
+
+                         return response()->json([
+                             'message' =>'FAIL',
+                             'description' => 'Property details is Invalid !!!...',
+                             'status'=>204
+                         ], 204);
+                    }
+
+                }else{
+
+                     return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'User  details is Invalid !!!...',
+                         'status'=>204
+                     ], 204);
+                } 
+            }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse1($e);
+        } 
+
+    }
+
 
     public function post_selected_plan(Request $request) {
     //    return   $request->plan_features_data;
@@ -604,7 +780,7 @@ class PlansController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $data =invoices::where(['user_id'=> $user_id,'plan_type'=> 'Let Out','payment_status'=>'PAID'])->get();
+                $data =invoices::where(['user_id'=> $user_id,'plan_type'=> 'Let Out','plan_status'=>'available'])->get();
                 return response()->json([
                     'data' =>$data,
                 ], 200);
@@ -673,23 +849,70 @@ class PlansController extends Controller
     public function property_live_bycrm(Request $request) {
          $request->validate([
                 'invoice_no' => 'required',
-                'property_uid' => 'required|integer'
+                'property_id' => 'required|integer'
             ]);
 
          try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $product_price = product::select('expected_rent')->where('product_uid', $request->property_uid)->first();
-                
-                product::where('product_uid', $request->property_uid)->update(['enabled' => 'yes']);   
-                invoices::where('invoice_no', $request->invoice_no)->update(['plan_status' => 'used', 'property_uid' => $request->property_uid,'property_amount' => $product_price->expected_rent]);     
-                return response()->json([
-                    'message' =>'SUCCESS',
-                     'description' => 'Property Successfully Lived',
-                     'status'=>200
-                ], 200);
+                $product_details = product::select('expected_rent','enabled','product_uid')->where('id', $request->property_id)->first();
+                if($product_details){
+                    if($product_details['enabled']!='yes'){
+                        $invoice_data = invoices::where(['invoice_no'=> $request->invoice_no,'plan_status'=>'available'])->first();
+                        if($invoice_data){
+                            if($invoice_data['plan_status']=='available'){
+                                if($invoice_data['expected_rent'] == $product_details['expected_rent']){
+                                    product::where('id', $request->property_id)->update(['enabled' => 'yes']);   
+                                    invoices::where('invoice_no', $request->invoice_no)->update(['plan_status' => 'used', 'property_uid' => $product_details['product_uid'],'property_amount' => $product_details['expected_rent']]);  
+                                    
+                                        return response()->json([
+                                            'message' =>'SUCCESS',
+                                            'description' => 'Property Successfully Lived ',
+                                            'status'=>200
+                                        ], 200);             
+                                }
+                                else{
+                                    return response()->json([
+                                        'message' =>'FAIL',
+                                        'description' => 'Plan && property price not equal .plz other plan purchase  !!!...',
+                                        'status'=>201
+                                    ], 201);
+                                }
 
+                            }
+                            else{
+                                return response()->json([
+                                    'message' =>'FAIL',
+                                    'description' => 'Plan are not available !!!...',
+                                    'status'=>201
+                                ], 201);
+                            }
+
+                        }
+                        else{
+                            return response()->json([
+                                'message' =>'FAIL',
+                                'description' => 'Plan Details Invalid !!!...',
+                                'status'=>201
+                            ], 201);
+                        }
+                    }else{
+                        return response()->json([
+                            'message' =>'FAIL',
+                            'description' => 'Property Already Lived !!!...',
+                            'status'=>201
+                        ], 201);
+                       }
+                }
+                else{
+
+                         return response()->json([
+                             'message' =>'FAIL',
+                             'description' => 'Property details is Invalid !!!...',
+                             'status'=>201
+                         ], 201);
+                    }
                  }else{
                 return response() -> json([
                     'message' => 'FAIL',

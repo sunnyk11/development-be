@@ -1453,7 +1453,7 @@ class AuthController extends Controller
                 ]);
             }
         }catch(\Exception $e) {
-            return $this->getExceptionResponse($e);
+            return $this->getExceptionResponse1($e);
         }
     }
 

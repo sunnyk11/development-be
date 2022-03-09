@@ -40,6 +40,8 @@ Route::post('/cancelled_deal', 'App\Http\Controllers\PlansController@cancelled_d
 
 
 Route::post('property_live_bycrm', 'App\Http\Controllers\PlansController@property_live_bycrm');
+Route::post('purchasedplan_propertylive', 'App\Http\Controllers\PlansController@purchasedplan_propertylive');
+
 Route::get('/get_plan_by_user', 'App\Http\Controllers\PlansController@get_plan_by_user');
 Route::post('/store_property_image', 'App\Http\Controllers\Api\ProductImgController@store');
 Route::get('/delete_property_img', 'App\Http\Controllers\Api\ProductImgController@delete_product_img_crm');
