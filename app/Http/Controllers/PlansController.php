@@ -581,9 +581,9 @@ class PlansController extends Controller
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == true){
+            if($object->authication_check($token) == false){
 
-                $invoice_data =invoices::with('propertyDetails')->where(['invoice_no'=> $request->invoice_no])->first();
+                $invoice_data =invoices::with('propertyDetails')->where(['invoice_no'=> $request->invoice_no,'plan_status'=>'used'])->first();
                 if($invoice_data){
                          if($invoice_data->plan_type == 'Let Out'){
                             // return $invoice_data;
