@@ -188,7 +188,7 @@ class PlansController extends Controller
                         if($property_details['enabled']!='yes'){
                             if($property_details['draft']==0){
                                 $plan_type='Let Out';
-                        if($plan_type == 'Let Out' && $request->plan_name == 'Standard') {
+                        if($plan_type == 'Let Out' && $request->plan_name == 'STANDARD') {
                             $order_id = 'OR'.rand (10,100).time();
                              $year = Carbon::now()->format('y');
                                 $month = Carbon::now()->format('m');
@@ -583,42 +583,20 @@ class PlansController extends Controller
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
 
-                $invoice_data =invoices::where(['invoice_no'=> $request->invoice_no,'payment_received'=>'Yes'])->first();
+                $invoice_data =invoices::with('propertyDetails')->where(['invoice_no'=> $request->invoice_no])->first();
                 if($invoice_data){
                          if($invoice_data->plan_type == 'Let Out'){
-                             if($invoice_data->payment_type == 'Advance'){
-                            DB::table('plans_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN']);
-                            $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN','payment_status_change_reason'=>$request->payment_status_change_reason]);
-                            
-                            if($invoice_data->property_uid){
-
-                               $product_data= product::where('product_uid', $invoice_data ->property_uid)->first();
-
-                            product::where('id', $product_data->id)->update(['order_status' => '0','enabled'=>'no','delete_flag'=>'0']);
-                                UserProductCount::where('product_id',$product_data->id)->delete();
-                                        /* Wishlist disabled by ID */
-                                Wishlist::where('product_id', $product_data->id)->delete();
-                                          /* Product comparison disabled by ID */
-                                Product_Comparision::where('product_id',$product_data->id)->delete();
-                            }
-
-
-                                return response()->json([
-                                     'message' =>'SUCCESS',
-                                     'description' => 'Letout Invoice details RETURN',
-                                     'status'=>200
-                                 ], 200);
-
-                            
-                            }elseif($invoice_data->payment_type == 'Post'){
-                                     DB::table('plans_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'CANCLE']);
-                                $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'CANCLE','payment_status_change_reason'=>$request->payment_status_change_reason]);
+                            // return $invoice_data;
+                            if($invoice_data['propertyDetails']['order_status'] == 0){
+                                 if($invoice_data->payment_type == 'Advance'){
+                                    DB::table('plans_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN']);
+                                    $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN','payment_status_change_reason'=>$request->payment_status_change_reason]);
                                 
                                 if($invoice_data->property_uid){
-                                    
+
                                    $product_data= product::where('product_uid', $invoice_data ->property_uid)->first();
 
-                                product::where('id', $product_data->id)->update(['order_status' => '0','enabled'=>'no','delete_flag' => '0']);
+                                product::where('id', $product_data->id)->update(['order_status' => '0','enabled'=>'no','delete_flag'=>'0']);
                                     UserProductCount::where('product_id',$product_data->id)->delete();
                                             /* Wishlist disabled by ID */
                                     Wishlist::where('product_id', $product_data->id)->delete();
@@ -626,23 +604,57 @@ class PlansController extends Controller
                                     Product_Comparision::where('product_id',$product_data->id)->delete();
                                 }
 
-                                return response()->json([
-                                     'message' =>'SUCCESS',
-                                     'description' => 'Letout Invoice details CANCLE',
-                                     'status'=>200
-                                 ], 200);
-                            }
 
-                        }elseif($invoice_data->plan_type == 'Rent'){
+                                    return response()->json([
+                                         'message' =>'SUCCESS',
+                                         'description' => 'Letout Invoice details RETURN',
+                                         'status'=>200
+                                     ], 200);
+
+                                
+                                }elseif($invoice_data->payment_type == 'Post'){
+                                         DB::table('plans_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'CANCLE']);
+                                    $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'CANCLE','payment_status_change_reason'=>$request->payment_status_change_reason]);
+                                    
+                                    if($invoice_data->property_uid){
+                                        
+                                       $product_data= product::where('product_uid', $invoice_data ->property_uid)->first();
+
+                                    product::where('id', $product_data->id)->update(['order_status' => '0','enabled'=>'no','delete_flag' => '0']);
+                                        UserProductCount::where('product_id',$product_data->id)->delete();
+                                                /* Wishlist disabled by ID */
+                                        Wishlist::where('product_id', $product_data->id)->delete();
+                                                  /* Product comparison disabled by ID */
+                                        Product_Comparision::where('product_id',$product_data->id)->delete();
+                                    }
+
+                                    return response()->json([
+                                         'message' =>'SUCCESS',
+                                         'description' => 'Letout Invoice details CANCLE',
+                                         'status'=>200
+                                     ], 200);
+                                }
+                          }else{
+                             return response()->json([
+                                 'message' =>'FAIL',
+                                 'description' => 'This invoice property rent out.plz contact renter owner !!!...',
+                                 'status'=>200
+                             ], 200);
+                          }
+
+                        }elseif($invoice_data->plan_type == 'Rent' && $invoice_data->payment_status == 'PAID'){
 
                             DB::table('plans_rent_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['property_status' => 'Property  deals cancelled','payment_status'=>'RETURN']);
                             $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN','payment_status_change_reason'=>$request->payment_status_change_reason]);
                             
                             if($invoice_data->property_uid){
 
-                               $product_data= product::where('product_uid', $invoice_data ->property_uid)->first();
+                                   $product_data= product::where('product_uid', $invoice_data ->property_uid)->first();
 
-                            product::where('id', $product_data->id)->update(['order_status' => '0','enabled'=>'Yes','delete_flag'=>'0']);
+                                // letout invoice plan_status status change
+                            invoices::where(['property_uid'=> $invoice_data->property_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['payment_status' => 'UNPAID']);
+
+                            product::where('product_uid', $invoice_data->property_uid)->update(['order_status' => '0','enabled'=>'Yes','delete_flag'=>'0']);
                                 UserProductCount::where('product_id',$product_data->id)->delete();
                                         /* Wishlist disabled by ID */
                                 Wishlist::where('product_id', $product_data->id)->delete();
@@ -662,8 +674,8 @@ class PlansController extends Controller
                      return response()->json([
                          'message' =>'FAIL',
                          'description' => 'Invoice details is Invalid !!!...',
-                         'status'=>201
-                     ], 201);
+                         'status'=>200
+                     ], 200);
                 }
 
                
@@ -683,6 +695,7 @@ class PlansController extends Controller
     public function invoice_status_change(Request $request) {
          $request->validate([
                 'invoice_no' => 'required',
+                'payment_status_change_reason'=>'required'
             ]);
          try{
             $token  = $request->header('authorization');
@@ -693,12 +706,12 @@ class PlansController extends Controller
                 if($order_details){
                     if($order_details->payment_status == 'UNPAID'){
                          DB::table('plans_rent_orders')->where(['property_uid'=> $order_details->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User','payment_status'=>'CANCLE']);                  
-                         plansRentOrders::where(['property_uid'=>$order_details->property_uid,'invoice_no'=>$request->invoice_no])->update(['payment_status' => 'PAID','property_status' => 'Property Rented','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','amount_paid'=>$order_details->total_amount]);
+                         DB::table('plans_rent_orders')->where(['property_uid'=>$order_details->property_uid,'invoice_no'=>$request->invoice_no])->update(['payment_status' => 'PAID','property_status' => 'Property Rented','transaction_status'=>'TXN_SUCCESS','amount_paid'=>$order_details->total_amount]);
 
                          // invoice table  
                          $todayDate = Carbon::now()->format('Y-m-d');  
 
-                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'amount_paid' => $order_details->total_amount,'property_amount'=> $order_details->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','property_uid'=>$order_details->property_uid]);
+                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'amount_paid' => $order_details->total_amount,'property_amount'=> $order_details->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','property_uid'=>$order_details->property_uid,'payment_status_change_reason'=>$request->payment_status_change_reason]);
                         if($invoices_data){
 
                           product::where('id', $order_details->property_id)->update(['order_status' => '1']);
@@ -874,10 +887,10 @@ class PlansController extends Controller
                                 }
                                 else{
                                     return response()->json([
-                                        'message' =>'FAIL',
+                                        'message' =>'MISMATCH',
                                         'description' => 'Plan && property price not equal .plz other plan purchase  !!!...',
-                                        'status'=>201
-                                    ], 201);
+                                        'status'=>200
+                                    ], 200);
                                 }
 
                             }
@@ -885,8 +898,8 @@ class PlansController extends Controller
                                 return response()->json([
                                     'message' =>'FAIL',
                                     'description' => 'Plan are not available !!!...',
-                                    'status'=>201
-                                ], 201);
+                                    'status'=>204
+                                ], 204);
                             }
 
                         }
@@ -894,8 +907,8 @@ class PlansController extends Controller
                             return response()->json([
                                 'message' =>'FAIL',
                                 'description' => 'Plan Details Invalid !!!...',
-                                'status'=>201
-                            ], 201);
+                                'status'=>204
+                            ], 204);
                         }
                     }else{
                         return response()->json([

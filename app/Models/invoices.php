@@ -36,6 +36,10 @@ class invoices extends Model
     {
         return $this->hasOne('App\Models\product', 'product_uid','property_uid')->select('id','product_uid','build_name');
     }
+    public function propertyDetails()
+    {
+        return $this->hasOne('App\Models\product', 'product_uid','property_uid');
+    }
     
     public function UserDetail()
     {

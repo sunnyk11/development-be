@@ -449,7 +449,7 @@ class PaymentController extends Controller
 
                invoices::updateOrCreate($exist_invoice, $invoice);
 
-             invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out'])->update(['payment_status' => 'PAID']);
+             invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['payment_status' => 'PAID']);
                
                DB::table('plans_rent_orders')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);  
                DB::table('plans_rent_orders')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Rented']);
