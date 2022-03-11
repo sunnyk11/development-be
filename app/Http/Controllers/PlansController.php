@@ -581,7 +581,7 @@ class PlansController extends Controller
         try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == false){
+            if($object->authication_check($token) == true){
 
                 $invoice_data =invoices::with('propertyDetails')->where(['invoice_no'=> $request->invoice_no,'plan_status'=>'used'])->first();
                 if($invoice_data){
@@ -701,7 +701,7 @@ class PlansController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $order_details = DB::table('plans_rent_orders')->where('invoice_no', $request->invoice_no)->first();
+                $order_details = DB::table('plans_rent_orders')->where(['invoice_no'=> $request->invoice_no])->first();
                 // return $order_details;
                 if($order_details){
                     if($order_details->payment_status == 'UNPAID'){
