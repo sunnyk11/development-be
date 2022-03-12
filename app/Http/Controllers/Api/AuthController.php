@@ -8,6 +8,7 @@ use App\Models\UserRole;
 use App\Models\crmApiCalls;
 use App\Models\user_bank_details_history;
 use App\Models\product;
+use App\Models\plansOrders;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -115,6 +116,9 @@ class AuthController extends Controller
             'message' => 'Successfully created user!'
         ], 201);
     }
+    
+
+
 
     public function verify_mobile_number(Request $request) {
         
@@ -309,10 +313,6 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function get_all_internal_users() {
-        $internal_users =  User::where('internal_user', 'Yes')->with('roles')->get();
-        return $internal_users;
-    }
 
     public function get_internal_user_details($user_id) {
         $internal_user_details =  DB::table('user_roles_pivot')->where('user_id', $user_id)->get();
@@ -869,7 +869,7 @@ class AuthController extends Controller
     }
     public function get_userbank_details(){
         try{
-            $data = User::whereNotNull('bank_acount_no')->orderBy('updated_at', 'desc')->paginate(5);
+            $data = User::whereNotNull('bank_acount_no')->orderBy('updated_at', 'desc')->paginate(15);
             return response()->json([
                 'data' => $data
             ], 200);
@@ -878,9 +878,18 @@ class AuthController extends Controller
         }
     }
 
+    public function get_all_internal_users() {
+        try{
+        $internal_users =  User::where('internal_user', 'Yes')->with('roles')->paginate(15);
+        return $internal_users;
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
     public function get_all_user(){
         try{
-            $data = User::orderBy('id', 'desc')->where('usertype','!=', 11)->paginate(5);
+            $data = User::orderBy('id', 'desc')->where('usertype','!=', 11)->paginate(15);
             return response()->json([
                 'data' => $data
             ], 200);
@@ -1011,7 +1020,8 @@ class AuthController extends Controller
         $credentials = request(['email', 'password']);
         if (!Auth::attempt($credentials)) {
             return response()->json([
-                'message' => 'Invalid Username or Password'
+                'message' => 'Invalid Username or Password',
+                'status'=>200
             ], 401);
         }
         $user = $request->user();
@@ -1020,7 +1030,8 @@ class AuthController extends Controller
 
         if ($user->blocked == 1) {
             return response()->json([
-                'message' => 'Your account is blocked'
+                'message' => 'Your account is blocked',
+                'status'=>404
             ], 403);
         }else{
 
@@ -1409,14 +1420,18 @@ class AuthController extends Controller
                  //$data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
                  if($mobile_no) {
                      $invoices = DB::table('invoices')->where('user_email', $email_db)->get();
-					 $let_out_plans = DB::table('plans_orders')->where('user_email', $email_db)->get();
-                     $rent_plans = DB::table('plans_rent_orders')->where('user_email', $email_db)->get();																					
+
+                     $let_out_plans =DB::table('invoices')->where(['user_email'=> $email_db,'plan_type'=>'Let Out'])->get();
+                     $rent_plans = DB::table('invoices')->where(['user_email'=> $email_db,'plan_type'=>'Rent'])->get();																					
                      $data = user::where(['other_mobile_number'=>$mobile_no])->with('productdetails','product_wishlist')->get();		 
                  }
                  else if($email) {
                     $invoices = DB::table('invoices')->where('user_email', $email)->get();
-					$let_out_plans = DB::table('plans_orders')->where('user_email', $email)->get();
-                    $rent_plans = DB::table('plans_rent_orders')->where('user_email', $email)->get();																			   
+					
+                     $let_out_plans =DB::table('invoices')->where(['user_email'=> $email,'plan_type'=>'Let Out'])->get();	
+                     $rent_plans = DB::table('invoices')->where(['user_email'=> $email,'plan_type'=>'Rent'])->get(); 	
+
+                     $rent_plans = DB::table('invoices')->where(['user_email'=> $email,'plan_type'=>'Rent'])->get(); 																	   
                    $data = user::where(['email'=>$email])->with('productdetails','product_wishlist')->get();
                  }
                  if(count($data)>0){
@@ -1457,6 +1472,28 @@ class AuthController extends Controller
         }
     }
 
+
+    public function get_search_user(Request $request){
+        try{
+            if($request->searchtype=='email'){               
+            $data = User::orderBy('id', 'desc')->where(['email'=>$request->email])->paginate(15);
+                return response()->json([
+                    'data' => $data
+                ], 200);
+                return response()->json([
+                    'data' => $data
+                ], 200);
+
+            }if($request->searchtype=='mobile'){
+            $data = User::orderBy('id', 'desc')->where(['other_mobile_number'=>$request->mobile])->paginate(15);
+                return response()->json([
+                    'data' => $data
+                ], 200);
+            }
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
     public function get_invoice_data() {
 
         return $areas = DB::table('invoice_data')->first();

@@ -684,7 +684,7 @@ class ProductController extends Controller
       $data2=$request->form_step2;
       $data3=$request->form_step3;
       $data4=$request->form_step4;
-    //   return $data1;
+      // return $data3['additional_rooms'];
 
       if($data1['draft_form_id']>0){
         $product = product::where('id', $data1['draft_form_id'])->with('amenities')->first();
@@ -792,6 +792,7 @@ class ProductController extends Controller
         $data->draft=$data4['draft_form_id'];
         $data->rent_cond =1;
         $data->video_link = $video_link;
+        // return $data;
         $data->save();
         $product_id=$data1['draft_form_id'];
        $user_id = Auth::user()->id;

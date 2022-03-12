@@ -35,7 +35,7 @@ Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_p
 Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get_property_byid');
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
 Route::post('/invoice_status_change', 'App\Http\Controllers\PlansController@invoice_status_change');
-Route::post('/cancelled_deal', 'App\Http\Controllers\PlansController@cancelled_deal');
+Route::post('/rollback_property', 'App\Http\Controllers\PlansController@rollback_property');
     Route::get('rent_property_slip', 'App\Http\Controllers\Api\ProductController@rent_property_slip');
 
 
@@ -337,6 +337,7 @@ Route::group([
         Route::get('/admin_lawyer_service', 'App\Http\Controllers\Api\AdminController@admin_lawyer_service');
         Route::get('/admin_review_index', 'App\Http\Controllers\Api\AdminController@review_index');
 		Route::get('/get_reviews', 'App\Http\Controllers\Api\GuestUserFeedbackController@search_data');
+        Route::get('/get_search_user', 'App\Http\Controllers\Api\AuthController@get_search_user');
         Route::post('user_reviews_delete', 'App\Http\Controllers\Api\GuestUserFeedbackController@destroy');
         Route::post('/reviews_status_changes', 'App\Http\Controllers\Api\GuestUserFeedbackController@reviews_status_changes');
         Route::post('/user_status_changes', 'App\Http\Controllers\Api\AuthController@user_status_changes');
