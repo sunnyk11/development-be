@@ -536,7 +536,7 @@ class PlansController extends Controller
 
     public function get_invoice_details($invoiceID) {
         try{
-            $data =invoices::with('UserDetail','property_status')->where([
+            $data =invoices::with('UserDetail')->where([
                 ['invoice_no', $invoiceID]])->first();
             return response()->json([
                 'data' =>$data,
@@ -709,31 +709,31 @@ class PlansController extends Controller
     public function invoice_status_change(Request $request) {
          $request->validate([
                 'invoice_no' => 'required',
-                'payment_status_change_reason'=>'required'
             ]);
          try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $order_details = DB::table('plans_rent_orders')->where(['invoice_no'=> $request->invoice_no])->first();
-                // return $order_details;
+                $order_details = DB::table('invoices')->where(['invoice_no'=> $request->invoice_no])->first();
                 if($order_details){
                     if($order_details->payment_status == 'UNPAID'){
-                         DB::table('plans_rent_orders')->where(['property_uid'=> $order_details->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User','payment_status'=>'CANCEL']);                  
-                         DB::table('plans_rent_orders')->where(['property_uid'=>$order_details->property_uid,'invoice_no'=>$request->invoice_no])->update(['payment_status' => 'PAID','property_status' => 'Property Rented','transaction_status'=>'TXN_SUCCESS','amount_paid'=>$order_details->total_amount]);
+                        
+                         DB::table('invoices')->where(['property_uid'=> $order_details->property_uid,'payment_status'=>'UNPAID'])->update(['payment_status_change_reason' => 'Property Rented to Another User','payment_status'=>'CANCEL','transaction_status'=>'TXN_FAIL']);
+
+                         $order_data = DB::table('plans_rent_orders')->where(['invoice_no'=> $request->invoice_no])->first(); 
 
                          // invoice table  
                          $todayDate =  Carbon::now()->format('Y-m-d H:i:s');  
 
-                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'amount_paid' => $order_details->total_amount,'property_amount'=> $order_details->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','property_uid'=>$order_details->property_uid,'payment_status_change_reason'=>$request->payment_status_change_reason]);
+                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'amount_paid' => $order_data->total_amount,'property_amount'=> $order_data->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','property_uid'=>$order_data->property_uid,'payment_status_change_reason'=>'Property Rented']);
                         if($invoices_data){
 
-                          product::where('id', $order_details->property_id)->update(['order_status' => '1']);
-                          UserProductCount::where('product_id', $order_details->property_id)->update(['status' => '0']);
+                          product::where('id', $order_data->property_id)->update(['order_status' => '1']);
+                          UserProductCount::where('product_id', $order_data->property_id)->delete();
                         /* Wishlist disabled by ID */
-                        Wishlist::where('product_id', $order_details->property_id)->update(['status' => '0']);
+                        Wishlist::where('product_id', $order_data->property_id)->delete();
                           /* Product comparison disabled by ID */
-                        Product_Comparision::where('product_id', $order_details->property_id)->update(['status' => '0']);
+                        Product_Comparision::where('product_id', $order_data->property_id)->delete();
 
                             return response()->json([
                                  'message' =>'SUCCESS',
@@ -773,7 +773,7 @@ class PlansController extends Controller
                 ]);
             }  
         }catch(\Exception $e) {
-            return $this->getExceptionResponse1($e);
+            return $this->getExceptionResponse($e);
         }  
     }
 
@@ -862,7 +862,7 @@ class PlansController extends Controller
         try {
          $todayDate = Carbon::now()->format('Y-m-d H:i:s');
         product::where('product_uid', $request->product_id)->update(['enabled' => 'yes']);   
-        invoices::where('invoice_no', $request->invoice_id)->update(['plan_status' => 'used','plan_apply_date'=> $todayDate, 'property_uid' => $request->product_id, 'property_amount' => $request->product_price]);     
+        invoices::where('invoice_no', $request->invoice_id)->update(['plan_status' => 'used','plan_apply_date'=> $todayDate, 'property_uid' => $request->product_id, 'property_amount'=> $request->product_price]);     
         return response()->json([
             'message' => 'Invoice details updated'
         ], 201);
@@ -999,6 +999,7 @@ class PlansController extends Controller
                     'expected_rent' => $order_details[0]->expected_rent,
                     'plan_price' => $order_details[0]->plan_price,
                     'payment_status' => 'UNPAID',
+                    'plan_status'=>'used',
                     'user_email' => $order_details[0]->user_email,
                     'user_id' => $order_details[0]->user_id,
                     'invoice_generated_date' => $todayDate,
@@ -1091,6 +1092,8 @@ class PlansController extends Controller
                     'expected_rent' => $order_details[0]->expected_rent,
                     'plan_price' => $order_details[0]->plan_price,
                     'payment_status' => 'UNPAID',
+                    'plan_status'=>'used',
+                    'property_uid'=>$order_details[0]->property_uid,
                     'user_email' => $order_details[0]->user_email,
                     'user_id' => $order_details[0]->user_id,
                     'invoice_generated_date' => $todayDate,

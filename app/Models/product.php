@@ -216,7 +216,7 @@ class product extends Model
         return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['plan_type'=> 'Let Out']);
     }
 	public function letout_invoice() {
-        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Let Out']);
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['plan_status'=>'used','plan_type'=> 'Let Out']);
     }
 
     public function rent_invoice() {

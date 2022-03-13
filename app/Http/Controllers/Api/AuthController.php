@@ -1417,16 +1417,15 @@ class AuthController extends Controller
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
                 $data=[];
-                 //$data = user::where(['other_mobile_number'=>$mobile_no])->orwhere(['email'=>$email])->with('productdetails')->get();
                  if($mobile_no) {
-                     $invoices = DB::table('invoices')->where('user_email', $email_db)->get();
+                     // $invoices = DB::table('invoices')->where('user_email', $email_db)->get();
 
                      $let_out_plans =DB::table('invoices')->where(['user_email'=> $email_db,'plan_type'=>'Let Out'])->get();
                      $rent_plans = DB::table('invoices')->where(['user_email'=> $email_db,'plan_type'=>'Rent'])->get();																					
                      $data = user::where(['other_mobile_number'=>$mobile_no])->with('productdetails','product_wishlist')->get();		 
                  }
                  else if($email) {
-                    $invoices = DB::table('invoices')->where('user_email', $email)->get();
+                    // $invoices = DB::table('invoices')->where('user_email', $email)->get();
 					
                      $let_out_plans =DB::table('invoices')->where(['user_email'=> $email,'plan_type'=>'Let Out'])->get();	
                      $rent_plans = DB::table('invoices')->where(['user_email'=> $email,'plan_type'=>'Rent'])->get(); 	
@@ -1440,7 +1439,6 @@ class AuthController extends Controller
                     $static_data=$object->static_data();
                     return response()->json([
                        'data' =>$data,
-					   'invoices' => $invoices,
 					   'let_out_plans' => $let_out_plans,
                        'rent_plans' => $rent_plans,									 
                        'user'=>$user,
@@ -1448,8 +1446,7 @@ class AuthController extends Controller
                        'static_data'=>$static_data,
                        'status'=> 200
                      ]);
-                 }else{
-                    $invoices=NULL;  
+                 }else{ 
                     $static_data=NULL;
                     $user=NULL;
                     $properties=NULL;
