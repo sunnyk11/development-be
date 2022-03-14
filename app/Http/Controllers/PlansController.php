@@ -659,7 +659,7 @@ class PlansController extends Controller
                          if( $invoice_letout  && $invoice_letout->plan_name == 'Standard'){
                                      invoices::where(['property_uid'=> $invoice_data->property_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['property_amount'=>NULL,'amount_paid'=>NULL,'payment_status' => 'UNPAID','payment_mode'=>NULL,'payment_received'=>'no','payment_status_change_reason'=>$request->payment_status_change_reason,'transaction_status'=> NULL,'invoice_paid_date'=>NULL,'plan_apply_date'=>NULL]);
 
-                                      // DB::table('plans_orders')->where(['invoice_no'=> $invoice_letout->invoice_no])->update(['transaction_status'=>NULL,'payment_status' => 'UNPAID','amount_paid'=>NULL]);
+                                      // DB::table('plans_orders')->where(['invoice_no'=> $invoice_letou1t->invoice_no])->update(['transaction_status'=>NULL,'payment_status' => 'UNPAID','amount_paid'=>NULL]);
                              }
 
                             product::where('product_uid', $invoice_data->property_uid)->update(['order_status' => '0','enabled'=>'Yes','delete_flag'=>'0']);
@@ -999,7 +999,6 @@ class PlansController extends Controller
                     'expected_rent' => $order_details[0]->expected_rent,
                     'plan_price' => $order_details[0]->plan_price,
                     'payment_status' => 'UNPAID',
-                    'plan_status'=>'used',
                     'user_email' => $order_details[0]->user_email,
                     'user_id' => $order_details[0]->user_id,
                     'invoice_generated_date' => $todayDate,
