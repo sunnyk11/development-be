@@ -725,7 +725,7 @@ class PlansController extends Controller
                          // invoice table  
                          $todayDate =  Carbon::now()->format('Y-m-d H:i:s');  
 
-                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'amount_paid' => $order_data->total_amount,'property_amount'=> $order_data->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','property_uid'=>$order_data->property_uid,'payment_status_change_reason'=>'Property Rented']);
+                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'plan_apply_date'=>$todayDate,'amount_paid' => $order_data->total_amount,'property_amount'=> $order_data->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','property_uid'=>$order_data->property_uid,'payment_status_change_reason'=>'Property Rented']);
                         if($invoices_data){
 
                           product::where('id', $order_data->property_id)->update(['order_status' => '1']);
