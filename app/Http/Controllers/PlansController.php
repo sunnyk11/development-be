@@ -575,7 +575,7 @@ class PlansController extends Controller
     public function rollback_property(Request $request) {
          $request->validate([
                 'invoice_no' => 'required',
-                'payment_status_change_reason'=>'required'
+                'payment_status_change_reason'=>'required|string|min:10|max:100'
             ]);
         try{
             $token  = $request->header('authorization');
@@ -646,7 +646,7 @@ class PlansController extends Controller
                             // return $invoice_data->property_uid;
 
                             DB::table('plans_rent_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['property_status' => 'Property  deals cancelled','payment_status'=>'RETURN']);
-                            $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN','payment_status_change_reason'=>$request->payment_status_change_reason]);
+                            $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN','property_status' => 'Property  Deals CANCEL','payment_status_change_reason'=>$request->payment_status_change_reason]);
                             
                             if($invoice_data->property_uid){
 
@@ -709,23 +709,24 @@ class PlansController extends Controller
     public function invoice_status_change(Request $request) {
          $request->validate([
                 'invoice_no' => 'required',
+                'payment_status_change_reason'=>'required|string|min:10|max:100'
             ]);
          try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == true){
+            if($object->authication_check($token) == false){
                 $order_details = DB::table('invoices')->where(['invoice_no'=> $request->invoice_no])->first();
                 if($order_details){
                     if($order_details->payment_status == 'UNPAID'){
                         
-                         DB::table('invoices')->where(['property_uid'=> $order_details->property_uid,'payment_status'=>'UNPAID'])->update(['payment_status_change_reason' => 'Property Rented to Another User','payment_status'=>'CANCEL','transaction_status'=>'TXN_FAIL']);
+                      DB::table('invoices')->where(['property_uid'=> $order_details->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User','payment_status'=>'CANCEL','transaction_status'=>'TXN_FAIL']);
 
                          $order_data = DB::table('plans_rent_orders')->where(['invoice_no'=> $request->invoice_no])->first(); 
 
                          // invoice table  
                          $todayDate =  Carbon::now()->format('Y-m-d H:i:s');  
 
-                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'plan_apply_date'=>$todayDate,'amount_paid' => $order_data->total_amount,'property_amount'=> $order_data->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','property_uid'=>$order_data->property_uid,'payment_status_change_reason'=>'Property Rented']);
+                        $invoices_data =invoices::where(['invoice_no'=>$request->invoice_no])->update(['invoice_paid_date' => $todayDate,'plan_apply_date'=>$todayDate,'amount_paid' => $order_data->total_amount,'property_amount'=> $order_data->expected_rent,'payment_status'=>'PAID','payment_received'=>'Yes','transaction_status'=>'TXN_SUCCESS','property_uid'=>$order_data->property_uid,'payment_status_change_reason'=>$request->payment_status_change_reason,'property_status'=>'Property Rented']);
                         if($invoices_data){
 
                           product::where('id', $order_data->property_id)->update(['order_status' => '1']);
@@ -752,7 +753,7 @@ class PlansController extends Controller
 
                     return response()->json([
                          'message' =>'SUCCESS',
-                         'description' => 'Invoice Already Paid',
+                         'description' => 'Invoice Already ' .$order_details->payment_status,
                          'status'=>200
                      ], 200);
 
@@ -761,8 +762,8 @@ class PlansController extends Controller
                     return response()->json([
                          'message' =>'FAIL',
                          'description' => 'Invoice details is Invalid !!!...',
-                         'status'=>201
-                     ], 201);
+                         'status'=>204
+                     ], 204);
 
                 }
             }else{

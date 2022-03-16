@@ -64,6 +64,7 @@ class product extends Model
         'carpet_area',
         'property_detail',
         'build_name',
+        'additional_rooms_status',
         'willing_to_rent_out_to',
         'agreement_type',
         'map_latitude',

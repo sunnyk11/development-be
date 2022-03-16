@@ -440,6 +440,7 @@ class PaymentController extends Controller
                     'user_id' => $order_details[0]->user_id,
                     'invoice_generated_date' => $todayDate,
                     'invoice_paid_date' => $todayDate,
+                    'plan_apply_date'=> $todayDate,
                     'amount_paid' => $request->TXNAMOUNT,
                     'transaction_status' => $request->STATUS,
                     'payment_mode' => 'Online',
@@ -459,8 +460,8 @@ class PaymentController extends Controller
                     // DB::table('plans_orders')->where(['invoice_no'=> $letout_plan_details->invoice_no])->update(['transaction_status'=>'Cross_Payment','payment_status' => 'PAID','amount_paid'=>$total_amount_plan]);
                 }
 
-               DB::table('plans_rent_orders')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);  
-               DB::table('plans_rent_orders')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Rented']);
+               DB::table('invoices')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);  
+               DB::table('invoices')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Rented']);
                             
                 product::where('id', $order_details[0]->property_id)->update(['order_status' => '1']);
                 
