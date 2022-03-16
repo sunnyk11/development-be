@@ -714,7 +714,7 @@ class PlansController extends Controller
          try{
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
-            if($object->authication_check($token) == false){
+            if($object->authication_check($token) == true){
                 $order_details = DB::table('invoices')->where(['invoice_no'=> $request->invoice_no])->first();
                 if($order_details){
                     if($order_details->payment_status == 'UNPAID'){
@@ -738,7 +738,7 @@ class PlansController extends Controller
 
                             return response()->json([
                                  'message' =>'SUCCESS',
-                                 'description' => 'Invoice Successfully Paid',
+                                 'description' => 'Invoice Successfully PAID',
                                  'status'=>200
                              ], 200);
                         }else{
