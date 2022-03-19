@@ -1424,7 +1424,7 @@ class ProductController extends Controller
                         return response()->json([
                             'message' =>'SUCCESS',
                             'description' => 'Successfully created  Property',
-                            'status'=>200
+                            'status'=>201
                         ], 201);
             }else{
                 return response() -> json([
@@ -1566,7 +1566,7 @@ class ProductController extends Controller
                  return response() -> json([
                      'message' => 'FAIL',
                      'description'=>'Somthing Error !!!...',
-                     'status'=> 201,
+                     'status'=> 404,
                  ]);
                 } 
                }else{

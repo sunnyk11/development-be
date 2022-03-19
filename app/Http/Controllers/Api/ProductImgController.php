@@ -110,8 +110,8 @@ class ProductImgController extends Controller
                     return response()->json([
                          'message' =>'FAIL',
                          'description' => 'Please Select Product Image',
-                         'status'=>204
-                    ], 204);
+                         'status'=>404
+                    ], 404);
                 }
             }else{
                 return response() -> json([

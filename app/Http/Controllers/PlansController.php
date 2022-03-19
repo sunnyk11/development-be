@@ -289,8 +289,8 @@ class PlansController extends Controller
                                  return response()->json([
                                      'message' =>'FAIL',
                                      'description' => 'Plans details is Invalid !!!...',
-                                     'status'=>201
-                                 ], 201);
+                                     'status'=>404
+                                 ], 404);
                             }
 
 
@@ -298,8 +298,8 @@ class PlansController extends Controller
                                  return response()->json([
                                      'message' =>'FAIL',
                                      'description' => 'Property Draft Mode. Plz final submision !!!...',
-                                     'status'=>204
-                                 ], 204);
+                                     'status'=>404
+                                 ], 404);
                             }
 
                         
@@ -307,8 +307,8 @@ class PlansController extends Controller
                          return response()->json([
                              'message' =>'FAIL',
                              'description' => 'Property Already Lived !!!...',
-                             'status'=>204
-                         ], 204);
+                             'status'=>404
+                         ], 404);
                         }
 
                     }else{
@@ -316,8 +316,8 @@ class PlansController extends Controller
                          return response()->json([
                              'message' =>'FAIL',
                              'description' => 'Property details is Invalid !!!...',
-                             'status'=>204
-                         ], 204);
+                             'status'=>404
+                         ], 404);
                     }
 
                 }else{
@@ -325,8 +325,8 @@ class PlansController extends Controller
                      return response()->json([
                          'message' =>'FAIL',
                          'description' => 'User  details is Invalid !!!...',
-                         'status'=>204
-                     ], 204);
+                         'status'=>404
+                     ], 404);
                 } 
             }else{
                 return response() -> json([
@@ -589,8 +589,8 @@ class PlansController extends Controller
                             // return $invoice_data;
                             if($invoice_data['propertyDetails']['order_status'] == 0){
                                  if($invoice_data->payment_type == 'Advance'){
-                                    DB::table('plans_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN']);
-                                    $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN','payment_status_change_reason'=>$request->payment_status_change_reason]);
+                                    DB::table('plans_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'Payment Returned']);
+                                    $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'Payment Returned','payment_status_change_reason'=>$request->payment_status_change_reason]);
                                 
                                 if($invoice_data->property_uid){
 
@@ -607,7 +607,7 @@ class PlansController extends Controller
 
                                     return response()->json([
                                          'message' =>'SUCCESS',
-                                         'description' => 'Letout Invoice details RETURN',
+                                         'description' => 'Letout Invoice details Payment Returned',
                                          'status'=>200
                                      ], 200);
 
@@ -645,8 +645,8 @@ class PlansController extends Controller
                         }elseif($invoice_data->plan_type == 'Rent' && $invoice_data->payment_status == 'PAID'){
                             // return $invoice_data->property_uid;
 
-                            DB::table('plans_rent_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['property_status' => 'Property  deals cancelled','payment_status'=>'RETURN']);
-                            $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'RETURN','property_status' => 'Property  Deals CANCEL','payment_status_change_reason'=>$request->payment_status_change_reason]);
+                            DB::table('plans_rent_orders')->where(['invoice_no'=>$invoice_data->invoice_no])->update(['property_status' => 'Property Deal CANCELED','payment_status'=>'Payment Returned']);
+                            $invoices_update =invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'Payment Returned','property_status' => 'Property Deal CANCELED','payment_status_change_reason'=>$request->payment_status_change_reason]);
                             
                             if($invoice_data->property_uid){
 
@@ -673,7 +673,7 @@ class PlansController extends Controller
 
                                 return response()->json([
                                      'message' =>'SUCCESS',
-                                     'description' => 'Renting Invoice details RETURN',
+                                     'description' => 'Renting Invoice details Payment Returned',
                                      'status'=>200
                                  ], 200);                    
                         }else{
@@ -688,8 +688,8 @@ class PlansController extends Controller
                      return response()->json([
                          'message' =>'FAIL',
                          'description' => 'Invoice details is Invalid !!!...',
-                         'status'=>200
-                     ], 200);
+                         'status'=>404
+                     ], 404);
                 }
 
                
@@ -762,8 +762,8 @@ class PlansController extends Controller
                     return response()->json([
                          'message' =>'FAIL',
                          'description' => 'Invoice details is Invalid !!!...',
-                         'status'=>204
-                     ], 204);
+                         'status'=>404
+                     ], 404);
 
                 }
             }else{
@@ -913,8 +913,8 @@ class PlansController extends Controller
                                 return response()->json([
                                     'message' =>'FAIL',
                                     'description' => 'Plan are not available !!!...',
-                                    'status'=>204
-                                ], 204);
+                                    'status'=>404
+                                ], 404);
                             }
 
                         }
@@ -922,15 +922,15 @@ class PlansController extends Controller
                             return response()->json([
                                 'message' =>'FAIL',
                                 'description' => 'Plan Details Invalid !!!...',
-                                'status'=>204
-                            ], 204);
+                                'status'=>404
+                            ], 404);
                         }
                     }else{
                         return response()->json([
                             'message' =>'FAIL',
                             'description' => 'Property Already Lived !!!...',
-                            'status'=>201
-                        ], 201);
+                            'status'=>200
+                        ], 200);
                        }
                 }
                 else{
@@ -938,8 +938,8 @@ class PlansController extends Controller
                          return response()->json([
                              'message' =>'FAIL',
                              'description' => 'Property details is Invalid !!!...',
-                             'status'=>201
-                         ], 201);
+                             'status'=>404
+                         ], 404);
                     }
                  }else{
                 return response() -> json([
