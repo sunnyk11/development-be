@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use DateTimeInterface;
 
 class invoices extends Model
 {
@@ -44,6 +45,11 @@ class invoices extends Model
     public function UserDetail()
     {
         return $this->hasOne('App\Models\User', 'id','user_id');
+    }
+    
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
     
     public function property_status()

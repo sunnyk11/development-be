@@ -8,6 +8,7 @@ use App\Models\ProductAmenties;
 use App\Models\area_locality;
 use App\Models\Property_type;
 use Auth;
+use DateTimeInterface;
 
 class product extends Model
 {
@@ -95,6 +96,11 @@ class product extends Model
     public function pro_user_details()
     {
         return $this->hasOne('App\Models\User', 'id','user_id')->select('id','name');
+    }
+    
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 
     public function product_comparision()
