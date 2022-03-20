@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use DateTimeInterface;
 
 class User extends Authenticatable
 {
@@ -64,6 +65,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
     public function bank_details_history(){
         return $this->hasMany('App\Models\user_bank_details_history', 'user_id','id')->where(['status'=>'1'])->orderBy('id', 'desc')->take(5);
     }

@@ -182,13 +182,13 @@ class PlansController extends Controller
                 $user = User::select('id','email')->where('id', $request->user_id)->first();
                 if($user){
 
-                      $property_details = product::select('id','product_uid','expected_rent','build_name','enabled','draft')->where(['delete_flag'=> '0','id'=>$request->property_id])->orderBy('id', 'asc')->first();
-                      // ['enabled' => 'yes']
+                      $property_details = product::select('id','product_uid','expected_rent','build_name','enabled','draft','user_id')->where(['delete_flag'=> '0','id'=>$request->property_id])->orderBy('id', 'asc')->first();
                     if($property_details){
+                      if($property_details->user_id == $request->user_id){
                         if($property_details['enabled']!='yes'){
                             if($property_details['draft']==0){
                                 $plan_type='Let Out';
-                        if($plan_type == 'Let Out' && $request->plan_name == 'STANDARD') {
+                           if($plan_type == 'Let Out' && $request->plan_name == 'STANDARD') {
                             $order_id = 'OR'.rand (10,100).time();
                              $year = Carbon::now()->format('y');
                                 $month = Carbon::now()->format('m');
@@ -196,11 +196,11 @@ class PlansController extends Controller
                                 $hour = Carbon::now()->format('h');
                                 $minute = Carbon::now()->format('i');
                                 $second = Carbon::now()->format('s');
-                            $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second;
+                               $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second;
          
-                         $plan_details = PropertyPlans::where([['plan_type','=','Let Out'],['plan_name','=', $request->plan_name],['plan_status','=','enabled']])->with('features')->first();
-                         $plan_price =
-                            $plan = new plansOrders([
+                               $plan_details = PropertyPlans::where([['plan_type','=','Let Out'],['plan_name','=', $request->plan_name],['plan_status','=','enabled']])->with('features')->first();
+                             $plan_price =
+                              $plan = new plansOrders([
                                 'user_id' => $user['id'],
                                 'user_email' => $user['email'],
                                 'order_id' => $order_id,
@@ -301,6 +301,7 @@ class PlansController extends Controller
                                      'status'=>404
                                  ], 404);
                             }
+                           
 
                         
                         }else{
@@ -309,6 +310,13 @@ class PlansController extends Controller
                              'description' => 'Property Already Lived !!!...',
                              'status'=>404
                          ], 404);
+                        } 
+                       }else{
+                                 return response()->json([
+                                     'message' =>'FAIL',
+                                     'description' => 'Property Create User & Actual User Not Same',
+                                     'status'=>404
+                                 ], 404);
                         }
 
                     }else{

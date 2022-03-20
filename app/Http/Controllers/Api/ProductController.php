@@ -1233,7 +1233,7 @@ class ProductController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                $data = product::where(['property_mode'=> 'crm','delete_flag'=> '0'])->with('amenities','UserDetail','product_img','product_state','product_locality','property_room','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration','letout_invoice')->orderBy('id', 'desc')->get();
+                $data = product::where(['delete_flag'=> '0','enabled'=>'no','draft'=>'0'])->with('amenities','UserDetail','product_img','product_state','product_locality','property_room','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration','letout_invoice')->orderBy('id', 'desc')->get();
                 return response()->json([
                     'message' =>'SUCCESS',
                     'data' => $data,
