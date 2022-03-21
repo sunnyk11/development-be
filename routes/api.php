@@ -35,6 +35,7 @@ Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_p
 Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get_property_byid');
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
 Route::post('/invoice_status_change', 'App\Http\Controllers\PlansController@invoice_status_change');
+Route::post('/property_price_change', 'App\Http\Controllers\PlansController@property_price_change');
 Route::post('/rollback_property', 'App\Http\Controllers\PlansController@rollback_property');
     Route::get('rent_property_slip', 'App\Http\Controllers\Api\ProductController@rent_property_slip');
 

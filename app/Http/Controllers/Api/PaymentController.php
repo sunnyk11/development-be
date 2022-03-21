@@ -450,18 +450,22 @@ class PaymentController extends Controller
                  ];
 
                invoices::updateOrCreate($exist_invoice, $invoice);
-             $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->first();
+             $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out'])->first();
                 if($invoice_letout && $invoice_letout->plan_name == 'Standard'){
                     $letout_plan_details= DB::table('plans_orders')->where(['invoice_no'=> $invoice_letout->invoice_no])->first(); 
                     $sgst_amount = (9 * $letout_plan_details->expected_rent) / 100;
                     $cgst_amount = (9 * $letout_plan_details->expected_rent) / 100;
                     $total_amount_plan= $letout_plan_details->expected_rent + $sgst_amount+$cgst_amount;
-                    invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['property_amount'=>$letout_plan_details->expected_rent,'amount_paid'=>$total_amount_plan,'payment_status' => 'PAID','payment_mode'=>'Payment Paid by user','payment_received'=>'Yes','payment_status_change_reason'=>'Payment Received from Renter','transaction_status'=>'Cross_Payment','invoice_paid_date'=>$todayDate]);
+                    invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['property_amount'=>$letout_plan_details->expected_rent,'amount_paid'=>$total_amount_plan,'payment_status' => 'PAID','payment_mode'=>'Payment Paid by user','payment_received'=>'Yes','payment_status_change_reason'=>'Payment Received from Renter','transaction_status'=>'Cross_Payment','invoice_paid_date'=>$todayDate,'service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate]);
                     // DB::table('plans_orders')->where(['invoice_no'=> $letout_plan_details->invoice_no])->update(['transaction_status'=>'Cross_Payment','payment_status' => 'PAID','amount_paid'=>$total_amount_plan]);
+                }
+                
+                if($invoice_letout && ($invoice_letout->plan_name == 'Raja' || $invoice_letout->plan_name == 'MahaRaja')){
+                    invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out','payment_status'=>'PAID'])->update(['service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate]);
                 }
 
                DB::table('invoices')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);  
-               DB::table('invoices')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Rented']);
+               DB::table('invoices')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Rented','service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate]);
                             
                 product::where('id', $order_details[0]->property_id)->update(['order_status' => '1']);
                 

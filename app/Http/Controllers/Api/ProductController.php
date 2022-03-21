@@ -1585,7 +1585,7 @@ class ProductController extends Controller
                 ]);
             }
         }catch(\Exception $e) {
-            return $this->getExceptionResponse1($e);
+            return $this->getExceptionResponse($e);
         }
         
     }
