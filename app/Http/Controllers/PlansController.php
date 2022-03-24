@@ -190,12 +190,12 @@ class PlansController extends Controller
                                         if($differt_price>0){
                                           $payment_status_change_reason='Rent Price Decreased ('.$differt_price.')';
 
-                                        $invoices_update =invoices::where(['user_id'=> $property_details->user_id,'property_uid'=>$property_details->product_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['expected_rent'=>$request->property_price, 'plan_price' => $request->property_price / (30 / $plan_details['actual_price_days']),'payment_status_change_reason'=>$payment_status_change_reason]);
+                                        $invoices_update =invoices::where(['user_id'=> $property_details->user_id,'property_uid'=>$property_details->product_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['property_amount'=>$request->property_price,'expected_rent'=>$request->property_price, 'plan_price' => $request->property_price / (30 / $plan_details['actual_price_days']),'payment_status_change_reason'=>$payment_status_change_reason]);
                                         }
                                         if($differt_price<0){
                                           $payment_status_change_reason='Rent Price Increased ('.$differt_price.')';
 
-                                        $invoices_update =invoices::where(['user_id'=> $property_details->user_id,'property_uid'=>$property_details->product_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['expected_rent'=>$request->property_price, 'plan_price' => $request->property_price / (30 / $plan_details['actual_price_days']),'payment_status_change_reason'=>$payment_status_change_reason]);
+                                        $invoices_update =invoices::where(['user_id'=> $property_details->user_id,'property_uid'=>$property_details->product_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['property_amount'=>$request->property_price,'expected_rent'=>$request->property_price,'plan_price' => $request->property_price / (30 / $plan_details['actual_price_days']),'payment_status_change_reason'=>$payment_status_change_reason]);
                                         }
 
                                           $plansOrders_update =plansOrders::where(['user_id'=> $invoice_details->user_id,'invoice_no'=>$invoice_details->invoice_no,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['expected_rent'=>$request->property_price, 'plan_price' => $request->property_price / (30 / $plan_details['actual_price_days'])]);
@@ -1099,7 +1099,7 @@ class PlansController extends Controller
 
             if($payment_type == 'Post') {
 
-                $todayDate = Carbon::now()->format('Y-m-d');
+                $todayDate =  Carbon::now()->format('Y-m-d H:i:s');
 
                 $invoice = new invoices([
                     'invoice_no' => $invoice_id,
@@ -1176,49 +1176,63 @@ class PlansController extends Controller
 
             $order_details = DB::table('plans_rent_orders')->where('order_id', $request->orderID)->get();
     
-            if($order_details[0]->invoice_no == NULL)
-            {
-                $year = Carbon::now()->format('y');
-                $month = Carbon::now()->format('m');
-                $day = Carbon::now()->format('d');
-                $hour = Carbon::now()->format('h');
-                $minute = Carbon::now()->format('i');
-                $second = Carbon::now()->format('s');
-                $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second;
-                plansRentOrders::where('order_id', $request->orderID)->update(['invoice_no' => $invoice_id, 'payment_status' => 'UNPAID']);
-            }
-            else {
-                $invoice_id = $order_details[0]->invoice_no;
-            }
+            $todayDate =  Carbon::now()->format('Y-m-d H:i:s');
 
-                $todayDate = Carbon::now()->format('Y-m-d');
+               $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'user_email' => $order_details[0]->user_email,
+                    'plan_status' => 'used','payment_type'=>'Post','plan_type'=>'Rent'])->first();
+               if($invoice_letout){
 
-                $invoice = new invoices([
-                    'invoice_no' => $invoice_id,
-                    'plan_name' => $order_details[0]->plan_name,
-                    'plan_id' => $order_details[0]->plan_id,
-                    'plan_type' => $order_details[0]->plan_type,
-                    'payment_type' => $order_details[0]->payment_type,
-                    'order_id' => $order_details[0]->order_id,
-                    'expected_rent' => $order_details[0]->expected_rent,
-                    'plan_price' => $order_details[0]->plan_price,
-                    'payment_status' => 'UNPAID',
-                    'plan_status'=>'used',
-                    'property_uid'=>$order_details[0]->property_uid,
-                    'user_email' => $order_details[0]->user_email,
-                    'user_id' => $order_details[0]->user_id,
-                    'invoice_generated_date' => $todayDate,
-                    'payment_mode' => 'Cash',
-                    'payment_received' => 'Pending'  
-                ]);
+                    return response()->json([
+                        'data' =>  $invoice_letout->invoice_no,
+                        'status'=>200
+                    ], 200); 
+            
+               }else{
+                           if($order_details[0]->invoice_no == NULL)
+                            {
+                                $year = Carbon::now()->format('y');
+                                $month = Carbon::now()->format('m');
+                                $day = Carbon::now()->format('d');
+                                $hour = Carbon::now()->format('h');
+                                $minute = Carbon::now()->format('i');
+                                $second = Carbon::now()->format('s');
+                                $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second;
+                                plansRentOrders::where('order_id', $request->orderID)->update(['invoice_no' => $invoice_id, 'payment_status' => 'UNPAID']);
+                            }
+                            else {
+                                $invoice_id = $order_details[0]->invoice_no;
+                            }
 
-                $invoice->save();
+                 
+                       $invoice = new invoices([
+                        'invoice_no' => $invoice_id,
+                        'plan_name' => $order_details[0]->plan_name,
+                        'plan_id' => $order_details[0]->plan_id,
+                        'plan_type' => $order_details[0]->plan_type,
+                        'payment_type' => $order_details[0]->payment_type,
+                        'order_id' => $order_details[0]->order_id,
+                        'expected_rent' => $order_details[0]->expected_rent,
+                        'plan_price' => $order_details[0]->plan_price,
+                        'payment_status' => 'UNPAID',
+                        'plan_status'=>'used',
+                        'property_uid'=>$order_details[0]->property_uid,
+                        'user_email' => $order_details[0]->user_email,
+                        'user_id' => $order_details[0]->user_id,
+                        'invoice_generated_date' => $todayDate,
+                        'payment_mode' => 'Cash',
+                        'payment_received' => 'Pending'  
+                    ]);
+
+                    $invoice->save();
+                
+                    
+                    return response()->json([
+                        'data' => $invoice_id,
+                        'status'=>201
+                    ], 201);
             
-            
-            return response()->json([
-                'data' => $invoice_id
-            ], 201);
-            
+               }
+                
             }
         catch (\Exception $e) {
             return $this->getExceptionResponse($e);

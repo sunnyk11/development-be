@@ -1418,19 +1418,14 @@ class AuthController extends Controller
             if($object->authication_check($token) == true){
                 $data=[];
                  if($mobile_no) {
-                     // $invoices = DB::table('invoices')->where('user_email', $email_db)->get();
-
                      $let_out_plans =DB::table('invoices')->where(['user_email'=> $email_db,'plan_type'=>'Let Out'])->get();
                      $rent_plans = DB::table('invoices')->select('invoices.*','products.build_name','products.id as product_id')->where(['user_email'=> $email_db,'plan_type'=>'Rent'])->leftjoin('products','products.product_uid','=','invoices.property_uid')->whereNotNull('invoices.property_uid')->get();																				
                      $data = user::where(['other_mobile_number'=>$mobile_no])->with('productdetails','product_wishlist')->get();		 
                  }
                  else if($email) {
-                    // $invoices = DB::table('invoices')->where('user_email', $email)->get();
-					
                      $let_out_plans =DB::table('invoices')->where(['user_email'=> $email,'plan_type'=>'Let Out'])->get();	
-
                      $rent_plans = DB::table('invoices')->select('invoices.*','products.build_name','products.id as product_id')->where(['user_email'=> $email,'plan_type'=>'Rent'])->leftjoin('products','products.product_uid','=','invoices.property_uid')->whereNotNull('invoices.property_uid')->get(); 																	   
-                   $data = user::where(['email'=>$email])->with('productdetails','product_wishlist')->get();
+                     $data = user::where(['email'=>$email])->with('productdetails','product_wishlist')->get();
                  }
                  if(count($data)>0){
                     $properties = product::select('id','build_name')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->get();

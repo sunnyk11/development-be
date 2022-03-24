@@ -420,7 +420,12 @@ class PaymentController extends Controller
 
                 $todayDate = Carbon::now()->format('Y-m-d H:i:s');
                 
-                
+                 $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'user_email' => $order_details[0]->user_email,'payment_status'=>'PAID','plan_status' => 'used','payment_type'=>'Post','plan_type'=>'Rent'])->first();
+               if($invoice_letout){
+                  $angular_url = env('angular_url').'invoice?'.'invoice_no='.$invoice_letout->invoice_no;
+            
+               }else{
+
                $exist_invoice= [
                   'invoice_no' => $invoice_id
                 ];
@@ -477,6 +482,9 @@ class PaymentController extends Controller
                 Product_Comparision::where('product_id', $order_details[0]->property_id)->update(['status' => '0']);
                 
                 $angular_url = env('angular_url').'invoice?'.'invoice_no='.$invoice_id;
+
+               }
+                
             }
             else {
                 plansRentOrders::where('order_id', $request->ORDERID)->update(['payment_status' => 'FAIL']);
