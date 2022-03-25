@@ -188,12 +188,12 @@ class PlansController extends Controller
 
                                        $differt_price= $request->property_price-$property_details->expected_rent;
                                         if($differt_price>0){
-                                          $payment_status_change_reason='Rent Price Decreased ('.$differt_price.')';
+                                          $payment_status_change_reason='Rent Price  Increased ('.$differt_price.')';
 
                                         $invoices_update =invoices::where(['user_id'=> $property_details->user_id,'property_uid'=>$property_details->product_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['property_amount'=>$request->property_price,'expected_rent'=>$request->property_price, 'plan_price' => $request->property_price / (30 / $plan_details['actual_price_days']),'payment_status_change_reason'=>$payment_status_change_reason]);
                                         }
                                         if($differt_price<0){
-                                          $payment_status_change_reason='Rent Price Increased ('.$differt_price.')';
+                                          $payment_status_change_reason='Rent Price Decreased ('.$differt_price.')';
 
                                         $invoices_update =invoices::where(['user_id'=> $property_details->user_id,'property_uid'=>$property_details->product_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['property_amount'=>$request->property_price,'expected_rent'=>$request->property_price,'plan_price' => $request->property_price / (30 / $plan_details['actual_price_days']),'payment_status_change_reason'=>$payment_status_change_reason]);
                                         }
@@ -1179,7 +1179,7 @@ class PlansController extends Controller
             $todayDate =  Carbon::now()->format('Y-m-d H:i:s');
 
                $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'user_email' => $order_details[0]->user_email,
-                    'plan_status' => 'used','payment_type'=>'Post','plan_type'=>'Rent'])->first();
+                    'plan_status' => 'used','plan_name'=>$order_details[0]->plan_name,'payment_type'=>'Post','plan_type'=>'Rent'])->first();
                if($invoice_letout){
 
                     return response()->json([
