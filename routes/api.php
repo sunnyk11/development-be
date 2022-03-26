@@ -87,6 +87,9 @@ Route::group([
     'prefix' => 'auth'
 ], function () {
     Route::post('/login', 'App\Http\Controllers\Api\AuthController@login');
+    Route::post('/mobile_otp_send', 'App\Http\Controllers\Api\AuthController@mobile_otp_send');
+
+    Route::post('mobile_login_verify_otp', 'App\Http\Controllers\Api\AuthController@mobile_login_verify_otp');
 	Route::post('admin_login', 'App\Http\Controllers\Api\AdminControllerNew@admin_login');
 	Route::get('/get_user_permissions/{id}', 'App\Http\Controllers\Api\AdminControllerNew@get_user_permissions');																											 
     Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');

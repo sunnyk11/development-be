@@ -1010,6 +1010,115 @@ class AuthController extends Controller
     }
 
 
+    public function mobile_otp_send(Request $request) {
+
+        try{
+         $user = User::where('other_mobile_number', $request['mobile_no'])->first();
+         if($user){
+
+            if ($user->blocked == 1) {
+                return response()->json([
+                    'message' => 'Your account is blocked',
+                    'status'=>404
+                ], 404);
+            }
+            else{
+
+                $data = $request->validate([
+                    'mobile_no' => 'required|numeric|digits:10'
+                ]);
+
+                $token = getenv("TWILIO_AUTH_TOKEN");
+                $twilio_sid = getenv("TWILIO_SID");
+                $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+                $twilio = new Client($twilio_sid, $token);
+                $twilio->verify->v2->services($twilio_verify_sid)
+                    ->verifications
+                    ->create("+91".$data['mobile_no'], "sms");
+
+                return response()->json([
+                    'message' => 'OTP Sent',
+                    'status' => 'Success',
+                    'mobile_no'=> $request['mobile_no']
+                ], 200);
+            }
+
+         }else{
+            return response()->json([
+                'message' => 'Invalid Mobile No',
+                'status'=>200
+            ], 404);
+         }
+
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+         
+    }
+
+    public function mobile_login_verify_otp(Request $request) {
+        try{
+            $request->remember_me=1;
+
+            $data = $request->validate([
+                'verification_code' => ['required', 'numeric'],
+                'mobile_no' => ['required', 'numeric']
+            ]);
+
+            $token = getenv("TWILIO_AUTH_TOKEN");
+            $twilio_sid = getenv("TWILIO_SID");
+            $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+            $twilio = new Client($twilio_sid, $token);
+            $verification = $twilio->verify->v2->services($twilio_verify_sid)
+                ->verificationChecks
+                ->create($data['verification_code'], array('to' => "+91".$data['mobile_no']));
+
+            if ($verification->valid) {
+                    
+                $user = user::where(['other_mobile_number'=>$data['mobile_no'],'blocked'=> '0'])->first();
+                $user_misc = user::select('phone_number_verification_status','user_role', 'profile_pic','userSelect_type','other_mobile_number')->where(['other_mobile_number'=>$data['mobile_no'],'blocked'=> '0'])->first();
+                $tokenResult = $user->createToken('Personal Access Token');
+                $token = $tokenResult->token;
+                if ($request->remember_me) {
+                    $token->expires_at = Carbon::now()->addWeeks(20);
+                }
+                $token->save();
+                 $user_data=[
+                    'login-type'=>'Mobile Number',
+                    'username' => $user->name,
+                    'mobile_no'=> $user->other_mobile_number,
+                    'usertype' => $user->usertype,
+                ];
+                $data = [
+                    'username' => $user->name,
+                    'id' => $user->id,
+                    'email'    => $user->email,
+                    'usertype' => $user->usertype,
+                    'internal_user'=>$user->internal_user,
+                    'access_token' => $tokenResult->accessToken,
+                    'token_type' => 'Bearer',
+                    'expires_at' => Carbon::parse(
+                        $tokenResult->token->expires_at
+                    )->toDateTimeString(),
+                    'misc' => $user_misc,
+                    'user_data' => $user_data
+                ];
+                return response()->json([
+                    'data' => $data
+                ]);
+
+
+            }else{
+                return response()->json([
+                    'message' => 'verification error',
+                    'status'=>401
+                ], 401);
+
+            }
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
     public function login(Request $request)
     {
         $request->validate([
@@ -1042,6 +1151,7 @@ class AuthController extends Controller
         }
         $token->save();
          $user_data=[
+            'login-type'=>'Email id',
             'username' => $user->name,
             'email'    => $user->email,
             'usertype' => $user->usertype,
