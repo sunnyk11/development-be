@@ -43,8 +43,10 @@ class User extends Authenticatable
         'password',
         'user_role',
         'internal_user',
+        'phone_number_verification_status',
         'branch',
-        'area_names'
+        'area_names',
+        'user_aggree'
     ];
 
     /**

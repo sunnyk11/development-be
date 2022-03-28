@@ -90,6 +90,10 @@ Route::group([
     Route::post('/mobile_otp_send', 'App\Http\Controllers\Api\AuthController@mobile_otp_send');
 
     Route::post('mobile_login_verify_otp', 'App\Http\Controllers\Api\AuthController@mobile_login_verify_otp');
+    Route::post('sign_up_otp_send', 'App\Http\Controllers\Api\SignUpController@sign_up_otp_send');
+    Route::post('sign_up_verify_otp', 'App\Http\Controllers\Api\SignUpController@sign_up_verify_otp');
+    Route::get('/sign_up_user_details', 'App\Http\Controllers\Api\SignUpController@sign_up_user_details');
+
 	Route::post('admin_login', 'App\Http\Controllers\Api\AdminControllerNew@admin_login');
 	Route::get('/get_user_permissions/{id}', 'App\Http\Controllers\Api\AdminControllerNew@get_user_permissions');																											 
     Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');

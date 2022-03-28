@@ -26,6 +26,7 @@ use DB;
 use Illuminate\Support\Facades\Http;
 use Mail;
 use Illuminate\Support\Facades\Crypt;
+use App\Models\sign_up;
 
 class AuthController extends Controller
 {
@@ -43,13 +44,13 @@ class AuthController extends Controller
 			'gender' => 'required'						  
         ]);
 
-        $token = getenv("TWILIO_AUTH_TOKEN");
-        $twilio_sid = getenv("TWILIO_SID");
-        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
-        $twilio = new Client($twilio_sid, $token);
-        $twilio->verify->v2->services($twilio_verify_sid)
-            ->verifications
-            ->create("+91".$request->other_mobile_number, "sms");
+        // $token = getenv("TWILIO_AUTH_TOKEN");
+        // $twilio_sid = getenv("TWILIO_SID");
+        // $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        // $twilio = new Client($twilio_sid, $token);
+        // $twilio->verify->v2->services($twilio_verify_sid)
+        //     ->verifications
+        //     ->create("+91".$request->other_mobile_number, "sms");
 
         $user = new User([
             'name' => $request->first_name,
@@ -60,16 +61,40 @@ class AuthController extends Controller
             'userSelect_type' => $request->selectType,
             'other_mobile_number' => $request->other_mobile_number,
             'internal_user' => "No",
+            'phone_number_verification_status'=>1,
+            'user_aggree'=>$request->agree_check,
             'password' => bcrypt($request->password)
         ]);
 
         $user->save();
+
+        $user_fullname= $request->first_name.' '.$request->last_name;
+        $sign_up_user = sign_up::where(['mobile_no'=> $request->other_mobile_number])->update(['status'=>'1','user_name'=>$user_fullname]);
+                           
+
+            $crmp_api = getenv("crmp_api");
+            $response = Http::post($crmp_api, [
+                'BuyerEmail' => $request->email,
+                'PhoneNo' => $request->other_mobile_number,
+                'BuyerName' => $request->first_name,
+                'Source' => 'Web'
+            ]);
+
+            return response()->json([
+                'data' => $user,
+                'message' => 'Successfully created user!',
+                'status'  =>200,
+                'message1' => 'Successfully verified',
+                'response_success' => $response->successful(),
+                'response_fail' => $response->failed(),
+                'response_client_error' => $response->clientError(),
+                'response_server_error' => $response->serverError(),
+                'response_body' => $response->body()
+            ], 201);
+
         eventtracker::create(['symbol_code' => '1', 'event' => $request->email.' created a new account as a User']);
 
         return response()->json([
-            'data' => $user,
-            'message' => 'Successfully created user!',
-            'status'  =>200
         ], 201);
     }
 
@@ -1013,6 +1038,10 @@ class AuthController extends Controller
     public function mobile_otp_send(Request $request) {
 
         try{
+
+        $request->validate([
+            'mobile_no' => 'required|numeric|digits:10|exists:users,other_mobile_number'
+        ]);
          $user = User::where('other_mobile_number', $request['mobile_no'])->first();
          if($user){
 

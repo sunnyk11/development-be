@@ -46,6 +46,7 @@ class UserLogsController extends Controller
                 'browser_info'   =>  $request->browser_info,
                 'type'           =>  $request->type,
                 'user_email'     =>  $request->userEmail,
+                'user_mobile'    => $request->user_mobile,
                 'input_info'     =>  json_encode($request->input_info),
                 'user_cart'      =>  json_encode($request->user_cart)
             ];
