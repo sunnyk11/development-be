@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Api;;
+namespace App\Http\Controllers\Api;
 
 use App\Models\sign_up;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use Twilio\Rest\Client;
+use App\Models\crmApiCalls;
+use Illuminate\Support\Facades\Http;
 
 class SignUpController extends Controller
 {
@@ -101,6 +103,33 @@ class SignUpController extends Controller
         // } 
     }
     
+    public function user_otp_resend(Request $request)
+    {    
+        
+        // try{
+            $request->validate([
+                'mobile_no' => "required|numeric|digits:10|unique:users,other_mobile_number",
+                 ]);
+
+                $token = getenv("TWILIO_AUTH_TOKEN");
+                $twilio_sid = getenv("TWILIO_SID");
+                $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+                $twilio = new Client($twilio_sid, $token);
+                $twilio->verify->v2->services($twilio_verify_sid)
+                    ->verifications
+                    ->create("+91".$request['mobile_no'], "sms");
+    
+                return response()->json([
+                    'message' => 'OTP Resend Successfully',
+                    'status' => '200',
+                    'mobile_no'=> $request['mobile_no']
+                ], 200);
+    
+
+        // }catch(\Exception $e) {
+        //     return $this->getExceptionResponse($e);
+        // } 
+    }
     public function sign_up_verify_otp(Request $request) {
         // try{
             $data = $request->validate([
@@ -129,12 +158,27 @@ class SignUpController extends Controller
                ];
                
            sign_up::create($user_data);
-               
+            $crmp_api = getenv("crmp_api");
+            $response = Http::post($crmp_api, [
+                'BuyerEmail' => 'newlead1@housingstreet.com',
+                'PhoneNo' => $request->form_data['mobile_no'],
+                'BuyerName' => $request->form_data['user_name'],
+                'Source' => 'Web'
+            ]);
+
             return response()->json([
                 'message' => 'Successfully created',
                 'verify_code' => $verify_code,
-                'status'=>200
+                'status'=>200,
+                'message1' => 'Successfully verified',
+                'response_success' => $response->successful(),
+                'response_fail' => $response->failed(),
+                'response_client_error' => $response->clientError(),
+                'response_server_error' => $response->serverError(),
+                'response_body' => $response->body()
             ], 201);
+
+               
 
 
             }else{

@@ -88,9 +88,11 @@ Route::group([
 ], function () {
     Route::post('/login', 'App\Http\Controllers\Api\AuthController@login');
     Route::post('/mobile_otp_send', 'App\Http\Controllers\Api\AuthController@mobile_otp_send');
+    Route::post('/user_otp_resend_login', 'App\Http\Controllers\Api\AuthController@user_otp_resend_login');
 
     Route::post('mobile_login_verify_otp', 'App\Http\Controllers\Api\AuthController@mobile_login_verify_otp');
     Route::post('sign_up_otp_send', 'App\Http\Controllers\Api\SignUpController@sign_up_otp_send');
+    Route::post('user_otp_resend', 'App\Http\Controllers\Api\SignUpController@user_otp_resend');
     Route::post('sign_up_verify_otp', 'App\Http\Controllers\Api\SignUpController@sign_up_verify_otp');
     Route::get('/sign_up_user_details', 'App\Http\Controllers\Api\SignUpController@sign_up_user_details');
 
@@ -159,6 +161,7 @@ Route::group([
         Route::get('plans_rent_payment/{id}','App\Http\Controllers\Api\PaymentController@plans_rent_payment');
         
         Route::post('post_selected_plan','App\Http\Controllers\PlansController@post_selected_plan');
+        Route::post('store_fixed_appointment','App\Http\Controllers\Api\FixedAppointmentController@store');
         Route::post('post_selected_rent_plan','App\Http\Controllers\PlansController@post_selected_rent_plan');
         Route::get('get_order_details/{id}', 'App\Http\Controllers\PlansController@get_order_details');
         Route::get('user_plan_availability', 'App\Http\Controllers\PlansController@user_plan_availability');

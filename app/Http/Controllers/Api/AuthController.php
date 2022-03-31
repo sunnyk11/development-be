@@ -1035,6 +1035,34 @@ class AuthController extends Controller
     }
 
 
+    
+    public function user_otp_resend_login(Request $request)
+    {    
+        
+        try{
+            $request->validate([
+                'mobile_no' => 'required|numeric|digits:10|exists:users,other_mobile_number',
+                 ]);
+
+                $token = getenv("TWILIO_AUTH_TOKEN");
+                $twilio_sid = getenv("TWILIO_SID");
+                $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+                $twilio = new Client($twilio_sid, $token);
+                $twilio->verify->v2->services($twilio_verify_sid)
+                    ->verifications
+                    ->create("+91".$request['mobile_no'], "sms");
+    
+                return response()->json([
+                    'message' => 'OTP Resend Successfully',
+                    'status' => '200',
+                    'mobile_no'=> $request['mobile_no']
+                ], 200);
+    
+
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        } 
+    }
     public function mobile_otp_send(Request $request) {
 
         try{

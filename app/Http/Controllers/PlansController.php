@@ -22,6 +22,7 @@ use App\Models\Wishlist;
 use App\Models\Product_Comparision;
 use App\Http\Controllers\Api\Authicationcheck;
 use App\Models\UserProductCount;
+use App\Models\fixed_appointment;
 
 class PlansController extends Controller
 {
@@ -436,7 +437,6 @@ class PlansController extends Controller
 
 
     public function post_selected_plan(Request $request) {
-    //    return   $request->plan_features_data;
         // return $request->plan_features_data['features']['4']['feature_value'];
         $data = json_decode($request->plan_features_data, true);
     
@@ -540,8 +540,23 @@ class PlansController extends Controller
             ]);
         }
 
+           
+
             $plan->save();
             $plan_features->save();
+            
+            if($request->page_name =='/plans'){
+                  $fixed_appointment_data=[
+                       'user_id'=>$request->user_id,
+                       'Source'=>'Web',
+                       'page_name'=>$request->page_name,
+                       'plan_id'=>$request->plan_id,
+                    ];
+             fixed_appointment::create($fixed_appointment_data);return response()->json([
+                'data' => $fixed_appointment_data,
+                'message'=>'Successfully created fixed Appointment'
+            ], 201);
+            }
 
             return response()->json([
                 'data' => $plan,
