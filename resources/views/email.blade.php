@@ -6,6 +6,7 @@ User details: <br><br>
 
 Name:  {{ $name }}<br>
 Email:  {{ $email }}<br>
+Contact NO:  {{ $phone }}<br>
 Subject:  {{ $subject }}<br>
 Message:  {{ $body }}<br><br>
 

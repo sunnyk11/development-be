@@ -26,17 +26,23 @@ class ContactController extends Controller
             'name' => $request->name,
             'subject' => $request->subject,
             'email' => $request->email,
+            'phone' => $request->phone,
             'body' => $request->message
           ];
 
         //  Send mail to admin
-        Mail::send('email', $data, function($message) use ($request){
+        try{
+            Mail::send('email', $data, function($message) use ($request){
             $message->from($request->email);
-            $message->to('support@housingstreet.com', 'Admin')->subject($request->get('subject'));
-        });
+            $message->to(getenv("admin_email"), 'Admin')->subject($request->get('subject'));
+            });
 
-        return response() -> json ([
-            'message' => 'The email has been sent'
-        ], 201); 
+            return response() -> json ([
+                'message' => 'The email has been sent'
+            ], 201);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
+         
     }
 }

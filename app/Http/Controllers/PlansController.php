@@ -542,10 +542,8 @@ class PlansController extends Controller
 
            
 
-            $plan->save();
-            $plan_features->save();
             
-            if($request->page_name =='/plans'){
+            if($request->page_name =='/plans' && $request->plan_type == 'Rent'){
                   $fixed_appointment_data=[
                        'user_id'=>$request->user_id,
                        'Source'=>'Web',
@@ -554,14 +552,33 @@ class PlansController extends Controller
                     ];
              fixed_appointment::create($fixed_appointment_data);return response()->json([
                 'data' => $fixed_appointment_data,
-                'message'=>'Successfully created fixed Appointment'
+                'message'=>'Successfully created fixed Appointment',
+                'appointment'=>'fixed_appointment'
             ], 201);
             }
-
+            elseif($request->page_name =='/plans' && $request->plan_type == 'Let Out'){
+                  $fixed_appointment_data=[
+                       'user_id'=>$request->user_id,
+                       'Source'=>'Web',
+                       'page_name'=>$request->page_name,
+                       'plan_id'=>$request->plan_id,
+                    ];
+             fixed_appointment::create($fixed_appointment_data);return response()->json([
+                'data' => $fixed_appointment_data,
+                'message'=>'Successfully created fixed Appointment',
+                'appointment'=>'fixed_appointment'
+            ], 201);
+            }else{
+                
+            $plan->save();
+            $plan_features->save();
             return response()->json([
                 'data' => $plan,
                 'message' => 'Successfully created Plan Order'
             ], 201);
+
+            }
+
     }
 
     public function post_selected_rent_plan(Request $request) {
