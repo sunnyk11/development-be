@@ -132,14 +132,18 @@ class ProductComparisionController extends Controller
     }
     public function delete(Request $request)
     {
+        try{
         $user_id = Auth::user()->id;
         $pro_comp_data = array('user_id'=>$user_id,'product_id'=>$request->id);
 
-        $data= Product_Comparision::where(['user_id'=>$user_id,'id'=>$request->id])->update(['status' => '0']);
+        $data= Product_Comparision::where(['user_id'=>$user_id,'product_id'=>$request->id])->delete();
 
             return response()->json([
                 'message' => 'Property Compare Successfully Deleted ',
             ], 201);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+      } 
 
     }
 }
