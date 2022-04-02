@@ -44,14 +44,14 @@ class SignUpController extends Controller
     }
     
     public function sign_up_otp_send(Request $request)
-    {    
-        
-        // try{
+    {  
             $request->validate([
                 'mobile_no' => "required|numeric|digits:10|unique:users,other_mobile_number",
                 'user_name' => 'required|string',
                 'sign_up_page' => 'required|string'
-           ]);
+           ]);  
+        
+        try{
            $sign_up_user = sign_up::where(['mobile_no'=> $request['mobile_no']])->first();
             if($sign_up_user){
                 if($sign_up_user->status==0){
@@ -98,18 +98,18 @@ class SignUpController extends Controller
     
             }
 
-        // }catch(\Exception $e) {
-        //     return $this->getExceptionResponse($e);
-        // } 
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        } 
     }
     
     public function user_otp_resend(Request $request)
     {    
-        
-        // try{
             $request->validate([
                 'mobile_no' => "required|numeric|digits:10|unique:users,other_mobile_number",
                  ]);
+        
+        try{
 
                 $token = getenv("TWILIO_AUTH_TOKEN");
                 $twilio_sid = getenv("TWILIO_SID");
@@ -126,16 +126,17 @@ class SignUpController extends Controller
                 ], 200);
     
 
-        // }catch(\Exception $e) {
-        //     return $this->getExceptionResponse($e);
-        // } 
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        } 
     }
     public function sign_up_verify_otp(Request $request) {
-        // try{
+        
             $data = $request->validate([
                 'verification_code' => ['required', 'numeric'],
                 'mobile_no' => 'required|numeric|digits:10'
             ]);
+        try{
 
             $token = getenv("TWILIO_AUTH_TOKEN");
             $twilio_sid = getenv("TWILIO_SID");
@@ -188,9 +189,9 @@ class SignUpController extends Controller
                 ], 401);
 
             }
-        // }catch(\Exception $e) {
-        //     return $this->getExceptionResponse($e);
-        // }
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
     }
 
     /**
