@@ -50,7 +50,7 @@ class ProductComparisionController extends Controller
         $user_id = Auth::user()->id;
         // fetch details property Comparision minimum 5
          $pro_user_data = Product_Comparision::where(['user_id'=>$user_id,'status'=>'1'])->get();
-        if(count($pro_user_data)<=4){
+        if(count($pro_user_data)<4){
             // fetch details user product db        
             $pro_comp = Product_Comparision::where(['user_id'=>$user_id,'product_id'=>$request->product_id])->get();
             $count = count($pro_comp);
