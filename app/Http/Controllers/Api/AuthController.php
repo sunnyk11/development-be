@@ -76,7 +76,7 @@ class AuthController extends Controller
             $response = Http::post($crmp_api, [
                 'BuyerEmail' => $request->email,
                 'PhoneNo' => $request->other_mobile_number,
-                'BuyerName' => $request->first_name,
+                'BuyerName' => $user_fullname,
                 'Source' => 'Web'
             ]);
 
