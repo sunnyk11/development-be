@@ -603,7 +603,7 @@ class AuthController extends Controller
         $response = Http::post($crmp_api, [
             'BuyerEmail' => $user[0]['email'],
             'PhoneNo' => $user[0]['other_mobile_number'],
-            'BuyerName' => $user[0]['name'],
+            'BuyerName' => $user[0]['name'].' '. $user[0]['last_name'],
             'Source' => 'Web',
             'usertype'=> 'Existing'
         ]);
@@ -646,12 +646,13 @@ class AuthController extends Controller
     
         $request_time = now();
         $now = strtotime($request_time);
+         $user_fullname= $request->first_name.' '.$request->last_name;
         
         $crmp_api = getenv("crmp_api");
         $response = Http::post($crmp_api, [
             'BuyerEmail' => $user[0]['email'],
             'PhoneNo' => $user[0]['other_mobile_number'],
-            'BuyerName' => $user[0]['name'],
+            'BuyerName' => $user[0]['name'].' '. $user[0]['last_name'],
             'Source' => 'Web',
             'Appointment'=>'Appointment Fixed',
             'AppointmentTime' => $request_time
