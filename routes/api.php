@@ -296,6 +296,8 @@ Route::group([
        
          Route::resource('product_comp', 'App\Http\Controllers\Api\ProductComparisionController');
         Route::post('pro_comp_delete', 'App\Http\Controllers\Api\ProductComparisionController@delete');
+        Route::post('product_comp_mobile', 'App\Http\Controllers\Api\ProductComparisionController@product_comp_mobile_store');
+        Route::get('get_mobile_comp', 'App\Http\Controllers\Api\ProductComparisionController@get_mobile_comp');
 
          Route::post('recently_product_user', 'App\Http\Controllers\Api\UserProductCountController@count_byID');
        
