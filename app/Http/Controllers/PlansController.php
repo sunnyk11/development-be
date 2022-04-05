@@ -836,6 +836,14 @@ class PlansController extends Controller
         }  
     }
 
+    public function get_rented_properties($userEmail) {
+        try{
+       return $property_details = invoices::with('productDetails')->where(['user_email' => $userEmail, 'payment_status' => 'PAID','payment_received'=>'Yes','plan_type'=>'Rent'])->get();
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse1($e);
+        } 
+    }
+
     public function invoice_status_change(Request $request) {
          $request->validate([
                 'invoice_no' => 'required',
@@ -1272,9 +1280,6 @@ class PlansController extends Controller
         
     }
 
-    public function get_rented_properties($userEmail) {
-       return $property_details = DB::table('plans_rent_orders')->where(['user_email' => $userEmail, 'transaction_status' => 'TXN_SUCCESS'])->get();
-    }
 
     public function update_property_plans(Request $request) {
         try {
