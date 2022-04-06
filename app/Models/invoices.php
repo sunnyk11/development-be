@@ -41,6 +41,11 @@ class invoices extends Model
     {
         return $this->hasOne('App\Models\product', 'product_uid','property_uid');
     }
+
+    public function property_rent_table()
+    {
+        return $this->hasOne('App\Models\plansRentOrders', 'invoice_no','invoice_no');
+    }
     
     public function UserDetail()
     {

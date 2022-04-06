@@ -838,7 +838,7 @@ class PlansController extends Controller
 
     public function get_rented_properties($userEmail) {
         try{
-       return $property_details = invoices::with('productDetails')->where(['user_email' => $userEmail, 'payment_status' => 'PAID','payment_received'=>'Yes','plan_type'=>'Rent'])->get();
+       return $property_details = invoices::with('property_rent_table')->where(['user_email' => $userEmail, 'payment_status' => 'PAID','payment_received'=>'Yes','plan_type'=>'Rent'])->get();
         }catch(\Exception $e) {
             return $this->getExceptionResponse1($e);
         } 
