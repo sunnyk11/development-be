@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use DateTimeInterface;
+use Carbon\Carbon;
 
 class invoices extends Model
 {
@@ -60,5 +61,33 @@ class invoices extends Model
     public function property_status()
     {
         return $this->hasOne('App\Models\plansRentOrders', 'invoice_no','invoice_no');
+    }
+    public function scopeSearch($query, $searchTerm) {
+
+        if ($searchTerm->start_date && $searchTerm->end_date) {
+          $start_date_modified=$searchTerm->start_date." 00:00:00";
+           $end_date_modified=$searchTerm->end_date." 59:59:59";
+
+            $start_date = Carbon::createFromFormat('Y-m-d H:i:s', $start_date_modified);
+            $end_date = Carbon::createFromFormat('Y-m-d H:i:s', $end_date_modified);
+                $query->whereBetween('created_at', [$start_date,$end_date]);
+        }
+        if($searchTerm->invoice_type){
+          $query = $query->where('payment_status',$searchTerm->invoice_type);
+        }
+        if($searchTerm->plan_type){
+          $query = $query->where('plan_type',$searchTerm->plan_type);
+          
+        }
+        if($searchTerm->delivery_status){
+          if($searchTerm->delivery_status == 'Service Delivered'){
+            $query = $query->where('service_delivered_status',$searchTerm->delivery_status);
+          
+          }else{
+            $data=null;
+          $query = $query->where('service_delivered_status',$data);
+          
+          }
+        }
     }
 }

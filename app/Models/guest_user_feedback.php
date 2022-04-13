@@ -24,18 +24,6 @@ class guest_user_feedback extends Model
             $end_date = Carbon::createFromFormat('Y-m-d H:i:s', $searchTerm->end_date);
                 $query->whereBetween('created_at', [$start_date,$end_date]);
         }
-        // if ($searchTerm->start_date) {
-        //     $start_date = $searchTerm->start_date;
-        //     $query->where(function($query) use ($start_date){
-        //         $query->where('created_at', '>=', $start_date);
-        //     });
-        // }
-        // if ($searchTerm->end_date) {
-        //     $end_date = $searchTerm->end_date;
-        //     $query->where(function($query) use ($end_date){
-        //         $query->where('created_at', '<=', $end_date);
-        //     });
-        // }
     }
     
 }
