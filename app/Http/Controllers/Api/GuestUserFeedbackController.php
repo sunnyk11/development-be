@@ -92,7 +92,7 @@ class GuestUserFeedbackController extends Controller
         try{
             // return $request->all();
             $request-> validate([
-                'product_id' => 'required',
+                'product_id' => '',
                 'stars' => 'required',
                 'subject' => 'required',
                 'content' => 'required',

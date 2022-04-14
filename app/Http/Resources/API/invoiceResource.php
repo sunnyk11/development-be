@@ -22,8 +22,10 @@ class invoiceResource extends JsonResource
     {
         return [
             'user_email'=> $this->user_email,
+            'user_id'=>$this->user_id,
             'order_id' => $this->order_id,
             'invoice_no' => $this->invoice_no,
+            'invoice_id'=>$this->id,
             'plan_type' => $this->plan_type,
             'plan_name' => $this->plan_name,
             'plan_status' => $this->plan_status,
@@ -32,7 +34,10 @@ class invoiceResource extends JsonResource
             'payment_status' => $this->payment_status,
             'payment_mode' => $this->payment_mode,
             'payment_received' => $this->payment_received,
-            'product_price' => $this->expected_rent,
+            'property_id' =>($this->product_id == null ? null :$this->product_id),
+            'property_name'=>($this->product_name == null ? null :$this->product_name),
+            'property_price' => $this->property_amount,
+            'propert_url'=>($this->product_id == null ? null : env('angular_url').'product-details?id='.$this->product_id),
             'gst_amount' => ($this->amount_paid == null ? null : ((9 * $this->plan_price) / 100)),
             'sgst_amount' => ($this->amount_paid == null ? null : ((9 * $this->plan_price) / 100)),
             'total_amount' => $this->amount_paid,
