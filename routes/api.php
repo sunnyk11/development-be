@@ -100,7 +100,7 @@ Route::group([
 	Route::get('/get_user_permissions/{id}', 'App\Http\Controllers\Api\AdminControllerNew@get_user_permissions');																											 
     Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
     Route::post('/user_signup', 'App\Http\Controllers\Api\AuthController@user_signup');
-	Route::post('/verify_mobile', 'App\Http\Controllers\Api\AuthController@verify_mobile_number');																							  
+																								  
     Route::post('/user_signup_new', 'App\Http\Controllers\Api\AuthController@user_signup_new');
 	Route::post('/internal_user_signup', 'App\Http\Controllers\Api\AuthController@internal_user_signup');																								  
     Route::get('/get_product_featured', 'App\Http\Controllers\Api\ProductController@index_featured');
@@ -131,8 +131,7 @@ Route::group([
     Route::post('/crm_api_call', 'App\Http\Controllers\Api\AuthController@crm_api_call');
     Route::post('/crm_call_appionment', 'App\Http\Controllers\Api\AuthController@crm_call_appointment');
 
-    Route::post('/verify', 'App\Http\Controllers\Api\AuthController@verify');
-	Route::post('/verify_mob', 'App\Http\Controllers\Api\AuthController@verify_mob');	
+    Route::post('/verify', 'App\Http\Controllers\Api\AuthController@verify');	
     Route::post('/verify_profile_mob', 'App\Http\Controllers\Api\AuthController@verify_profile_mob');
     Route::post('/bank_verify_mobile', 'App\Http\Controllers\Api\AuthController@bank_verify_mobile');
     Route::post('/bank_verify_OTP', 'App\Http\Controllers\Api\AuthController@bank_verify_OTP');																			 
@@ -152,7 +151,9 @@ Route::group([
         Route::get('/logout', 'App\Http\Controllers\Api\AuthController@logout');
         Route::get('/user', 'App\Http\Controllers\Api\AuthController@user');
         Route::get('/verify_user', 'App\Http\Controllers\Api\AuthController@verify_user');
-		Route::get('/verify_user_mobile', 'App\Http\Controllers\Api\AuthController@verify_user_mobile');																								
+		Route::get('/verify_user_mobile', 'App\Http\Controllers\Api\AuthController@verify_user_mobile');
+        Route::post('/verify_mobile', 'App\Http\Controllers\Api\AuthController@verify_mobile_number');
+       Route::post('/verify_mob', 'App\Http\Controllers\Api\AuthController@verify_mob');																								
 		Route::post('/upload_profile_pic', 'App\Http\Controllers\Api\AuthController@upload_profile_pic');																														
         Route::post('/change_password', 'App\Http\Controllers\Api\AuthController@change_password');
         

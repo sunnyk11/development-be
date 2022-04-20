@@ -146,8 +146,10 @@ class AuthController extends Controller
 
 
     public function verify_mobile_number(Request $request) {
-        
-         $user = User::where('id', $request['user_id'])->get();
+        try{
+
+        $user_id = Auth::user()->id;
+         $user = User::where('id', $user_id)->get();
          
         $db_mobile_no = $user[0]['other_mobile_number'];
         if($db_mobile_no === $request['other_mobile_number'])
@@ -170,7 +172,14 @@ class AuthController extends Controller
         $twilio->verify->v2->services($twilio_verify_sid)
             ->verifications
             ->create("+91".$request->other_mobile_number, "sms");
+            return response()->json([
+                    'message' => 'OTP sent successfully',
+                    'status'=>200
+                ]);
 
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
     } 
 
     public function reset_password_send_otp(Request $request) {
@@ -741,8 +750,7 @@ class AuthController extends Controller
 
         $data = $request->validate([
             'verification_code' => 'required|string',
-            'other_mobile_number' => 'required|string',
-            'user_id' => 'required|numeric'
+            'other_mobile_number' => 'required|string'
         ]);
         /* Get credentials from .env */
         $token = getenv("TWILIO_AUTH_TOKEN");
@@ -754,8 +762,9 @@ class AuthController extends Controller
             ->create($data['verification_code'], array('to' => "+91".$data['other_mobile_number']));
 
         if ($verification->valid) {
-            User::where('id', $data['user_id'])->update(['other_mobile_number' => $data['other_mobile_number'], 'phone_number_verification_status' => 1]);
-            $user = User::where('id', $data['user_id'])->get();
+            $user_id = Auth::user()->id;
+            User::where('id', $user_id)->update(['other_mobile_number' => $data['other_mobile_number'], 'phone_number_verification_status' => 1]);
+            $user = User::where('id', $user_id)->get();
             $request_time = now();
             $now = strtotime($request_time);
             $crmp_api = getenv("crmp_api");
@@ -1551,7 +1560,7 @@ class AuthController extends Controller
             
 			$user_string = http_build_query($datauser->toArray());
             //return redirect()->to('https://www.housingstreet.com/login?token='.$tokenResult->accessToken.'&data='.$datauser);
-            return redirect()->to(env('APP_REDIRECT_URL').'/login?token='.$tokenResult->accessToken.'&data='.$user_string);
+            return redirect()->to(env('APP_REDIRECT_URL').'/login?token='.$tokenResult->accessToken.'&'.$user_string);
     
             // return response()->json([
             //     'username' => $datauser->name,
