@@ -38,7 +38,8 @@ class ContactController extends Controller
             });
 
             return response() -> json ([
-                'message' => 'The email has been sent'
+                'message' => 'The email has been sent',
+                'status'=>201
             ], 201);
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
