@@ -26,6 +26,8 @@ Route::get('/get_version', function () {
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
 Route::get('getarea_unit', 'App\Http\Controllers\Api\AreaUnitController@index');
 Route::get('get_dropdown_data', 'App\Http\Controllers\Api\Authicationcheck@get_dropdown_data');
+Route::post('user_feedback_store', 'App\Http\Controllers\Api\UserVisitFeedbackController@store');
+Route::post('user_feedback_details', 'App\Http\Controllers\Api\UserVisitFeedbackController@user_feedback_details');
 Route::resource('property_type', 'App\Http\Controllers\Api\PropertyTypeController');
 Route::post('contact-form', 'App\Http\Controllers\ContactController@store');
 Route::get('/user_fetch_details', 'App\Http\Controllers\Api\AuthController@user_fetch_details');
