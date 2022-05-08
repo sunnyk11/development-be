@@ -66,7 +66,7 @@ class invoices extends Model
 
         if ($searchTerm->start_date && $searchTerm->end_date) {
           $start_date_modified=$searchTerm->start_date." 00:00:00";
-           $end_date_modified=$searchTerm->end_date." 59:59:59";
+           $end_date_modified=$searchTerm->end_date." 23:59:59";
 
             $start_date = Carbon::createFromFormat('Y-m-d H:i:s', $start_date_modified);
             $end_date = Carbon::createFromFormat('Y-m-d H:i:s', $end_date_modified);

@@ -354,6 +354,7 @@ Route::group([
         Route::get('/admin_review_index', 'App\Http\Controllers\Api\AdminController@review_index');
 		Route::get('/get_reviews', 'App\Http\Controllers\Api\GuestUserFeedbackController@search_data');
         Route::get('/get_invoice_searching', 'App\Http\Controllers\Api\InvoiceController@search_data');
+        Route::get('/get_visit_user_feedback', 'App\Http\Controllers\Api\UserVisitFeedbackController@search_data');
         Route::get('/get_search_user', 'App\Http\Controllers\Api\AuthController@get_search_user');
         Route::post('user_reviews_delete', 'App\Http\Controllers\Api\GuestUserFeedbackController@destroy');
         Route::post('/reviews_status_changes', 'App\Http\Controllers\Api\GuestUserFeedbackController@reviews_status_changes');

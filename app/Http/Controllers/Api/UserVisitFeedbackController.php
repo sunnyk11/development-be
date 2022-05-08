@@ -6,6 +6,8 @@ use App\Models\user_visit_feedback;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Mail;
+use Carbon\Carbon;
+use App\Http\Resources\API\uservisitfeedback;
 
 class UserVisitFeedbackController extends Controller
 {
@@ -17,6 +19,24 @@ class UserVisitFeedbackController extends Controller
     public function index()
     {
         //
+    }
+
+    public function search_data(Request $request){
+        try{
+         $data = user_visit_feedback::search($request)->paginate(20);
+         $excel_data = user_visit_feedback::search($request)->get();
+
+            $data1= uservisitfeedback::collection($data);
+            $excel_data1= uservisitfeedback::collection($excel_data);
+         return response()->json([
+                                'data' => $data,
+                                'excel_data'=>$excel_data1,
+                                'status' => '200'
+                            ], 200); 
+         }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
+
     }
 
     /**

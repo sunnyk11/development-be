@@ -18,11 +18,13 @@ class guest_user_feedback extends Model
     }
 
     public function scopeSearch($query, $searchTerm) {
-
         if ($searchTerm->start_date && $searchTerm->end_date) {
-            $start_date = Carbon::createFromFormat('Y-m-d H:i:s', $searchTerm->start_date);
-            $end_date = Carbon::createFromFormat('Y-m-d H:i:s', $searchTerm->end_date);
-                $query->whereBetween('created_at', [$start_date,$end_date]);
+          $start_date_modified=$searchTerm->start_date." 00:00:00";
+          $end_date_modified=$searchTerm->end_date." 23:59:59";
+
+          $start_date = Carbon::createFromFormat('Y-m-d H:i:s', $start_date_modified);
+          $end_date = Carbon::createFromFormat('Y-m-d H:i:s', $end_date_modified);
+          $query->whereBetween('created_at', [$start_date,$end_date]);
         }
     }
     
