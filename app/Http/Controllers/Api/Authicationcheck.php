@@ -46,7 +46,7 @@ class Authicationcheck extends Controller
             $year_built=[['year'=>'1990'],['year'=>'1991'],['year'=>'1992'], ['year'=>'1993'],['year'=>'1994'],['year'=>'1995'],['year'=>'1996'],['year'=>'1997'],['year'=>'1998'],['year'=>'1999'],['year'=>'2000'],['year'=>'2001'],['year'=>'2002'],['year'=>'2003'],['year'=>'2004'],['year'=>'2005'],['year'=>'2006'],['year'=>'2007'],['year'=>'2008'],['year'=>'2009'],['year'=>'2010'],['year'=>'2011'],['year'=>'2012'],['year'=>'2013'],['year'=>'2014'],['year'=>'2015'],['year'=>'2016'],['year'=>'2017'],['year'=>'2018'],['year'=>'2019'],['year'=>'2020'],['year'=>'2021'],['year'=>'2022']];
             $property_floor=[['number'=>'Ground Floor'],['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
             $total_floors=[['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5'],['number'=>'6'],['number'=>'7'],['number'=>'8'],['number'=>'9'],['number'=>'10']];
-            $security_deposit=[['months'=>'1'],['months'=>'2'],['months'=>'3'],['months'=>'4'],['months'=>'5'],['months'=>'6']];
+            $security_deposit=[['months'=>'0'],['months'=>'1'],['months'=>'2'],['months'=>'3'],['months'=>'4'],['months'=>'5'],['months'=>'6']];
             $maintenance_charge_condition=property_maintenance_condition::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
             $parking_covered_count=[['number'=>'0'],['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5']];
             $parking_open_count=[['number'=>'0'],['number'=>'1'],['number'=>'2'],['number'=>'3'],['number'=>'4'],['number'=>'5']];
