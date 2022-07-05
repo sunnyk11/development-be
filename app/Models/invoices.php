@@ -52,10 +52,18 @@ class invoices extends Model
     {
         return $this->hasOne('App\Models\User', 'id','user_id');
     }
+
+    public function plan_features() {
+         return $this->hasOne('App\Models\PropertyPlans','id','plan_id')->with('features');
+    }
     
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d H:i:s');
+    }
+    public  function order_details(){
+
+        return $this->hasOne('App\Models\plansRentOrders', 'order_id','order_id')->with('product_details');
     }
     
     public function property_status()

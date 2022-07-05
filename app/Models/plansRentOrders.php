@@ -33,4 +33,9 @@ class plansRentOrders extends Model
         'property_uid',
         
     ];
+
+    public  function product_details(){
+      
+        return $this->hasOne('App\Models\product','id', 'property_id')->with('Property_area_unit', 'maintenance_condition');
+    }
 }

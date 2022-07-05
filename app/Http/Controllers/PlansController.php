@@ -656,12 +656,12 @@ class PlansController extends Controller
     }
 
     public function get_rent_order_details($orderID) {
-        return $order_details = DB::table('plans_rent_orders')->where('order_id', $orderID)->get();
+         return $order_details = DB::table('plans_rent_orders')->where('order_id', $orderID)->get();
     }
 
     public function get_invoice_details($invoiceID) {
         try{
-            $data =invoices::with('UserDetail')->where([
+            $data =invoices::with('UserDetail')->with('plan_features','order_details')->where([
                 ['invoice_no', $invoiceID]])->first();
             return response()->json([
                 'data' =>$data,
