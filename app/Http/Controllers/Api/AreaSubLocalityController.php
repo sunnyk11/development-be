@@ -34,10 +34,10 @@ class AreaSubLocalityController extends Controller
         try{
             $data=[];
             $locality=[];
-            $locality=area_locality::where('locality', 'like',  "%" . $request->value . "%")->orderBy('locality', 'asc')->limit(5)->get();
+            $locality=area_locality::where('locality', 'like',  "%" . $request->value . "%")->where('status','1')->orderBy('locality', 'asc')->limit(5)->get();
             // return $locality;
              array_push($data,$locality);
-            $sub_locality=area_sub_locality::where('sub_locality', 'like', "%" . $request->value . "%")->orderBy('sub_locality', 'asc')->limit(10)->get();
+            $sub_locality=area_sub_locality::where('sub_locality', 'like', "%" . $request->value . "%")->where('status','1')->orderBy('sub_locality', 'asc')->limit(10)->get();
                 array_push($data,$sub_locality);
                 return response()->json([
                     'data' => $data
@@ -52,7 +52,7 @@ class AreaSubLocalityController extends Controller
     try{
         $data=[];
         $locality=[];
-        $data=area_locality::where('locality', 'like',  "%" . $request->value . "%")->orderBy('locality', 'asc')->limit(10)->get();
+        $data=area_locality::where('locality', 'like',  "%" . $request->value . "%")->where('status','1')->orderBy('locality', 'asc')->limit(10)->get();
             return response()->json([
                 'data' => $data
             ], 200);

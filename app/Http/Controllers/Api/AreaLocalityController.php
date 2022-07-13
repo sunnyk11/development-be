@@ -27,7 +27,7 @@ class AreaLocalityController extends Controller
     
     public function get_locality_byid(Request $request) {
         try{
-            $data = area_locality::where('district_id', $request->id)->orderBy('locality', 'asc')->get();
+            $data = area_locality::where('district_id', $request->id)->where('status','1')->orderBy('locality', 'asc')->get();
            return response()->json([
                'data' =>$data,
            ], 200);
@@ -40,7 +40,7 @@ class AreaLocalityController extends Controller
     // return $request->value;
     try{
         $data=[];
-        $locality=area_locality::where('locality', 'like',  "%" . $request->value . "%")->orderBy('locality', 'asc')->limit(10)->get();
+        $locality=area_locality::where('locality', 'like',  "%" . $request->value . "%")->where('status','1')->orderBy('locality', 'asc')->limit(10)->get();
         // return $locality;
          array_push($data,$locality);
             return response()->json([

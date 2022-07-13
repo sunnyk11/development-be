@@ -234,9 +234,9 @@ class product extends Model
         if ($searchTerm->build_name) {
             $query = $query->where('build_name', 'like',  $searchTerm->build_name . "%");
         }
-        // if ($searchTerm->location) {
-        //    $query = $query->where('address', 'like', "%" . $searchTerm->location . "%");
-        // }
+        if ($searchTerm->security_deposit != null) {
+           $query = $query->where('security_deposit', $searchTerm->security_deposit);
+        }
         if ($searchTerm->product_id) {
             $product_id=substr($searchTerm->product_id,8);
             $id= (int)($product_id);

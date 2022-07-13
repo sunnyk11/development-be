@@ -19,7 +19,7 @@ class AreaDistrictController extends Controller
     }
     public function get_district_byid(Request $request) {
         try{
-            $data = area_district::where('state_id', $request->id)->orderBy('district', 'asc')->get();
+            $data = area_district::where('state_id', $request->id)->where('status','1')->orderBy('district', 'asc')->get();
            return response()->json([
                'data' =>$data,
            ], 200);
