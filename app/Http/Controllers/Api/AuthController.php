@@ -37,7 +37,7 @@ class AuthController extends Controller
         $request->validate([
             'first_name' => 'required',
             'email' => 'required|string|unique:users',
-            'other_mobile_number' => 'required|integer|unique:users',
+            'other_mobile_number' => 'required|numeric|digits:10|integer|unique:users',
             'selectType' => 'required',
             'agree_check' => 'required|boolean',
             'password' => 'required|string|confirmed',
@@ -77,6 +77,148 @@ class AuthController extends Controller
                 'BuyerEmail' => $request->email,
                 'PhoneNo' => $request->other_mobile_number,
                 'BuyerName' => $user_fullname,
+                'Source' => 'Web'
+            ]);
+
+            return response()->json([
+                'data' => $user,
+                'message' => 'Successfully created user!',
+                'status'  =>200,
+                'message1' => 'Successfully verified',
+                'response_success' => $response->successful(),
+                'response_fail' => $response->failed(),
+                'response_client_error' => $response->clientError(),
+                'response_server_error' => $response->serverError(),
+                'response_body' => $response->body()
+            ], 201);
+
+        eventtracker::create(['symbol_code' => '1', 'event' => $request->email.' created a new account as a User']);
+
+        return response()->json([
+        ], 201);
+    }
+ public function edit_user_data(Request $request)
+    {
+        $request->validate([
+            'userName' => 'required' ]);
+      try{
+       
+         $user_fullname= array_values(array_filter( explode(" ",$request->userName)));
+         $last_name=NULL;
+         for($i=0;$i<count($user_fullname);$i++){
+            if($i==1){
+               $last_name= $user_fullname[1];
+            }
+         }
+       User::where('id', $request->user_id)->update(['name'=> $user_fullname[0],'last_name'=>$last_name]);
+              return response()->json([
+              'message' =>'data updated',
+              'status'=>201
+            ], 201);
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
+    }
+     public function update_mobile_no_byinternal(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'other_mobile_number' => 'required|integer|numeric|digits:10|unique:users'              ]);
+      try{
+       User::where('id', $request->user_id)->update(['other_mobile_number' => $request->other_mobile_number]);
+              return response()->json([
+              'message' =>'Mobile no updated',
+              'status'=>201
+            ], 201);
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
+    }
+
+    public function update_email_byinternal(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'email' => 'required|string|unique:users',              ]);
+      try{
+       User::where('id', $request->user_id)->update(['email' => $request->email]);
+              return response()->json([
+              'message' =>'email updated',
+              'status'=>201
+            ], 201);
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
+    }
+
+
+     public function update_user_byinternal(Request $request)
+    {
+        $request->validate([
+            'userName' => 'required',
+            'email' => 'required|string',
+            'UserType' => 'required',
+            'user_id' => 'required',
+            'gender' => 'required'                        
+        ]);
+
+      try{
+
+         $user_fullname= array_values(array_filter( explode(" ",$request->userName)));
+         $last_name=NULL;
+         for($i=0;$i<count($user_fullname);$i++){
+            if($i==1){
+               $last_name= $user_fullname[1];
+            }
+         }
+       User::where('id', $request->user_id)->update(['UserType' => $request->UserType,'name'=> $user_fullname[0],'last_name'=>$last_name,'email'=>$request->email,'gender'=>$request->gender]);
+              return response()->json([
+              'message' =>'Mobile no updated',
+              'status'=>201
+            ], 201);
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
+    }
+
+     public function create_user_byinternal(Request $request)
+    {
+        $request->validate([
+            'userName' => 'required',
+            'email' => 'required|string|unique:users',
+            'other_mobile_number' => 'required|integer|unique:users',
+            'UserType' => 'required',
+            'gender' => 'required'                        
+        ]);
+
+         $user_fullname= array_values(array_filter( explode(" ",$request->userName)));
+         $last_name=NULL;
+         for($i=0;$i<count($user_fullname);$i++){
+            if($i==1){
+               $last_name= $user_fullname[1];
+            }
+         }
+        $user = new User([
+            'name' => $user_fullname[0],
+            'last_name' => $last_name,
+            'gender' => $request->gender,                            
+            'email' => $request->email,
+            'usertype' => $request->UserType,
+            'userSelect_type' => $request->UserType,
+            'other_mobile_number' => $request->other_mobile_number,
+            'internal_user' => "No",
+            'phone_number_verification_status'=>1,
+            'user_aggree'=>1,
+            'user_createdBy'=>Auth::user()->id
+        ]);
+
+        $user->save();  
+        $user_full= $user_fullname[0].' '.$last_name;
+            $crmp_api = getenv("crmp_api");
+            $response = Http::post($crmp_api, [
+                'BuyerEmail' => $request->email,
+                'PhoneNo' => $request->other_mobile_number,
+                'BuyerName' => $user_full,
                 'Source' => 'Web'
             ]);
 
@@ -932,6 +1074,17 @@ class AuthController extends Controller
             return $this->getExceptionResponse($e);
         }
     }
+
+    public function get_userlist_byinternal(){
+        try{
+            $data = User::orderBy('id', 'desc')->where('usertype','!=', 11)->whereNotNull('user_createdBy')->with('created_by')->paginate(15);
+            return response()->json([
+                'data' => $data
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
     public function update_bank_paytm_id(Request $request)
     {        
         $request ->validate([
@@ -1644,7 +1797,7 @@ class AuthController extends Controller
     public function get_search_user(Request $request){
         try{
             if($request->searchtype=='email'){               
-            $data = User::orderBy('id', 'desc')->where(['email'=>$request->email])->paginate(15);
+            $data = User::orderBy('id', 'desc')->where(['email'=>$request->email])->with('created_by')->paginate(15);
                 return response()->json([
                     'data' => $data
                 ], 200);
@@ -1653,7 +1806,7 @@ class AuthController extends Controller
                 ], 200);
 
             }if($request->searchtype=='mobile'){
-            $data = User::orderBy('id', 'desc')->where(['other_mobile_number'=>$request->mobile])->paginate(15);
+            $data = User::orderBy('id', 'desc')->where(['other_mobile_number'=>$request->mobile])->with('created_by')->paginate(15);
                 return response()->json([
                     'data' => $data
                 ], 200);

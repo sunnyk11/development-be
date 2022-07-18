@@ -103,7 +103,7 @@ Route::group([
     Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
     Route::post('/user_signup', 'App\Http\Controllers\Api\AuthController@user_signup');
 																								  
-    Route::post('/user_signup_new', 'App\Http\Controllers\Api\AuthController@user_signup_new');
+    Route::post('/user_signup_new', 'App\Http\Controllers\Api\AuthController@user_signup_new');                               
 	Route::post('/internal_user_signup', 'App\Http\Controllers\Api\AuthController@internal_user_signup');																								  
     Route::get('/get_product_featured', 'App\Http\Controllers\Api\ProductController@index_featured');
 
@@ -350,6 +350,14 @@ Route::group([
         Route::get('/product_views', 'App\Http\Controllers\Api\AdminController@product_views');
         Route::get('/review_count', 'App\Http\Controllers\Api\AdminController@review_count');
         Route::get('/product_update_admin', 'App\Http\Controllers\Api\AdminController@product_update');
+
+         Route::get('/get_userlist_byinternal', 'App\Http\Controllers\Api\AuthController@get_userlist_byinternal');
+    Route::post('/create_user_byinternal', 'App\Http\Controllers\Api\AuthController@create_user_byinternal');
+    Route::post('/update_user_byinternal', 'App\Http\Controllers\Api\AuthController@update_user_byinternal');
+    
+    Route::post('/edit_user_data', 'App\Http\Controllers\Api\AuthController@edit_user_data');
+    Route::post('/update_mobile_no_byinternal', 'App\Http\Controllers\Api\AuthController@update_mobile_no_byinternal');
+    Route::post('/update_email_byinternal', 'App\Http\Controllers\Api\AuthController@update_email_byinternal');
         Route::get('/admin_lawyer_service', 'App\Http\Controllers\Api\AdminController@admin_lawyer_service');
         Route::get('/admin_review_index', 'App\Http\Controllers\Api\AdminController@review_index');
 		Route::get('/get_reviews', 'App\Http\Controllers\Api\GuestUserFeedbackController@search_data');

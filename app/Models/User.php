@@ -46,7 +46,8 @@ class User extends Authenticatable
         'phone_number_verification_status',
         'branch',
         'area_names',
-        'user_aggree'
+        'user_aggree',
+        'user_createdBy'
     ];
 
     /**
@@ -86,6 +87,9 @@ class User extends Authenticatable
 
 	public function roles() {
         return $this->belongsToMany(Role::class, 'user_roles_pivot', 'user_id', 'role_id')->with('permissions');
+    }
+    public function created_by() {
+        return $this->belongsto('App\Models\User','user_createdBy', 'id');
     }
 						 
 }

@@ -17,21 +17,21 @@ class DatabaseSeeder extends Seeder
         
         // $this->call(User_Roles_Table_Seeder::class);
 
-        $this->call(MoreInfoSeeder::class);
+        // $this->call(MoreInfoSeeder::class);
         /* Seeder added by Radhika */
          $this->call(permissionsSeeder::class);
-        $this->call(InvoiceDataTableSeeder::class);
+        // $this->call(InvoiceDataTableSeeder::class);
 
         // iqbal files seeder**************************
-        $this->call(AmenitiesSeeder::class);
-        $this->call(plans_features_seeder::class);
-        $this->call(Property_typeSeeder::class);
-        $this->call(maintenance_condition::class);
-        $this->call(ageement_duration::class);
-        $this->call(ageement_type::class);
-        $this->call(willing_rent_out::class);
-        $this->call(additional_room::class);
+        // $this->call(AmenitiesSeeder::class);
+        // $this->call(plans_features_seeder::class);
+        // $this->call(Property_typeSeeder::class);
+        // $this->call(maintenance_condition::class);
+        // $this->call(ageement_duration::class);
+        // $this->call(ageement_type::class);
+        // $this->call(willing_rent_out::class);
+        // $this->call(additional_room::class);
         
-        $this->call(proeprty_area_unit::class);
+        // $this->call(proeprty_area_unit::class);
     }
 }
