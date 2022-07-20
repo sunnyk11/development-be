@@ -24,6 +24,7 @@ Route::get('/get_version', function () {
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');
 //Route::resource('/blog', PostsController::class);
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
+Route::get('getoffer_banner_web', 'App\Http\Controllers\Api\OfferBannerController@getoffer_banner_web');
 Route::get('getarea_unit', 'App\Http\Controllers\Api\AreaUnitController@index');
 Route::get('get_dropdown_data', 'App\Http\Controllers\Api\Authicationcheck@get_dropdown_data');
 Route::post('user_feedback_store', 'App\Http\Controllers\Api\UserVisitFeedbackController@store');
@@ -152,6 +153,7 @@ Route::group([
     ], function () {
         Route::get('/logout', 'App\Http\Controllers\Api\AuthController@logout');
         Route::get('/user', 'App\Http\Controllers\Api\AuthController@user');
+        Route::get('/user_block_status', 'App\Http\Controllers\Api\AuthController@user_block_status');
         Route::get('/verify_user', 'App\Http\Controllers\Api\AuthController@verify_user');
 		Route::get('/verify_user_mobile', 'App\Http\Controllers\Api\AuthController@verify_user_mobile');
         Route::post('/verify_mobile', 'App\Http\Controllers\Api\AuthController@verify_mobile_number');
@@ -353,6 +355,12 @@ Route::group([
 
          Route::get('/get_userlist_byinternal', 'App\Http\Controllers\Api\AuthController@get_userlist_byinternal');
     Route::post('/create_user_byinternal', 'App\Http\Controllers\Api\AuthController@create_user_byinternal');
+    Route::post('/banner_created', 'App\Http\Controllers\Api\OfferBannerController@create');
+    Route::get('/update_banner_id', 'App\Http\Controllers\Api\OfferBannerController@update_banner_id');
+    Route::post('/banner_Update', 'App\Http\Controllers\Api\OfferBannerController@banner_Update');
+    Route::post('/banner_status_changes', 'App\Http\Controllers\Api\OfferBannerController@banner_status_changes');
+    Route::get('/get_banner', 'App\Http\Controllers\Api\OfferBannerController@index');
+    Route::get('/delete_Banner', 'App\Http\Controllers\Api\OfferBannerController@delete');
     Route::post('/update_user_byinternal', 'App\Http\Controllers\Api\AuthController@update_user_byinternal');
     
     Route::post('/edit_user_data', 'App\Http\Controllers\Api\AuthController@edit_user_data');
@@ -368,6 +376,7 @@ Route::group([
         Route::post('/reviews_status_changes', 'App\Http\Controllers\Api\GuestUserFeedbackController@reviews_status_changes');
         Route::post('/user_status_changes', 'App\Http\Controllers\Api\AuthController@user_status_changes');
         Route::get('/get_userbank_details', 'App\Http\Controllers\Api\AuthController@get_userbank_details');
+        Route::get('/user_block_status', 'App\Http\Controllers\Api\AuthController@user_block_status');
         Route::get('/get_all_user', 'App\Http\Controllers\Api\AuthController@get_all_user');
          Route::post('delete_user', 'App\Http\Controllers\Api\AuthController@delete_user');
         Route::get('/get_userbank_history_id', 'App\Http\Controllers\Api\UserBankDetailsHistoryController@get_userbank_history_id');

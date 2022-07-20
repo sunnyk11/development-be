@@ -105,7 +105,7 @@ class AuthController extends Controller
        
          $user_fullname= array_values(array_filter( explode(" ",$request->userName)));
          $last_name=NULL;
-         for($i=0;$i<count($user_fullname);$i++){
+         for($i=0;$i<=count($user_fullname);$i++){
             if($i==1){
                $last_name= $user_fullname[1];
             }
@@ -1415,6 +1415,15 @@ class AuthController extends Controller
         ], 201);
     }
 
+    public function user_block_status(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        $data = user::where(['id'=>$user_id])->first();
+       
+        return response()->json([
+            'data' =>$data,
+        ], 201);
+    }
     public function verify_user(Request $request)
     {
         return response()->json($request->user()->only(['phone_number_verification_status', 'name', 'email']));
@@ -1510,6 +1519,12 @@ class AuthController extends Controller
             ], 401);
         }
         $user = $request->user();
+        if ($user->blocked == 1) {
+            return response()->json([
+                'message' => 'Your account is blocked',
+                'status'=>404
+            ], 403);
+        }
         $tokenResult = $user->createToken('Personal Access Token');
         $token = $tokenResult->token;
         $token->expires_at = Carbon::now()->addWeeks(20);

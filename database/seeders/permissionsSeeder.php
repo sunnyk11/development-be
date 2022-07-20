@@ -38,13 +38,14 @@ class permissionsSeeder extends Seeder
 
             // ['id' => 11,'permission_name' => 'access_bank_details', 'slug' => 'bank_details', 'description' => 'Bank Details', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')],
 
-            ['id' => 12,'permission_name'=>'access_create_userbyinternal', 'slug' => 'create_userByinternal', 'description' => 'Create User By internal', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')], 
+            // ['id' => 12,'permission_name'=>'access_create_userbyinternal', 'slug' => 'create_userByinternal', 'description' => 'Create User By internal', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')], 
 
-            ['id' => 13,'permission_name' => 'access_view_userByinternal', 'slug' => 'view_userByinternal', 'description' => 'View User By internal', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')], 
+            // ['id' => 13,'permission_name' => 'access_view_userByinternal', 'slug' => 'view_userByinternal', 'description' => 'View User By internal', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')], 
 
-            ['id' => 14,'permission_name' => 'access_update_userByinternal', 'slug' => 'update_userByinternal', 'description' => 'Update User By internal', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')], 
+            // ['id' => 14,'permission_name' => 'access_update_userByinternal', 'slug' => 'update_userByinternal', 'description' => 'Update User By internal', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')], 
 
-            ['id' => 15,'permission_name' => 'access_delete_userByinternal', 'slug' => 'delete_userByinternal', 'description' => 'Delete User By internal', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')]
+            // ['id' => 15,'permission_name' => 'access_delete_userByinternal', 'slug' => 'delete_userByinternal', 'description' => 'Delete User By internal', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')]
+            ['id' => 16,'permission_name' => 'access_web_Banner', 'slug' => 'access_web_Banner', 'description' => 'Access Web banner', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')]
          ];
   
          \App\Models\Permission::insert($PermissionsData);

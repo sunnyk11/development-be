@@ -23,6 +23,12 @@ class AdminControllerNew extends Controller
         }
         $user = $request->user();
         //return $user;
+        if ($user->blocked == 1) {
+            return response()->json([
+                'message' => 'Your account is blocked',
+                'status'=>404
+            ], 403);
+        } 
         if($user->usertype < 8 ) {
             return response()->json([
                 'message' => 'Unauthorized'
@@ -56,6 +62,15 @@ class AdminControllerNew extends Controller
 
     }
 
+    public function user_block_status(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        $data = user::where(['id'=>$user_id])->first();
+       
+        return response()->json([
+            'data' =>$data,
+        ], 201);
+    }
     public function get_user_permissions($user_id) {
         $roles = User::where(['id' => $user_id])->with('roles')->first();
         $permissions = array();
