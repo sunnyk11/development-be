@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\ProductAmenties;
 use App\Models\area_locality;
 use App\Models\Property_type;
+use App\Models\flat_type;
 use Auth;
 use DateTimeInterface;
 
@@ -81,7 +82,8 @@ class product extends Model
         'sub_locality_id',
         'enabled',
         'property_mode',
-        'crm_user_email'
+        'crm_user_email',
+        'flat_type'
     ];
 
     public function productid()
@@ -162,6 +164,10 @@ class product extends Model
     public function Property_Type()
     {
         return $this->hasOne('App\Models\Property_type', 'id','type')->where('status', '1')->select('id','name');
+    }
+    public function pro_flat_Type()
+    {
+        return $this->hasOne('App\Models\flat_type', 'id','flat_type')->where('status', '1')->select('id','name');
     }
     public function Property_area_unit()
     {
@@ -249,14 +255,18 @@ class product extends Model
             $area_unit = area_unit::select('id')->where('unit',$searchTerm->area_unit)->first();
             $query = $query->where('area_unit',$area_unit['id']);
         }
+        if ($searchTerm->flat_type) {
+            $flat_data = flat_type::select('id')->where('name',$searchTerm->flat_type)->first();
+            $query = $query->where('flat_type',$flat_data['id']);
+        }
         if ($searchTerm->type) {
             $type_id = Property_type::select('id')->where('name',$searchTerm->type)->first();
             $query = $query->where('type',$type_id['id']);
         }
-        if ($searchTerm->bathrooms) {
+        if ($searchTerm->bathrooms != null) {
             $query = $query->where('bathroom', $searchTerm->bathrooms);
         }
-        if ($searchTerm->bedrooms) {
+        if ($searchTerm->bedrooms != null) {
 
             $query = $query->where('bedroom', $searchTerm->bedrooms);
         }

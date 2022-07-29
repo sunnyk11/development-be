@@ -13,6 +13,7 @@ use App\Models\property_ageement_duration;
 use App\Models\area_unit;
 use App\Models\Amenitie;
 use App\Models\Property_type;
+use App\Models\flat_type;
 class Authicationcheck extends Controller
 {
     public function  authication_check($token){
@@ -55,8 +56,9 @@ class Authicationcheck extends Controller
              $agreement_duration=property_ageement_duration::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
             $agreement_type=property_ageement_type::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
             $amenities_data=Amenitie::select('id','name','IsEnable')->where('IsEnable', '1')->orderBy('id', 'asc')->get();
-
-            $static_data_array=['amenities_data'=>$amenities_data,'property_floor'=>$property_floor,'facing_towards'=>$facing_towards,'total_floors'=>$total_floors,'security_deposit'=>$security_deposit,'bedroom'=>$bedroom,'bathroom'=> $bathroom,'balconies'=>$balconies,'area_unit'=>$area_unit,'property_type'=>$property_type,'addition_room'=> $addition_room,'year_built'=>$year_built,'maintenance_charge_condition'=>$maintenance_charge_condition,'parking_covered_count'=>$parking_covered_count,'parking_open_count'=>$parking_open_count,'willing_to_rent'=>$willing_to_rent,'month_of_notic'=>$month_of_notic,'agreement_duration'=>$agreement_duration,'agreement_type'=>$agreement_type];
+            $flat_type=flat_type::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
+        
+            $static_data_array=['amenities_data'=>$amenities_data,'property_floor'=>$property_floor,'facing_towards'=>$facing_towards,'total_floors'=>$total_floors,'security_deposit'=>$security_deposit,'bedroom'=>$bedroom,'bathroom'=> $bathroom,'balconies'=>$balconies,'area_unit'=>$area_unit,'property_type'=>$property_type,'addition_room'=> $addition_room,'year_built'=>$year_built,'maintenance_charge_condition'=>$maintenance_charge_condition,'parking_covered_count'=>$parking_covered_count,'parking_open_count'=>$parking_open_count,'willing_to_rent'=>$willing_to_rent,'month_of_notic'=>$month_of_notic,'agreement_duration'=>$agreement_duration,'agreement_type'=>$agreement_type,'flat_type'=>$flat_type];
            return $static_data_array;
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
@@ -71,6 +73,7 @@ class Authicationcheck extends Controller
         $property_ageement_duration=property_ageement_duration::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
         $area_unit=area_unit::select('id','unit','status')->where('status', '1')->orderBy('id', 'asc')->get();
         $Amenitie=Amenitie::where('IsEnable', '1')->orderBy('id', 'asc')->get();
+        $flat_type=flat_type::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
         return response()->json([
             'property_room' => $property_room,
             'property_willing_rent_out' => $property_willing_rent_out,
@@ -79,6 +82,7 @@ class Authicationcheck extends Controller
             'property_ageement_duration' => $property_ageement_duration,
             'area_unit' => $area_unit,
             'Amenitie' => $Amenitie,
+            'flat_type'=>$flat_type,
         ], 200);
     }
 }
