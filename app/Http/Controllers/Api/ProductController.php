@@ -92,7 +92,7 @@ class ProductController extends Controller
                 $count=['id'=>$value['id'],'category'=>$value,'category_count'=>$category_count];
                 array_push($category_data,$count);
         }
-         // $flat_type=flat_type::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
+         $get_flat_type=flat_type::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
 
 
         $product_flat_type=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
@@ -107,7 +107,8 @@ class ProductController extends Controller
         }
         return response()->json([
             'data'=>$category_data,
-            'flat_type'=> $flat_type_data_fetch 
+            'flat_type'=> $flat_type_data_fetch,
+            'get_flat_type'=> $get_flat_type,
         ], 200);
     }
 
@@ -852,6 +853,7 @@ class ProductController extends Controller
             'balconies' => $data1['balconies'],
             'area' => $data1['property_area'],
             'area_unit' => $data1['area_unit'],
+            'flat_type' =>$data1['flat_type'],
             'property_detail' =>$data1['property_desc'],
 
             // step 2
