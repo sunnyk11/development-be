@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
 
         // $this->call(MoreInfoSeeder::class);
         /* Seeder added by Radhika */
-         // $this->call(permissionsSeeder::class);
+         $this->call(permissionsSeeder::class);
         // $this->call(InvoiceDataTableSeeder::class);
 
         // iqbal files seeder**************************
@@ -33,6 +33,6 @@ class DatabaseSeeder extends Seeder
         // $this->call(additional_room::class);
         
         // $this->call(proeprty_area_unit::class);
-         $this->call(flat_type_seeder::class);
+         // $this->call(flat_type_seeder::class);
     }
 }

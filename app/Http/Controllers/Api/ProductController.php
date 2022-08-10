@@ -41,6 +41,92 @@ class ProductController extends Controller
             'data' =>$data,
         ], 201);
     }
+
+    public function admin_get_property_id(Request $request) {
+      if($request->user_mobile){
+
+         $user=User::whereNotNull('bank_type')->where('other_mobile_number',$request->user_mobile)->first();
+         $data=product::select('id','product_uid','property_mode','user_id','crm_user_email','build_name','expected_pricing','expected_rent','order_status','payment_status')->where(['user_id'=>$user->id,'delete_flag'=> '0','draft'=> '0','enabled' => 'yes','payment_status'=>'0','order_status'=>'1'])->orderBy('id', 'desc')->get();
+        return response()->json([
+            'data' => $data,
+            'user' =>$user
+        ], 200);
+      }if($request->user_id){
+         $data=product::select('id','product_uid','property_mode','user_id','crm_user_email','build_name','expected_pricing','expected_rent','order_status','payment_status')->where(['user_id'=>$request->user_id,'delete_flag'=> '0','draft'=> '0','enabled' => 'yes','payment_status'=>'0','order_status'=>'1'])->orderBy('id', 'desc')->get();
+         $user=User::whereNotNull('bank_type')->where('id', $request->user_id)->first();
+        return response()->json([
+            'data' => $data,
+            'user' =>$user
+        ], 200);
+
+      }
+       try{
+       
+       }catch(\Exception $e) {
+        return $this->getExceptionResponse($e);
+        }
+   }
+    public function admin_get_property(Request $request)
+    {
+      if($request->invoice_no){
+       $invoice_details = invoices::select('property_uid','id')->with('propertyDetails')->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN'],['invoice_no',$request->invoice_no]])->first();
+       if($invoice_details){
+       $data=product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes','product_uid'=>$invoice_details->property_uid])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->paginate(5);
+
+         return response()->json([
+            'data' =>$data,
+            'status' => '200'
+        ], 200);
+
+       }else{
+        $data=null;
+          return response()->json([
+            'data' =>$data,
+            'status' => '200'
+        ], 200);
+
+       }
+      }else{
+        $data = product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes'])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->paginate(5);
+        return response()->json([
+            'data' =>$data,
+            'status' => '200'
+        ], 200);
+      }
+        
+    }
+
+    public function admin_get_property_excel(Request $request)
+    {
+      if($request->invoice_no){
+       $invoice_details = invoices::select('property_uid','id')->with('propertyDetails')->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN'],['invoice_no',$request->invoice_no]])->first();
+       if($invoice_details){
+       $data=product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes','product_uid'=>$invoice_details->property_uid])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->get();
+
+        $excel= ProductListResource::collection($data);
+          return response()->json([
+            'data' =>$excel,
+            'status' => '200'
+        ], 200);
+
+        }else{
+          $data=null;
+          return response()->json([
+            'data' =>$excel,
+            'status' => '200'
+        ], 200);
+
+        }
+      }else{
+        $data = product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes'])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->get();
+        $excel= ProductListResource::collection($data);
+        return response()->json([
+            'data'=>$excel,
+            'status' => '200'
+        ], 200);
+      }
+        
+    }
     public function product_city_details()
     {
      $chattarpur_id=area_locality::select('locality_id')->where(['locality' =>'CHATTARPUR','status' => '1'])->first();
@@ -195,7 +281,19 @@ class ProductController extends Controller
      public function property_rent_slip(Request $request) {
        try{
             $productID = $request->property_id;
-          $data= product::with('property_invoice','maintenance_condition')->where('id', $productID)->first();
+          $data= product::with('property_invoice','maintenance_condition','product_payment_details')->where(['id'=>$productID,'user_id'=> Auth::user()->id])->first();
+           return response()->json([
+               'data' =>$data,
+             ], 200);
+       }catch(\Exception $e) {
+           return $this->getExceptionResponse($e);
+       }  
+   } 
+   
+   public function admin_property_rent_slip(Request $request) {
+       try{
+            $productID = $request->property_id;
+          $data= product::with('property_invoice','maintenance_condition')->where(['id'=>$productID])->first();
            return response()->json([
                'data' =>$data,
              ], 200);
@@ -313,7 +411,7 @@ class ProductController extends Controller
 
             $current_date= Carbon::now()->format('Y-m-d H:i:s');
 
-            $product = product::with('amenities','Property_Type','product_img','product_comparision','Single_wishlist','UserDetail','product_state','product_district','product_locality','product_sub_locality','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration','pro_flat_Type')
+            $product = product::with('amenities','product_payment_details','Property_Type','product_img','product_comparision','Single_wishlist','UserDetail','product_state','product_district','product_locality','product_sub_locality','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration','pro_flat_Type','rent_invoice')
              ->select('products.*','invoices.id as invoice_id','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')

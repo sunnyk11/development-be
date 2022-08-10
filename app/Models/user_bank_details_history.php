@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class user_bank_details_history extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id','mobile_no','account_holder', 'bank_acount_no', 'ifsc_code','account_paytm_verify_id','status'];
+    protected $fillable = ['bank_type','upi_name','upi_id','user_id','mobile_no','account_holder', 'bank_acount_no', 'ifsc_code','account_paytm_verify_id','status'];
 }

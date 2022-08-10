@@ -10,6 +10,7 @@ use App\Models\Property_type;
 use App\Models\flat_type;
 use Auth;
 use DateTimeInterface;
+use Carbon\Carbon;
 
 class product extends Model
 {
@@ -228,13 +229,17 @@ class product extends Model
 	public function property_invoice() {
         return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['plan_type'=> 'Let Out']);
     }
+    public function product_payment_details() {
+        return $this->hasOne('App\Models\admin_payment_summery','product_id','id');
+    }
 
 
     public function letout_invoice() {
-        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['plan_status'=>'used','plan_type'=> 'Let Out'])->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN']]);
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['plan_status'=>'used','plan_type'=> 'Let Out'])->with('UserDetail')->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN']]);
     }
+
     public function rent_invoice() {
-        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Rent']);
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->with('UserDetail')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Rent']);
     }		
      public function scopeSearch($query, $searchTerm) {
         if ($searchTerm->build_name) {
@@ -283,6 +288,14 @@ class product extends Model
             });
         }
 
+        if ($searchTerm->Furnished =='Furnished') {
+            $query = $query->where('furnishing_status','1');
+        }
+
+        if ($searchTerm->Furnished =='Not Furnished') {
+            $query = $query->where('furnishing_status','0');
+        }
+
         if ($searchTerm->years) {
             $query = $query->where('products.buildyear', $searchTerm->years);
         }
@@ -329,6 +342,29 @@ class product extends Model
                 array_push($array,$amenitiesID[$i]['product_id']);
             }
             $query = $query->whereIn('products.id',$array);            
+        }
+        if($searchTerm->admin_property_type=='letout_property'){
+           $query = $query->where('order_status','0');
+        }
+        if($searchTerm->admin_property_type=='rentout_property'){
+          $query = $query->where('order_status','1');
+        }
+
+        if($searchTerm->user_mobile_no){
+            $user = User::select('id')->where('other_mobile_number',$searchTerm->user_mobile_no)->first();
+            $query = $query->where('user_id',$user['id']);
+        }
+        if($searchTerm->user_email){
+            $user = User::select('id')->where('email',$searchTerm->user_email)->first();
+            $query = $query->where('user_id',$user['id']);
+        }
+        if ($searchTerm->start_date && $searchTerm->end_date) {
+          $start_date_modified=$searchTerm->start_date." 00:00:00";
+          $end_date_modified=$searchTerm->end_date." 23:59:59";
+
+          $start_date = Carbon::createFromFormat('Y-m-d H:i:s', $start_date_modified);
+          $end_date = Carbon::createFromFormat('Y-m-d H:i:s', $end_date_modified);
+          $query->whereBetween('updated_at', [$start_date,$end_date]);
         }
         return $query;  
     }	  

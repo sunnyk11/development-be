@@ -94,6 +94,7 @@ class ProductImgController extends Controller
                     {
                         $ImageName = 'product_image_file/'.uniqid() . '-' .$file->getClientOriginalName();
                           $file->move(public_path('storage/product_image_file'), $ImageName);
+                          
                                $Product_images_data = [
                                     'user_id' => $user_id,
                                     'product_id' => $product_id,

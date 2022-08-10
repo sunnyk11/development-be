@@ -1015,40 +1015,107 @@ class AuthController extends Controller
                 ->create($otp, array('to' => "+91".$data['user_mobile_no']));
     
             if ($verification->valid) {
-                $paytm_data=User::select('account_paytm_verify_id')->where(['id'=> $data['user_id'],'other_mobile_number'=>$data['user_mobile_no']])->first();
-               
-                $paytm_id=NULL;
-                $updated_date=Carbon::now()->format('Y-m-d H:i:s');
-                // return $updated_date;
-                $user_data=User::where(['id'=> $data['user_id'],'other_mobile_number'=>$data['user_mobile_no']])->update(['bank_acount_no' => $data['account_no'], 'ifsc_code' =>  $data['ifsc_code'],'account_holder'=> $data['account_holder'],'account_paytm_verify_id'=>$paytm_id,'paytm_verify_status'=>'0','updated_at'=>$updated_date]);
-                $paytm_id=$paytm_data->account_paytm_verify_id;
-                 $user_bank_details = [
-                        'user_id' =>$data['user_id'],
-                        'mobile_no' => $data['user_mobile_no'],
-                        'account_holder' => $data['account_holder'],
-                        'bank_acount_no' => $data['account_no'],
-                        'ifsc_code' => $data['ifsc_code'],
-                        'account_paytm_verify_id' => $paytm_id,
-                        ];
-                    user_bank_details_history::create($user_bank_details);
-               
-                    return response()->json([
-                    'message' => 'Bank Details Successfully',
-                    'data'=>$user_bank_details
-                ], 201);
+                if($data['bank_type']=='bank_account'){
+
+                    $paytm_data=User::select('account_paytm_verify_id')->where(['id'=> $data['user_id'],'other_mobile_number'=>$data['user_mobile_no']])->first();
+                   
+                    $paytm_id=NULL;
+                    $updated_date=Carbon::now()->format('Y-m-d H:i:s');
+                    // return $updated_date;
+                    $user_data=User::where(['id'=> $data['user_id'],'other_mobile_number'=>$data['user_mobile_no']])->update(['bank_acount_no' => $data['account_no'],'bank_type' => $data['bank_type'],'upi_name' => $data['upi_name'],'upi_id' => $data['upi_id'], 'ifsc_code' =>  $data['ifsc_code'],'account_holder'=> $data['account_holder'],'account_paytm_verify_id'=>$paytm_id,'paytm_verify_status'=>'0','updated_at'=>$updated_date]);
+                    $paytm_id=$paytm_data->account_paytm_verify_id;
+                     $user_bank_details = [
+                            'user_id' =>$data['user_id'],
+                            'mobile_no' => $data['user_mobile_no'],
+                            'bank_type' => $data['bank_type'],
+                            'account_holder' => $data['account_holder'],
+                            'bank_acount_no' => $data['account_no'],
+                            'ifsc_code' => $data['ifsc_code'],
+                            'account_paytm_verify_id' => $paytm_id,
+                            ];
+                        user_bank_details_history::create($user_bank_details);
+                   
+                        return response()->json([
+                        'message' => 'Bank Details Successfully',
+                        'data'=>$user_bank_details
+                    ], 201);
+                }
+
+               if($data['bank_type']=='account_upi'){
+                    $updated_date=Carbon::now()->format('Y-m-d H:i:s');
+                    // return $updated_date;
+                    $user_data=User::where(['id'=> $data['user_id'],'other_mobile_number'=>$data['user_mobile_no']])->update(['bank_type' => $data['bank_type'], 'upi_name' =>  $data['upi_name'],'upi_id'=> $data['upi_id'],'account_holder'=>NULL,'bank_acount_no'=>NULL,'ifsc_code'=>NULL,'updated_at'=>$updated_date]);
+                     $user_bank_details = [
+                            'user_id' =>$data['user_id'],
+                            'mobile_no' => $data['user_mobile_no'],
+                            'bank_type' => $data['bank_type'],
+                            'upi_name' => $data['upi_name'],
+                            'upi_id' => $data['upi_id'],
+                            ];
+                        user_bank_details_history::create($user_bank_details);
+                   
+                        return response()->json([
+                        'message' => 'UPI Details Successfully',
+                        'data'=>$user_bank_details
+                    ], 201);
+                }
+                return response()->json([
+                    'message' => 'verification error'
+                ], 401);
+
             }
-            return response()->json([
-                'message' => 'verification error'
-            ], 401);
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
         }
     }
     public function get_userbank_details(){
         try{
-            $data = User::whereNotNull('bank_acount_no')->orderBy('updated_at', 'desc')->paginate(15);
+            $data = User::whereNotNull('bank_type')->orderBy('updated_at', 'desc')->paginate(15);
             return response()->json([
                 'data' => $data
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
+    public function admin_get_search_user(Request $request){
+        try{
+        $user_list=User::whereNotNull('bank_type')->where('email', 'like',  "%" . $request->value . "%")->orderBy('id', 'asc')->get();
+            return response()->json([
+                'data' => $user_list
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
+    public function admin_get_user(Request $request){
+        try{
+        $user_list=User::where('email', 'like',  "%" . $request->value . "%")->orderBy('id', 'asc')->get();
+            return response()->json([
+                'data' => $user_list
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
+    public function admin_mobile_user(Request $request){
+        try{
+        $user_list=User::where('other_mobile_number', 'like',  "%" . $request->value . "%")->orderBy('id', 'asc')->get();
+            return response()->json([
+                'data' => $user_list
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+    public function admin_mobile_search_user(Request $request){
+        try{
+        $user_list=User::whereNotNull('bank_type')->where('other_mobile_number', 'like',  "%" . $request->value . "%")->orderBy('id', 'asc')->get();
+            return response()->json([
+                'data' => $user_list
             ], 200);
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);

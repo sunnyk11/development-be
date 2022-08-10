@@ -40,7 +40,8 @@ Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_
 Route::post('/invoice_status_change', 'App\Http\Controllers\PlansController@invoice_status_change');
 Route::post('/property_price_change', 'App\Http\Controllers\PlansController@property_price_change');
 Route::post('/rollback_property', 'App\Http\Controllers\PlansController@rollback_property');
-    Route::get('rent_property_slip', 'App\Http\Controllers\Api\ProductController@rent_property_slip');
+    Route::get('rent_property_slip', 'App\Http\Controllers\PlansController@rent_property_slip');
+    Route::get('crm_getinvoiceById', 'App\Http\Controllers\PlansController@crm_get_invoice_details');
 
 
 Route::post('property_live_bycrm', 'App\Http\Controllers\PlansController@property_live_bycrm');
@@ -176,6 +177,8 @@ Route::group([
         Route::get('get_user_invoices/{id}', 'App\Http\Controllers\PlansController@get_user_invoices');
         Route::get('get_all_user_invoices/{id}', 'App\Http\Controllers\PlansController@get_all_user_invoices');
         Route::get('get_rented_properties/{id}', 'App\Http\Controllers\PlansController@get_rented_properties');
+
+        Route::get('get_property_payment/{id}', 'App\Http\Controllers\API\AdminPaymentSummeryController@get_property_payment');
         
         Route::get('get_property_details/{id}', 'App\Http\Controllers\PlansController@get_property_details');
         Route::get('update_property_details/{id}', 'App\Http\Controllers\PlansController@update_property_details');
@@ -211,7 +214,6 @@ Route::post('/delete_role', 'App\Http\Controllers\Api\RolesPermissionsController
 Route::group([
     'prefix' => 'product'
 ], function () {
-    Route::get('property_rent_slip', 'App\Http\Controllers\Api\ProductController@property_rent_slip');
     Route::get('/feature_property', 'App\Http\Controllers\Api\ProductController@feature_property');
     Route::get('/getRecently_viewProperty', 'App\Http\Controllers\Api\ProductController@Recently_view');
     Route::get('/get_product', 'App\Http\Controllers\Api\ProductController@product_city_details');
@@ -255,6 +257,7 @@ Route::group([
         'middleware' => 'auth:api'
     ], function () {
         Route::post('/product_rent_update', 'App\Http\Controllers\Api\ProductController@product_rent_update');
+    Route::get('property_rent_slip', 'App\Http\Controllers\Api\ProductController@property_rent_slip');
         Route::post('/product_sales_update', 'App\Http\Controllers\Api\ProductController@update_Sales_product');
 
         Route::post('/city_search_login', 'App\Http\Controllers\Api\ProductController@city_search_login_uesr');
@@ -339,6 +342,9 @@ Route::group([
         'middleware' => 'auth:api'
     ], function () {
         Route::post('/delete_product_admin', 'App\Http\Controllers\Api\AdminController@delete_product');
+
+        Route::post('/admin_payment_user_create', 'App\Http\Controllers\Api\AdminPaymentSummeryController@store');
+        Route::post('/admin_payment_user_update', 'App\Http\Controllers\Api\AdminPaymentSummeryController@payment_status_update');
         Route::post('/user_page', 'App\Http\Controllers\Api\AdminController@user_check');
         Route::post('/user_update', 'App\Http\Controllers\Api\AdminController@user_update');
         Route::post('/user_update_new', 'App\Http\Controllers\Api\AdminController@user_update_new');
@@ -369,13 +375,30 @@ Route::group([
         Route::get('/admin_lawyer_service', 'App\Http\Controllers\Api\AdminController@admin_lawyer_service');
         Route::get('/admin_review_index', 'App\Http\Controllers\Api\AdminController@review_index');
 		Route::get('/get_reviews', 'App\Http\Controllers\Api\GuestUserFeedbackController@search_data');
+        
+        Route::get('admin_get_invoice_data/{id}', 'App\Http\Controllers\PlansController@admin_get_invoice_data');
+
+       Route::get('admin_property_rent_slip', 'App\Http\Controllers\Api\ProductController@admin_property_rent_slip');
+        Route::get('admin_get_invoice_data/{id}', 'App\Http\Controllers\PlansController@admin_get_invoice_data');
+        Route::get('/admin_get_property', 'App\Http\Controllers\Api\ProductController@admin_get_property');
+        Route::get('/admin_get_property_excel', 'App\Http\Controllers\Api\ProductController@admin_get_property_excel');
         Route::get('/get_invoice_searching', 'App\Http\Controllers\Api\InvoiceController@search_data');
+        Route::get('/get_invoice_searching_excel', 'App\Http\Controllers\Api\InvoiceController@search_data_excel');
         Route::get('/get_visit_user_feedback', 'App\Http\Controllers\Api\UserVisitFeedbackController@search_data');
         Route::get('/get_search_user', 'App\Http\Controllers\Api\AuthController@get_search_user');
         Route::post('user_reviews_delete', 'App\Http\Controllers\Api\GuestUserFeedbackController@destroy');
         Route::post('/reviews_status_changes', 'App\Http\Controllers\Api\GuestUserFeedbackController@reviews_status_changes');
         Route::post('/user_status_changes', 'App\Http\Controllers\Api\AuthController@user_status_changes');
         Route::get('/get_userbank_details', 'App\Http\Controllers\Api\AuthController@get_userbank_details');
+        Route::get('/get_payment_user', 'App\Http\Controllers\Api\AdminPaymentSummeryController@get_payment_user');
+        Route::get('/get_payment_user_excel', 'App\Http\Controllers\Api\AdminPaymentSummeryController@get_payment_user_excel');
+
+       Route::get('/admin_get_search_user/{value}', 'App\Http\Controllers\Api\AuthController@admin_get_search_user');
+       Route::get('/admin_get_user/{value}', 'App\Http\Controllers\Api\AuthController@admin_get_user');
+        Route::get('/admin_mobile_user/{value}', 'App\Http\Controllers\Api\AuthController@admin_mobile_user');
+       Route::get('/admin_mobile_search_user/{value}', 'App\Http\Controllers\Api\AuthController@admin_mobile_search_user');
+       
+    Route::get('/admin_get_property_id', 'App\Http\Controllers\Api\ProductController@admin_get_property_id');
         Route::get('/user_block_status', 'App\Http\Controllers\Api\AuthController@user_block_status');
         Route::get('/get_all_user', 'App\Http\Controllers\Api\AuthController@get_all_user');
          Route::post('delete_user', 'App\Http\Controllers\Api\AuthController@delete_user');

@@ -40,7 +40,7 @@ class invoices extends Model
     }
     public function propertyDetails()
     {
-        return $this->hasOne('App\Models\product', 'product_uid','property_uid');
+        return $this->hasOne('App\Models\product', 'product_uid','property_uid')->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice');
     }
 
     public function property_rent_table()
@@ -81,7 +81,7 @@ class invoices extends Model
                 $query->whereBetween('created_at', [$start_date,$end_date]);
         }
         if($searchTerm->invoice_type){
-          $query = $query->where('payment_status',$searchTerm->invoice_type);
+          $query = $query->where('invoices.payment_status',$searchTerm->invoice_type);
         }
         if($searchTerm->plan_type){
           $query = $query->where('plan_type',$searchTerm->plan_type);

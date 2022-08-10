@@ -661,8 +661,8 @@ class PlansController extends Controller
 
     public function get_invoice_details($invoiceID) {
         try{
-            $data =invoices::with('UserDetail')->with('plan_features','order_details')->where([
-                ['invoice_no', $invoiceID]])->first();
+            $data =invoices::with('UserDetail')->with('plan_features','order_details')->where(
+                ['invoice_no'=> $invoiceID,'user_id'=> Auth::user()->id])->first();
             return response()->json([
                 'data' =>$data,
             ], 201);
@@ -670,7 +670,44 @@ class PlansController extends Controller
             return $this->getExceptionResponse($e);
         }  
     }
-
+    public function admin_get_invoice_data($invoiceID) {
+        try{
+            $data =invoices::with('UserDetail')->with('plan_features','order_details')->where(
+                ['invoice_no'=> $invoiceID])->first();
+            return response()->json([
+                'data' =>$data,
+            ], 201);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
+    }
+public function crm_get_invoice_details(Request $request) {
+    $request->validate([
+               'invoice_no' => 'required',
+           ]);
+        try{
+            $token  = $request->header('authorization');
+           $object = new Authicationcheck();
+           if($object->authication_check($token) == true){
+             $data =invoices::with('UserDetail','')->where(
+                ['invoice_no'=> $request->invoice_no])->first();
+             $company_details = DB::table('invoice_data')->first();
+            return response()->json([
+                'data' =>$data,
+                'company_details'=>$company_details
+            ], 201);
+           }else{
+            return response() -> json([
+                'message' => 'FAIL',
+                'description'=>'Unauthication',
+                'status'=> 401,
+            ]);
+        }
+           
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
+    }
 
     public function rent_property_slip(Request $request) {
         $request->validate([
