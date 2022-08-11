@@ -10,7 +10,7 @@ use DateTimeInterface;
 class admin_payment_summery extends Model
 {
     use HasFactory;
-     protected $fillable = ['product_id','payment_image','amount','created_user','property_owner','payment_status','transaction_id','message','bank_details_json','status'];
+     protected $fillable = ['product_id','payment_image','amount','created_user','property_owner','payment_status','transaction_id','message','bank_details_json','payment_type','status'];
 
     public function pro_owner()
     {

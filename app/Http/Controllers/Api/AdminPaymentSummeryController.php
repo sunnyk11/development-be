@@ -35,11 +35,17 @@ class AdminPaymentSummeryController extends Controller
 
 
     public function get_property_payment($user_id) {
-        try{
-       return $property_details = admin_payment_summery::with('pro_owner','pro_created_user','productdetails')->where(['property_owner' => $user_id, 'status' => '1'])->get();
-        }catch(\Exception $e) {
-            return $this->getExceptionResponse1($e);
-        } 
+        // try{
+        $property_details = admin_payment_summery::with('pro_owner','pro_created_user','productdetails')->where(['property_owner' => $user_id, 'status' => '1','payment_type'=>'Property Payment'])->get();
+
+        $other_payment = admin_payment_summery::with('pro_owner','pro_created_user','productdetails')->where(['property_owner' => $user_id, 'status' => '1','payment_type'=>'Any other Payment'])->get();
+        return response()->json([
+                'data' => $property_details,
+                'other_payment'=>$other_payment
+            ], 200);
+        // }catch(\Exception $e) {
+        //     return $this->getExceptionResponse1($e);
+        // } 
     }
     public function get_payment_user(Request $request)
     {
@@ -85,12 +91,12 @@ class AdminPaymentSummeryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-                'product' => 'required|integer',
                 'amount' => 'required',
                 'payment_user' => 'required|integer',
                 'payment_status' => 'required',
                 'transaction_id' => 'required',
                 'message' => 'required',
+                'payment_type' => 'required',
                 'bank_details_json' => 'required'
              ]);   
         try{
@@ -117,6 +123,7 @@ class AdminPaymentSummeryController extends Controller
                 'property_owner' =>$request->payment_user ,
                 'payment_status' =>$request->payment_status,
                 'transaction_id' =>$request->transaction_id,
+                'payment_type'=> $request->payment_type,
                 'message' => $request->message,
                 'bank_details_json' =>json_encode($request->bank_details_json)
             ];
@@ -148,6 +155,7 @@ class AdminPaymentSummeryController extends Controller
                 'property_owner' =>$request->payment_user ,
                 'payment_status' =>$request->payment_status,
                 'transaction_id' =>$request->transaction_id,
+                'payment_type'=> $request->payment_type,
                 'message' => $request->message,
                 'bank_details_json' =>json_encode($request->bank_details_json)
             ];

@@ -230,7 +230,7 @@ class product extends Model
         return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['plan_type'=> 'Let Out']);
     }
     public function product_payment_details() {
-        return $this->hasOne('App\Models\admin_payment_summery','product_id','id');
+        return $this->hasOne('App\Models\admin_payment_summery','product_id','id')->orderBy('id','desc');
     }
 
 

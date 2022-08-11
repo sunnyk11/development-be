@@ -21,6 +21,7 @@ class payment_resource extends JsonResource
     {
         return [
             'transaction_id'=>$this->transaction_id,
+            'payment_type'=>$this->payment_type,
             'amount'=>$this->amount,
             'payment_status'=>$this->payment_status,
             'property_name'=> ($this->productdetails == null ? 'No' :  $this->productdetails->build_name ),

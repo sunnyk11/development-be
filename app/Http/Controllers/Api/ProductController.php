@@ -293,7 +293,7 @@ class ProductController extends Controller
    public function admin_property_rent_slip(Request $request) {
        try{
             $productID = $request->property_id;
-          $data= product::with('property_invoice','maintenance_condition')->where(['id'=>$productID])->first();
+          $data= product::with('property_invoice','maintenance_condition','product_payment_details')->where(['id'=>$productID])->first();
            return response()->json([
                'data' =>$data,
              ], 200);
