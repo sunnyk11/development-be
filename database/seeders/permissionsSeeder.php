@@ -46,7 +46,8 @@ class permissionsSeeder extends Seeder
 
             // ['id' => 15,'permission_name' => 'access_delete_userByinternal', 'slug' => 'delete_userByinternal', 'description' => 'Delete User By internal', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')]
             // ['id' => 16,'permission_name' => 'access_web_Banner', 'slug' => 'access_web_Banner', 'description' => 'Access Web banner', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')]
-             ['id' => 17,'permission_name' => 'property_access', 'slug' => 'property_access', 'description' => 'Web Property Access ', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')]
+             // ['id' => 17,'permission_name' => 'property_access', 'slug' => 'property_access', 'description' => 'Web Property Access ', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')]
+             ['id' => 18,'permission_name' => 'access_locality_area', 'slug' => 'access_locality_area', 'description' => 'Property Area Location Access ', 'created_at' => date('Y-m-d H:m:s'), 'updated_at' => date('Y-m-d H:m:s')]
          ];
   
          \App\Models\Permission::insert($PermissionsData);

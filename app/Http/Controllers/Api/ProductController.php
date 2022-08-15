@@ -129,11 +129,18 @@ class ProductController extends Controller
     }
     public function product_city_details()
     {
+
+        $current_date= Carbon::now()->format('Y-m-d H:i:s');
      $chattarpur_id=area_locality::select('locality_id')->where(['locality' =>'CHATTARPUR','status' => '1'])->first();
      // return count($chattarpur_id);
      if($chattarpur_id){
       
-     $locality_data=product::where(['locality_id' =>$chattarpur_id['locality_id'], 'rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get();
+     $locality_data=product::select('products.id as product_id','products.build_name','products.area','products.flat_type','products.available_for','products.furnishing_status','products.security_deposit','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw('order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
+            ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
+            ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
+            ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes','invoices.plan_type'=>'Let Out','locality_id' =>$chattarpur_id['locality_id']])
+           ->orderBy('plans_day_left','asc')
+            ->get();
       $Chattarpur_data = $locality_data->groupBy('locality_id')->map(function ($row) {return $row->count();});
       $chattarpur=[];
       if(count($Chattarpur_data)>0){
@@ -141,7 +148,12 @@ class ProductController extends Controller
          array_push($chattarpur,$chattarpur_array);
     }
     // all data for delhi location 
-        $product_data=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0','rent_availability'=>'1', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
+        $product_data=product::select('products.id as product_id','products.build_name','products.area','products.flat_type','products.available_for','products.furnishing_status','products.security_deposit','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw('order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
+            ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
+            ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
+            ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes','invoices.plan_type'=>'Let Out','products.state_id'=>null])
+           ->orderBy('plans_day_left','asc')
+            ->get(); 
         $grouped = $product_data->groupBy('state_id')->map(function ($row) {return $row->count();});
        $data=product::select('id','state_id')->where(['state_id'=> 1,'delete_flag'=> '0','rent_availability'=>'1','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('state_id')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
 
@@ -178,7 +190,6 @@ class ProductController extends Controller
                 $count=['id'=>$value['id'],'category'=>$value,'category_count'=>$category_count];
                 array_push($category_data,$count);
         }
-         $get_flat_type=flat_type::select('id','name','status')->where('status', '1')->orderBy('id', 'asc')->get();
 
 
         $product_flat_type=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
@@ -194,7 +205,104 @@ class ProductController extends Controller
         return response()->json([
             'data'=>$category_data,
             'flat_type'=> $flat_type_data_fetch,
-            'get_flat_type'=> $get_flat_type,
+        ], 200);
+    }
+
+    public function web_dropdown_data()
+    {
+        $product_data=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
+        $grouped = $product_data->groupBy('type')->map(function ($row) {return $row->count();});
+
+      $data=product::select('id','type')->with('Property_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('type')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
+// return $data;
+        $category_data=[];
+        foreach ($data as $key => $value) {
+            $category_count= $grouped[$value['type']];
+                $count=['id'=>$value['id'],'category'=>$value,'category_count'=>$category_count];
+                array_push($category_data,$count);
+        }
+ // flat_type
+        $product_flat_type=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
+        $grouped = $product_flat_type->groupBy('flat_type')->map(function ($row) {return $row->count();});
+
+      $flat_type_data=product::select('id','flat_type')->with('pro_flat_Type')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->whereNotNull('flat_type')->groupBy('flat_type')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
+        $flat_type_data_fetch=[];
+        foreach ($flat_type_data as $key => $flat_type_value) {
+            $flat_type_count= $grouped[$flat_type_value['flat_type']];
+            $count_flat_type=['id'=>$flat_type_value['id'],'flat_type'=>$flat_type_value,'flat_type_count'=>$flat_type_count];
+                array_push($flat_type_data_fetch,$count_flat_type);
+        }
+
+        // security data
+         $product_security=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
+
+        $grouped = $product_security->groupBy('security_deposit')->map(function ($row) {return $row->count();});
+
+      $security_deposit_data=product::select('id','security_deposit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->whereNotNull('security_deposit')->groupBy('security_deposit')->havingRaw('COUNT(*) > 0')->orderBy('security_deposit', 'asc')->get(); 
+        $security_deposit_data_fetch=[];
+        foreach ($security_deposit_data as $key => $security_deposit_value) {
+            $security_deposit_count= $grouped[$security_deposit_value['security_deposit']];
+            $count_security_deposit=['id'=>$security_deposit_value['id'],'security_deposit'=>$security_deposit_value['security_deposit'],'security_deposit_count'=>$security_deposit_count];
+                array_push($security_deposit_data_fetch,$count_security_deposit);
+        }
+
+        // bathrooms
+         $product_bathroom=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
+
+        $grouped = $product_bathroom->groupBy('bathroom')->map(function ($row) {return $row->count();});
+
+      $bathroom_data=product::select('id','bathroom')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->whereNotNull('bathroom')->groupBy('bathroom')->havingRaw('COUNT(*) > 0')->orderBy('bathroom', 'asc')->get(); 
+        $bathroom_data_fetch=[];
+        foreach ($bathroom_data as $key => $bathroom_value) {
+            $bathroom_count= $grouped[$bathroom_value['bathroom']];
+            $count_bathroom=['id'=>$bathroom_value['id'],'bathroom'=>$bathroom_value['bathroom'],'bathroom_count'=>$bathroom_count];
+                array_push($bathroom_data_fetch,$count_bathroom);
+        }
+        // bedroom 
+         $product_bedroom=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
+
+        $grouped = $product_bedroom->groupBy('bedroom')->map(function ($row) {return $row->count();});
+
+      $bedroom_data=product::select('id','bedroom')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->whereNotNull('bedroom')->groupBy('bedroom')->havingRaw('COUNT(*) > 0')->orderBy('bedroom', 'asc')->get(); 
+        $bedroom_data_fetch=[];
+        foreach ($bedroom_data as $key => $bedroom_value) {
+            $bedroom_count= $grouped[$bedroom_value['bedroom']];
+            $count_bedroom=['id'=>$bathroom_value['id'],'bedroom'=>$bedroom_value['bedroom'],'bedroom_count'=>$bathroom_count];
+                array_push($bedroom_data_fetch,$count_bedroom);
+        }
+
+        // build year
+         $product_buildyear=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
+
+        $grouped = $product_buildyear->groupBy('buildyear')->map(function ($row) {return $row->count();});
+
+      $buildyear_data=product::select('id','buildyear')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->whereNotNull('buildyear')->groupBy('buildyear')->havingRaw('COUNT(*) > 0')->orderBy('buildyear', 'asc')->get(); 
+        $buildyear_data_fetch=[];
+        foreach ($buildyear_data as $key => $buildyear_value) {
+            $buildyear_value_count= $grouped[$buildyear_value['buildyear']];
+            $count_buildyear=['id'=>$buildyear_value['id'],'buildyear'=>$buildyear_value['buildyear'],'buildyear_count'=>$buildyear_value_count];
+                array_push($buildyear_data_fetch,$count_buildyear);
+        }
+        // area_unit
+        $product_area_unit=product::where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'asc')->get(); 
+
+        $grouped = $product_area_unit->groupBy('area_unit')->map(function ($row) {return $row->count();});
+
+      $area_unit_data=product::select('id','area_unit')->with('Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->whereNotNull('area_unit')->groupBy('area_unit')->havingRaw('COUNT(*) > 0')->orderBy('area_unit', 'asc')->get(); 
+        $area_unit_data_fetch=[];
+        foreach ($area_unit_data as $key => $area_unit_value) {
+            $area_unit_value_count= $grouped[$area_unit_value['area_unit']];
+            $count_area_unit=['id'=>$area_unit_value['id'],'area_unit'=>$area_unit_value,'area_unit_count'=>$area_unit_value_count];
+                array_push($area_unit_data_fetch,$count_area_unit);
+        }
+        return response()->json([
+            'data'=>$category_data,
+            'flat_type'=> $flat_type_data_fetch,
+            'security_deposit'=> $security_deposit_data_fetch,
+            'bathroom'=> $bathroom_data_fetch,
+            'bedroom'=>$bedroom_data_fetch,
+            'buildyear'=>$buildyear_data_fetch,
+            'area_unit'=>$area_unit_data_fetch
         ], 200);
     }
 

@@ -37,7 +37,7 @@ return [
 		'redirect' => 'http://localhost:8000/api/auth/callback',
     ],
     'App_version'=>[
-        '1.1.5'
+        '1.1.7'
     ],
 
 ];

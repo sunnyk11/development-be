@@ -218,6 +218,8 @@ Route::group([
     Route::get('/getRecently_viewProperty', 'App\Http\Controllers\Api\ProductController@Recently_view');
     Route::get('/get_product', 'App\Http\Controllers\Api\ProductController@product_city_details');
      Route::get('/property_category', 'App\Http\Controllers\Api\ProductController@product_category_details');
+
+     Route::get('/web_dropdown_data', 'App\Http\Controllers\Api\ProductController@web_dropdown_data');
     Route::get('/get_product_featured', 'App\Http\Controllers\Api\ProductController@index_featured');
     Route::get('/product_list_featured', 'App\Http\Controllers\Api\ProductController@product_list_featured');
     Route::get('/seeto', 'App\Http\Controllers\Api\ProductController@product_index');
@@ -362,6 +364,40 @@ Route::group([
          Route::get('/get_userlist_byinternal', 'App\Http\Controllers\Api\AuthController@get_userlist_byinternal');
     Route::post('/create_user_byinternal', 'App\Http\Controllers\Api\AuthController@create_user_byinternal');
     Route::post('/banner_created', 'App\Http\Controllers\Api\OfferBannerController@create');
+
+// state functionalty
+    Route::get('/get_state_data', 'App\Http\Controllers\Api\AreaStateController@index');
+    Route::get('/get_state', 'App\Http\Controllers\Api\AreaStateController@get_state');
+    Route::post('/state_status_changes', 'App\Http\Controllers\Api\AreaStateController@state_status_changes');
+    Route::post('/state_create', 'App\Http\Controllers\Api\AreaStateController@create');
+    Route::post('/state_update', 'App\Http\Controllers\Api\AreaStateController@state_update');
+    Route::get('/delete_area', 'App\Http\Controllers\Api\AreaStateController@delete');
+
+    // district functionalty
+    Route::post('/district_create', 'App\Http\Controllers\Api\AreaDistrictController@create');
+     Route::get('/get_district', 'App\Http\Controllers\Api\AreaDistrictController@get_district');
+     Route::post('/district_update', 'App\Http\Controllers\Api\AreaDistrictController@district_update');
+      Route::post('/district_status_changes', 'App\Http\Controllers\Api\AreaDistrictController@district_status_changes');
+    Route::get('/delete_district', 'App\Http\Controllers\Api\AreaDistrictController@delete');
+      Route::get('/search_district/{value}', 'App\Http\Controllers\Api\AreaDistrictController@search_district');
+    // locality functionalty
+     Route::post('/locality_create', 'App\Http\Controllers\Api\AreaLocalityController@create');
+      Route::post('/get_locality_byid', 'App\Http\Controllers\Api\AreaLocalityController@search_locality_id');
+      Route::post('/locality_status_changes', 'App\Http\Controllers\Api\AreaLocalityController@locality_status_changes');
+      
+    Route::get('/edit_locality_id', 'App\Http\Controllers\Api\AreaLocalityController@edit_locality_id');
+     Route::post('/locality_update', 'App\Http\Controllers\Api\AreaLocalityController@locality_update');
+     Route::get('/delete_locality', 'App\Http\Controllers\Api\AreaLocalityController@delete');
+      Route::get('/search_locality/{value}', 'App\Http\Controllers\Api\AreaLocalityController@search_locality1');
+     // sub locality functionalty
+     Route::post('/sub_locality_create', 'App\Http\Controllers\Api\AreaSubLocalityController@create');
+      Route::post('/get_sub_locality_byid', 'App\Http\Controllers\Api\AreaSubLocalityController@search_sub_locality_id');
+      Route::post('/sub_locality_status_changes', 'App\Http\Controllers\Api\AreaSubLocalityController@sub_locality_status_changes');
+       Route::get('/delete_sub_locality', 'App\Http\Controllers\Api\AreaSubLocalityController@delete');
+     Route::post('/sub_locality_update', 'App\Http\Controllers\Api\AreaSubLocalityController@sub_locality_update');
+    Route::get('/edit_sub_locality_id', 'App\Http\Controllers\Api\AreaSubLocalityController@edit_sub_locality_id');
+
+
     Route::get('/update_banner_id', 'App\Http\Controllers\Api\OfferBannerController@update_banner_id');
     Route::post('/banner_Update', 'App\Http\Controllers\Api\OfferBannerController@banner_Update');
     Route::post('/banner_status_changes', 'App\Http\Controllers\Api\OfferBannerController@banner_status_changes');

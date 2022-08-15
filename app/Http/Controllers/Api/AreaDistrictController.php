@@ -17,6 +17,17 @@ class AreaDistrictController extends Controller
     {
         //
     }
+     public function get_district()
+    { 
+        try{
+            $data=area_district::with('state')->orderBy('district_id', 'desc')->paginate(5);
+            return response()->json([
+                'data' => $data
+            ], 200); 
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
+    }
     public function get_district_byid(Request $request) {
         try{
             $data = area_district::where('state_id', $request->id)->where('status','1')->orderBy('district', 'asc')->get();
@@ -27,15 +38,85 @@ class AreaDistrictController extends Controller
             return $this->getExceptionResponse($e);
         }
    }
+   public function search_district(Request $request){
+        try{
+        $data=area_district::where('district', 'like',  "%" .Strtoupper($request->value) . "%")->orderBy('district_id', 'asc')->get();
+            return response()->json([
+                'data' => $data
+            ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+         $request->validate([
+            'district' => 'required',
+            'state' => 'required',
+            'status' => 'required|boolean'                       
+        ]);
+        try{ 
+            $district_data = [
+            'district' => $request->district,
+            'state_id' => $request->state,
+            'status' => $request->status,
+            ];
+        area_district:: create($district_data);
+        return response() -> json([
+                'message' => 'district Created',
+            ]);
+
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse1($e);
+        }
+    }
+    public function district_update(Request $request)
+    {
+         $request->validate([
+            'district' => 'required',
+            'status' => 'required|boolean',
+            'state'=>'required',
+            'district_id' =>'required'                     
+        ]);
+
+      try{
+       area_district::where('district_id', $request->district_id)->update(['state_id' => $request->state,'status'=> $request->status,'district'=> $request->district]);
+              return response()->json([
+              'message' =>'data updated',
+              'status'=>201
+            ], 201);
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
+    }
+
+    public function district_status_changes(Request $request){
+         try{
+            $request -> validate([
+                    'district_id' => 'required|integer'
+                ]);
+            $data= area_district::select('status')->where('district_id', $request->district_id)->first();
+            // return $data;
+            if($data['status']=='1'){
+                area_district::where('district_id', $request->district_id)->update(['status' =>'0']);
+            }else{
+             area_district::where('district_id',$request->district_id)->update(['status' =>'1']);
+            }
+            return response()->json([
+                'message' => 'District Status Changes',
+                'status'=> 200
+            ]);
+
+           
+         }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
     }
 
     /**
@@ -92,5 +173,16 @@ class AreaDistrictController extends Controller
     public function destroy(area_district $area_district)
     {
         //
+    }
+    public function delete(Request $request)
+    {
+        try{
+            area_district::where('district_id', $request['district_id'])->delete();  
+            return response()->json([
+                'message' => 'deleted Successfully',
+            ], 201);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
     }
 }
