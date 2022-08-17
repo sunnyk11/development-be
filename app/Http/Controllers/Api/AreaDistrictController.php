@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\area_district;
 use Illuminate\Http\Request;
+use App\Models\area_transaction;
+use Auth;
 use App\Http\Controllers\Controller;
 
 class AreaDistrictController extends Controller
@@ -68,9 +70,20 @@ class AreaDistrictController extends Controller
             'status' => $request->status,
             ];
         area_district:: create($district_data);
+        $create_data=area_district::select('state_id','district_id','district','status')->where('status', '1')->orderBy('district_id', 'desc')->first();
+         if($create_data){
+         $transaction_data=[
+            'table_name'=>'area_districts',
+            'old_column'=> NULL,
+            'new_column'=>json_encode($create_data),
+            'action'=>'Create',
+            'updated_user'=> Auth::user()->id
+         ];
+         area_transaction::create($transaction_data);
         return response() -> json([
                 'message' => 'district Created',
             ]);
+      }
 
         }catch(\Exception $e) {
             return $this->getExceptionResponse1($e);
@@ -86,11 +99,24 @@ class AreaDistrictController extends Controller
         ]);
 
       try{
+        $old_data=area_district::select('state_id','district_id','district','status')->where('district_id', $request->district_id)->first();
        area_district::where('district_id', $request->district_id)->update(['state_id' => $request->state,'status'=> $request->status,'district'=> $request->district]);
+         $new_data=area_district::select('state_id','district_id','district','status')->where('district_id', $request->district_id)->first();
+
+             if($old_data){
+                 $transaction_data=[
+                    'table_name'=>'area_districts',
+                    'old_column'=> json_encode($old_data),
+                    'new_column'=>json_encode($new_data),
+                    'action'=>'Update',
+                    'updated_user'=> Auth::user()->id
+                 ];
+                 area_transaction::create($transaction_data);
               return response()->json([
               'message' =>'data updated',
               'status'=>201
-            ], 201);
+            ], 201); 
+             }
         }catch(\Exception $e) {
               return $this->getExceptionResponse($e);
         } 
@@ -101,13 +127,22 @@ class AreaDistrictController extends Controller
             $request -> validate([
                     'district_id' => 'required|integer'
                 ]);
-            $data= area_district::select('status')->where('district_id', $request->district_id)->first();
+            $data= area_district::select('state_id','district','district_id','status')->where('district_id', $request->district_id)->first();
             // return $data;
             if($data['status']=='1'){
                 area_district::where('district_id', $request->district_id)->update(['status' =>'0']);
             }else{
              area_district::where('district_id',$request->district_id)->update(['status' =>'1']);
             }
+            $new_data=area_district::select('state_id','district','district_id','status')->where('district_id', $request['district_id'])->first();
+                 $transaction_data=[
+                    'table_name'=>'area_districts',
+                    'old_column'=> json_encode($data),
+                    'new_column'=>json_encode($new_data),
+                    'action'=>'Status Update',
+                    'updated_user'=> Auth::user()->id
+                 ];
+                 area_transaction::create($transaction_data);
             return response()->json([
                 'message' => 'District Status Changes',
                 'status'=> 200
@@ -177,10 +212,22 @@ class AreaDistrictController extends Controller
     public function delete(Request $request)
     {
         try{
+            $data=area_district::where('district_id', $request['district_id'])->first();
+             if($data){
+                 $transaction_data=[
+                    'table_name'=>'area_districts',
+                    'old_column'=> json_encode($data),
+                    'new_column'=>NULL,
+                    'action'=>'Delete',
+                    'updated_user'=> Auth::user()->id
+                 ];
+                 area_transaction::create($transaction_data);
+                
             area_district::where('district_id', $request['district_id'])->delete();  
             return response()->json([
                 'message' => 'deleted Successfully',
             ], 201);
+             }
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
         }

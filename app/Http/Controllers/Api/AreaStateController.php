@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Api;;
 
 use App\Models\area_state;
+use App\Models\area_transaction;
+use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 
 class AreaStateController extends Controller
@@ -36,17 +39,25 @@ class AreaStateController extends Controller
         }  
     }
     public function state_status_changes(Request $request){
-        // return $request->user_id;
         try{
             $request -> validate([
                     'state_id' => 'required|integer'
                 ]);
-            $data= area_state::select('status')->where('state_id', $request->state_id)->first();
+            $data= area_state::select('state_id','state','status')->where('state_id', $request->state_id)->first();
             if($data['status']=='1'){
                 area_state::where('state_id', $request->state_id)->update(['status' =>'0']);
             }else{
                 area_state::where('state_id',$request->state_id)->update(['status' =>'1']);
             }
+             $new_data=area_state::select('state_id','state','status')->where('state_id', $request['state_id'])->first();
+                 $transaction_data=[
+                    'table_name'=>'area_states',
+                    'old_column'=> json_encode($data),
+                    'new_column'=>json_encode($new_data),
+                    'action'=>'Status Update',
+                    'updated_user'=> Auth::user()->id
+                 ];
+                 area_transaction::create($transaction_data);
             return response()->json([
                 'message' => 'State Status Changes',
                 'status'=> 200
@@ -76,10 +87,22 @@ class AreaStateController extends Controller
             'status' => $request->status
             ]);
 
-        $state_data->save();  
+        $state_data->save(); 
+         $create_data=area_state::select('state_id','state','status')->where('status', '1')->orderBy('state_id', 'desc')->first();
+         if($create_data){
+         $transaction_data=[
+            'table_name'=>'area_states',
+            'old_column'=> NULL,
+            'new_column'=>json_encode($create_data),
+            'action'=>'Create',
+            'updated_user'=> Auth::user()->id
+         ];
+         area_transaction::create($transaction_data);
         return response() -> json([
                 'message' => 'state Created',
             ]);
+
+         }
 
         }catch(\Exception $e) {
             return $this->getExceptionResponse1($e);
@@ -139,11 +162,25 @@ class AreaStateController extends Controller
         ]);
 
       try{
+        $old_data=area_state::select('state_id','state','status')->where('state_id', $request->state_id)->first();
+
        area_state::where('state_id', $request->state_id)->update(['state' => $request->state_name,'status'=> $request->status]);
+        $new_data=area_state::select('state_id','state','status')->where('state_id', $request->state_id)->first();
+
+             if($old_data){
+                 $transaction_data=[
+                    'table_name'=>'area_states',
+                    'old_column'=> json_encode($old_data),
+                    'new_column'=>json_encode($new_data),
+                    'action'=>'Update',
+                    'updated_user'=> Auth::user()->id
+                 ];
+                 area_transaction::create($transaction_data);
               return response()->json([
               'message' =>'data updated',
               'status'=>201
-            ], 201);
+            ], 201); 
+           }
         }catch(\Exception $e) {
               return $this->getExceptionResponse($e);
         } 
@@ -162,10 +199,23 @@ class AreaStateController extends Controller
     public function delete(Request $request)
     {
         try{
-            area_state::where('state_id', $request['state_id'])->delete();  
-            return response()->json([
-                'message' => 'deleted Successfully',
-            ], 201);
+             $data=area_state::select('state_id','state','status')->where('state_id', $request['state_id'])->first();
+             if($data){
+                 $transaction_data=[
+                    'table_name'=>'area_states',
+                    'old_column'=> json_encode($data),
+                    'new_column'=>NULL,
+                    'action'=>'Delete',
+                    'updated_user'=> Auth::user()->id
+                 ];
+                 area_transaction::create($transaction_data);
+                area_state::where('state_id', $request['state_id'])->delete();  
+                    return response()->json([
+                        'message' => 'deleted Successfully',
+                    ], 201);
+
+             }
+           
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
         }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\area_locality;
 use Illuminate\Http\Request;
+use App\Models\area_transaction;
+use Auth;
 use App\Http\Controllers\Controller;
 
 class AreaLocalityController extends Controller
@@ -51,13 +53,22 @@ class AreaLocalityController extends Controller
             $request -> validate([
                     'locality_id' => 'required|integer'
                 ]);
-            $data= area_locality::select('status')->where('locality_id', $request->locality_id)->first();
+            $data= area_locality::select('locality_id','locality','district_id','status')->where('locality_id', $request->locality_id)->first();
             // return $data;
             if($data['status']=='1'){
                 area_locality::where('locality_id', $request->locality_id)->update(['status' =>'0']);
             }else{
              area_locality::where('locality_id',$request->locality_id)->update(['status' =>'1']);
             }
+            $new_data=area_locality::select('locality_id','locality','district_id','status')->where('locality_id', $request->locality_id)->first();
+                 $transaction_data=[
+                    'table_name'=>'area_localities',
+                    'old_column'=> json_encode($data),
+                    'new_column'=>json_encode($new_data),
+                    'action'=>'Status Update',
+                    'updated_user'=> Auth::user()->id
+                 ];
+                 area_transaction::create($transaction_data);
             return response()->json([
                 'message' => 'Locality Status Changes',
                 'status'=> 200
@@ -71,7 +82,6 @@ class AreaLocalityController extends Controller
 
    
    public function search_locality(Request $request) {
-    // return $request->value;
     try{
         $data=[];
         $locality=area_locality::where('locality', 'like',  "%" . $request->value . "%")->where('status','1')->orderBy('locality', 'asc')->limit(10)->get();
@@ -121,9 +131,20 @@ class AreaLocalityController extends Controller
             'status' => $request->status,
             ];
         area_locality:: create($locality_data);
-        return response() -> json([
-                'message' => 'Locality Created',
-            ]);
+       $create_data=area_locality::select('locality_id','locality','district_id','status')->where('status', '1')->orderBy('locality_id', 'desc')->first();
+         if($create_data){
+             $transaction_data=[
+                'table_name'=>'area_localities',
+                'old_column'=> NULL,
+                'new_column'=>json_encode($create_data),
+                'action'=>'Create',
+                'updated_user'=> Auth::user()->id
+             ];
+             area_transaction::create($transaction_data);
+            return response() -> json([
+                    'message' => 'Locality Created',
+                ]);
+       }
 
         }catch(\Exception $e) {
             return $this->getExceptionResponse1($e);
@@ -195,11 +216,24 @@ class AreaLocalityController extends Controller
         ]);
 
       try{
+        $old_data=area_locality::select('locality_id','locality','district_id','status')->where('locality_id', $request->locality_id)->first(); 
        area_locality::where('locality_id', $request->locality_id)->update(['district_id' => $request->district_id,'status'=> $request->status,'locality'=> $request->locality]);
+
+        $new_data=area_locality::select('locality_id','locality','district_id','status')->where('locality_id', $request->locality_id)->first();
+          if($old_data){
+                 $transaction_data=[
+                    'table_name'=>'area_localities',
+                    'old_column'=> json_encode($old_data),
+                    'new_column'=>json_encode($new_data),
+                    'action'=>'Update',
+                    'updated_user'=> Auth::user()->id
+                 ];
+                 area_transaction::create($transaction_data);
               return response()->json([
               'message' =>'data updated',
               'status'=>201
             ], 201);
+          }
         }catch(\Exception $e) {
               return $this->getExceptionResponse($e);
         } 
@@ -208,10 +242,24 @@ class AreaLocalityController extends Controller
     public function delete(Request $request)
     {
         try{
+
+             $data=area_locality::select('locality_id','locality','district_id','status')->where('locality_id', $request['locality_id'])->first();
+             if($data){
+                 $transaction_data=[
+                    'table_name'=>'area_localities',
+                    'old_column'=> json_encode($data),
+                    'new_column'=>NULL,
+                    'action'=>'Delete',
+                    'updated_user'=> Auth::user()->id
+                 ];
+                 area_transaction::create($transaction_data);
+               
             area_locality::where('locality_id', $request['locality_id'])->delete();  
             return response()->json([
                 'message' => 'deleted Successfully',
             ], 201);
+
+             }
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
         }
