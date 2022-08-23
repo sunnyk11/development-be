@@ -14,4 +14,7 @@ class PropertyPlans extends Model
     public function features() {
         return $this->belongsToMany(plansFeatures::class, 'plans_features_pivots', 'plan_id', 'feature_id')->with('more_info');
     }
+     public function crm_features() {
+        return $this->belongsToMany(plansFeatures::class, 'plans_features_pivots', 'plan_id', 'feature_id')->select('feature_value')->where('feature_name','Rent Agreement');
+    }
 }

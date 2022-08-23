@@ -38,6 +38,15 @@ class invoices extends Model
     {
         return $this->hasOne('App\Models\product', 'product_uid','property_uid')->select('id','product_uid','build_name','enabled','order_status');
     }
+     public function property_data()
+    {
+        return $this->hasOne('App\Models\product', 'product_uid','property_uid')->with('maintenance_condition');
+    }
+
+    public function User_details()
+    {
+        return $this->hasOne('App\Models\User', 'id','user_id')->select('id','email','other_mobile_number','name','last_name','usertype','internal_user');
+    }
     public function propertyDetails()
     {
         return $this->hasOne('App\Models\product', 'product_uid','property_uid')->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice');
@@ -55,6 +64,10 @@ class invoices extends Model
 
     public function plan_features() {
          return $this->hasOne('App\Models\PropertyPlans','id','plan_id')->with('features');
+    }
+
+    public function crm_plan_features() {
+         return $this->hasOne('App\Models\PropertyPlans','id','plan_id')->with('crm_features');
     }
     
     protected function serializeDate(DateTimeInterface $date)

@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use App\Models\flat_type;
 use Illuminate\Support\Facades\Input;
 use App\Http\Resources\API\Product\ProductListResource;
+use App\Http\Resources\API\crm_rentslip;
 
 class ProductController extends Controller
 {
@@ -393,6 +394,44 @@ class ProductController extends Controller
            return response()->json([
                'data' =>$data,
              ], 200);
+       }catch(\Exception $e) {
+           return $this->getExceptionResponse($e);
+       }  
+   } 
+   public function crm_property_rent_slip(Request $request) {
+     $request->validate([
+            'property_id' => 'required'
+        ]);
+       try{
+        $token  = $request->header('authorization');
+           $object = new Authicationcheck();
+           if($object->authication_check($token) == true){
+              $productID = $request->property_id;
+            $data= product::with('property_invoice','maintenance_condition','product_payment_details')->where(['id'=>$productID])->first();
+            if($data){
+               $fetch_data= crm_rentslip::make($data); 
+               return response()->json([
+                'data' =>$fetch_data,
+                'status'=>200
+            ], 200);
+            }else{
+                    return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'Property Id is Invalid !!!...',
+                         'status'=>200
+                     ], 200);}
+
+
+             return response()->json([
+                 'data' =>$data,
+               ], 200);
+            }else{
+            return response() -> json([
+                'message' => 'FAIL',
+                'description'=>'Unauthication',
+                'status'=> 401,
+            ]);
+        }
        }catch(\Exception $e) {
            return $this->getExceptionResponse($e);
        }  

@@ -221,6 +221,15 @@ class product extends Model
     {
         return $this->hasone('App\Models\area_sub_locality', 'sub_locality_id','sub_locality_id');
     }
+     public function property_sub_locality()
+    {
+        return $this->hasone('App\Models\area_sub_locality', 'sub_locality_id','sub_locality_id')->select('sub_locality_id','sub_locality','locality_id','status');
+    }
+
+    public function property_locality()
+    {
+        return $this->hasone('App\Models\area_locality', 'locality_id','locality_id')->select('district_id','locality','locality_id','status');
+    }
 
     // public function Pro_order()
     //  {

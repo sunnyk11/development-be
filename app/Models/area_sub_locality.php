@@ -12,6 +12,6 @@ class area_sub_locality extends Model
     protected $fillable = ['sub_locality_id', 'sub_locality', 'locality_id', 'status'];
 
     public function locality() {
-        return $this->belongsTo('App\Models\area_locality', 'locality_id', 'locality_id');
+        return $this->belongsTo('App\Models\area_locality', 'locality_id', 'locality_id')->with('district');
     }
 }

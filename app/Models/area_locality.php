@@ -16,6 +16,6 @@ class area_locality extends Model
     }
 
     public function district() {
-        return $this->belongsTo('App\Models\area_district',  'district_id' , 'district_id');
+        return $this->belongsTo('App\Models\area_district',  'district_id' , 'district_id')->with('state');
     }
 }

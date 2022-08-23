@@ -78,7 +78,7 @@ class User extends Authenticatable
 
     public function productdetails()
     {
-        return $this->hasMany('App\Models\product', 'user_id','id')->with('amenities','product_comp','product_img','property_room','product_wishlist_crm','letout_invoice', 'rent_invoice')->where(['delete_flag'=> '0'])->orderBy('id', 'desc');
+        return $this->hasMany('App\Models\product', 'user_id','id')->with('property_locality','property_sub_locality','amenities','product_comp','product_img','property_room','product_wishlist_crm','letout_invoice', 'rent_invoice')->where(['delete_flag'=> '0'])->orderBy('id', 'desc');
     }
     public function product_wishlist(){
 

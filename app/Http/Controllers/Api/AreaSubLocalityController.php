@@ -93,6 +93,42 @@ class AreaSubLocalityController extends Controller
             return $this->getExceptionResponse($e);
         }
     }
+
+   public function crm_sub_localityby_localityid(Request $request) {
+     $request->validate([
+                'locality_id' => 'required',
+            ]);
+    try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                    $locality = area_sub_locality::where('locality_id', $request->locality_id)->orderBy('sub_locality_id','asc')->get();
+                    if(count($locality)>0){
+                    return response()->json([
+                        'data' => $locality,
+                        'status'=>200
+                    ], 200);                        
+                    }else{
+                    return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'Locality Id is Invalid !!!',
+                         'status'=>200
+                     ], 200);
+
+                    }
+                
+              }else{
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }   
+               
+       }catch(\Exception $e) {
+        return $this->getExceptionResponse($e);
+        }
+    }
     public function search_sub_locality_id(Request $request) {
         try{
             $data = area_sub_locality::with('locality')->where('locality_id', $request->locality_id)->orderBy('sub_locality_id', 'desc')->paginate(7);
@@ -103,6 +139,25 @@ class AreaSubLocalityController extends Controller
             return $this->getExceptionResponse($e);
         }
    }
+
+ public function get_sub_locality_searching(Request $request) {
+    try{
+        if($request->search_locality_id){
+           $data=area_sub_locality::where('sub_locality', 'like',  "%" . $request->value . "%")->with('locality')->where('locality_id', $request->search_locality_id)->where('status','1')->orderBy('sub_locality_id', 'asc')->paginate(7);
+            return response()->json([
+                'data' => $data
+            ], 200); 
+        }else{
+            $data=area_sub_locality::where('sub_locality', 'like',  "%" . $request->value . "%")->with('locality')->where('status','1')->orderBy('sub_locality_id', 'asc')->paginate(7);
+            return response()->json([
+                'data' => $data
+            ], 200);
+        }
+        
+       }catch(\Exception $e) {
+        return $this->getExceptionResponse($e);
+        }
+    }
 
     public function get_common_area_data(Request $request) {
         // return $request->value;

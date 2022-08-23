@@ -40,9 +40,19 @@ class AreaDistrictController extends Controller
             return $this->getExceptionResponse($e);
         }
    }
+   public function search_district_id(Request $request) {
+        try{
+            $data = area_district::with('state')->where('state_id', $request->state_id)->orderBy('district_id', 'desc')->paginate(7);
+           return response()->json([
+               'data' =>$data,
+           ], 200);
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+   }
    public function search_district(Request $request){
         try{
-        $data=area_district::where('district', 'like',  "%" .Strtoupper($request->value) . "%")->orderBy('district_id', 'asc')->get();
+        $data=area_district::where('district', 'like',  "%" .Strtoupper($request->value) . "%")->where('state_id', $request->state_id)->orderBy('district_id', 'asc')->get();
             return response()->json([
                 'data' => $data
             ], 200);

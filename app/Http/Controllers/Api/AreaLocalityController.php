@@ -94,15 +94,68 @@ class AreaLocalityController extends Controller
         return $this->getExceptionResponse($e);
         }
     }
+
+   public function crm_search_locality(Request $request) {
+     $request->validate([
+                'search_keyword' => 'required',
+            ]);
+    try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                if(Strlen($request->search_keyword)>2){
+                     $locality=area_locality::where('locality', 'like',  "%" . $request->search_keyword . "%")->where('status','1')->orderBy('locality', 'asc')->limit(10)->get();
+                    return response()->json([
+                        'data' => $locality,
+                        'status'=>200
+                    ], 200);
+                }else{
+                    return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'Search keyword Length Mini 3',
+                         'status'=>200
+                     ], 200);
+                }
+              }else{
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }   
+               
+       }catch(\Exception $e) {
+        return $this->getExceptionResponse($e);
+        }
+    }
     
     
 
    public function search_locality1(Request $request) {
     try{
-        $data=area_locality::where('locality', 'like',  "%" . $request->value . "%")->where('status','1')->orderBy('locality', 'asc')->get();
+        $data=area_locality::where('locality', 'like',  "%" . $request->value . "%")->where('district_id', $request->district_id)->where('status','1')->orderBy('locality_id', 'asc')->get();
             return response()->json([
                 'data' => $data
             ], 200);
+       }catch(\Exception $e) {
+        return $this->getExceptionResponse($e);
+        }
+    }
+     public function get_locality_searching(Request $request) {
+    try{
+        if($request->search_district_id){
+        $data=area_locality::where('locality', 'like',  "%" . $request->value . "%")->with('district')->where('district_id', $request->search_district_id)->where('status','1')->orderBy('locality_id', 'asc')->paginate(7);
+            return response()->json([
+                'data' => $data
+            ], 200);
+
+        }else{
+
+        $data=area_locality::where('locality', 'like',  "%" . $request->value . "%")->with('district')->where('status','1')->orderBy('locality_id', 'asc')->paginate(7);
+            return response()->json([
+                'data' => $data
+            ], 200);
+        }
        }catch(\Exception $e) {
         return $this->getExceptionResponse($e);
         }

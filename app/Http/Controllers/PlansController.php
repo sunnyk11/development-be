@@ -23,6 +23,7 @@ use App\Models\Product_Comparision;
 use App\Http\Controllers\Api\Authicationcheck;
 use App\Models\UserProductCount;
 use App\Models\fixed_appointment;
+use App\Http\Resources\API\crm_invoice_resource;
 
 class PlansController extends Controller
 {
@@ -689,13 +690,23 @@ public function crm_get_invoice_details(Request $request) {
             $token  = $request->header('authorization');
            $object = new Authicationcheck();
            if($object->authication_check($token) == true){
-             $data =invoices::with('UserDetail','')->where(
+             $data =invoices::with('User_details','property_data','plan_features','order_details')->where(
                 ['invoice_no'=> $request->invoice_no])->first();
+              $fetch_data= crm_invoice_resource::make($data); 
+             if($fetch_data){
              $company_details = DB::table('invoice_data')->first();
             return response()->json([
-                'data' =>$data,
-                'company_details'=>$company_details
-            ], 201);
+                'data' =>$fetch_data,
+                'company_details'=>$company_details,
+                'status'=>200
+            ], 200);
+             }else{
+                    return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'Invoice No is Invalid !!!...',
+                         'status'=>200
+                     ], 200);
+             }
            }else{
             return response() -> json([
                 'message' => 'FAIL',
@@ -705,7 +716,7 @@ public function crm_get_invoice_details(Request $request) {
         }
            
         }catch(\Exception $e) {
-            return $this->getExceptionResponse($e);
+            return $this->getExceptionResponse1($e);
         }  
     }
 

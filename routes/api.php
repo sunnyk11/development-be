@@ -37,11 +37,18 @@ Route::get('/get_proeprty_id', 'App\Http\Controllers\Api\ProductController@get_p
 
 Route::get('/get_porperty_byid', 'App\Http\Controllers\Api\ProductController@get_property_byid');
 Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_crm_property');
+
+Route::get('/crm_search_locality', 'App\Http\Controllers\Api\AreaLocalityController@crm_search_locality');
+
+Route::get('/crm_sub_localityby_localityid', 'App\Http\Controllers\Api\AreaSubLocalityController@crm_sub_localityby_localityid');
+
+ Route::get('crm_property_rent_slip', 'App\Http\Controllers\Api\ProductController@crm_property_rent_slip');
+
 Route::post('/invoice_status_change', 'App\Http\Controllers\PlansController@invoice_status_change');
 Route::post('/property_price_change', 'App\Http\Controllers\PlansController@property_price_change');
 Route::post('/rollback_property', 'App\Http\Controllers\PlansController@rollback_property');
-    Route::get('rent_property_slip', 'App\Http\Controllers\PlansController@rent_property_slip');
-    Route::get('crm_getinvoiceById', 'App\Http\Controllers\PlansController@crm_get_invoice_details');
+Route::get('rent_property_slip', 'App\Http\Controllers\PlansController@rent_property_slip');
+Route::get('crm_getinvoiceById', 'App\Http\Controllers\PlansController@crm_get_invoice_details');
 
 
 Route::post('property_live_bycrm', 'App\Http\Controllers\PlansController@property_live_bycrm');
@@ -123,6 +130,7 @@ Route::group([
     Route::get('/get_internal_user_locality/{value}', 'App\Http\Controllers\Api\AreaSubLocalityController@get_internal_user_locality');
     
     Route::get('/search_locality/{value}', 'App\Http\Controllers\Api\AreaLocalityController@search_locality');
+
 
     Route::get('/get_state', 'App\Http\Controllers\Api\AreaStateController@index');
     Route::get('/get_district_byid', 'App\Http\Controllers\Api\AreaDistrictController@get_district_byid');
@@ -375,11 +383,11 @@ Route::group([
 
     // district functionalty
     Route::post('/district_create', 'App\Http\Controllers\Api\AreaDistrictController@create');
-     Route::get('/get_district', 'App\Http\Controllers\Api\AreaDistrictController@get_district');
+     Route::post('/get_district_byid', 'App\Http\Controllers\Api\AreaDistrictController@search_district_id');
      Route::post('/district_update', 'App\Http\Controllers\Api\AreaDistrictController@district_update');
       Route::post('/district_status_changes', 'App\Http\Controllers\Api\AreaDistrictController@district_status_changes');
     Route::get('/delete_district', 'App\Http\Controllers\Api\AreaDistrictController@delete');
-      Route::get('/search_district/{value}', 'App\Http\Controllers\Api\AreaDistrictController@search_district');
+       Route::post('/search_district', 'App\Http\Controllers\Api\AreaDistrictController@search_district');
     // locality functionalty
      Route::post('/locality_create', 'App\Http\Controllers\Api\AreaLocalityController@create');
       Route::post('/get_locality_byid', 'App\Http\Controllers\Api\AreaLocalityController@search_locality_id');
@@ -388,9 +396,11 @@ Route::group([
     Route::get('/edit_locality_id', 'App\Http\Controllers\Api\AreaLocalityController@edit_locality_id');
      Route::post('/locality_update', 'App\Http\Controllers\Api\AreaLocalityController@locality_update');
      Route::get('/delete_locality', 'App\Http\Controllers\Api\AreaLocalityController@delete');
-      Route::get('/search_locality/{value}', 'App\Http\Controllers\Api\AreaLocalityController@search_locality1');
+      Route::post('/search_locality', 'App\Http\Controllers\Api\AreaLocalityController@search_locality1');
+      Route::post('/get_locality_searching', 'App\Http\Controllers\Api\AreaLocalityController@get_locality_searching');
      // sub locality functionalty
      Route::post('/sub_locality_create', 'App\Http\Controllers\Api\AreaSubLocalityController@create');
+     Route::post('/get_sub_locality_searching', 'App\Http\Controllers\Api\AreaSubLocalityController@get_sub_locality_searching');
       Route::post('/get_sub_locality_byid', 'App\Http\Controllers\Api\AreaSubLocalityController@search_sub_locality_id');
       Route::post('/sub_locality_status_changes', 'App\Http\Controllers\Api\AreaSubLocalityController@sub_locality_status_changes');
        Route::get('/delete_sub_locality', 'App\Http\Controllers\Api\AreaSubLocalityController@delete');
