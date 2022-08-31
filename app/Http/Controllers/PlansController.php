@@ -13,8 +13,6 @@ use App\Models\planCredit;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
-use App\Http\Resources\API\book_property;
-use App\Http\Resources\API\rented_property;
 use App\Models\invoices;
 use App\Models\product;
 use App\Models\LetOutPlansNew;
