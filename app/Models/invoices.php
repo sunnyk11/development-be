@@ -74,6 +74,11 @@ class invoices extends Model
         return $this->hasOne('App\Models\invoices', 'order_id','order_id')->where('choose_payment_type','book_property');
     }
 
+    public function purchased_property()
+    {
+        return $this->hasOne('App\Models\invoices', 'order_id','order_id')->orderBy('id', 'desc');
+    }
+
     public function plan_features() {
          return $this->hasOne('App\Models\PropertyPlans','id','plan_id')->with('features');
     }

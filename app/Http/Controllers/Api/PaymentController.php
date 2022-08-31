@@ -561,7 +561,7 @@ class PaymentController extends Controller
                         /* Product comparison disabled by ID */
                       Product_Comparision::where('product_id', $order_details[0]->property_id)->delete();
                       
-                      $angular_url = env('angular_url').'invoice?'.'invoice_no='.$main_invoice_id;
+                      $angular_url = env('angular_url').'book-property?'.'invoice_no='.$invoice_id;
                      }
                 }
                 

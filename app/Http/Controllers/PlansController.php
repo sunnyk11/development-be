@@ -674,7 +674,7 @@ class PlansController extends Controller
 
     public function get_invoice_details($invoiceID) {
         try{
-            $data =invoices::with('UserDetail','plan_features','book_property','order_details')->where(
+            $data =invoices::with('UserDetail','plan_features','book_property','order_details','purchased_property')->where(
                 ['invoice_no'=> $invoiceID,'user_id'=> Auth::user()->id])->first();
             return response()->json([
                 'data' =>$data,
@@ -1406,6 +1406,7 @@ public function crm_get_invoice_details(Request $request) {
                     
                     return response()->json([
                         'data' => $invoice_id,
+                        'property_type'=>$order_details[0]->choose_payment_type,
                         'status'=>201
                     ], 201);
 
@@ -1462,7 +1463,7 @@ public function crm_get_invoice_details(Request $request) {
                         'property_uid'=>$order_details[0]->property_uid,
 
                         'total_amount'=>$order_details[0]->total_amount,
-                          'payment_percentage' =>100- $order_details[0]->payment_percentage,
+                        'payment_percentage' =>100- $order_details[0]->payment_percentage,
                         'user_email' => $order_details[0]->user_email,
                         'user_id' => $order_details[0]->user_id,
                         'invoice_generated_date' => $todayDate,
@@ -1474,7 +1475,8 @@ public function crm_get_invoice_details(Request $request) {
                 
                     
                     return response()->json([
-                        'data' => $main_invoice_id,
+                        'data' => $invoice_id,
+                        'property_type'=>$order_details[0]->choose_payment_type,
                         'status'=>201
                     ], 201);
 
