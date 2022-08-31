@@ -21,6 +21,8 @@ Route::get('/get_version', function () {
     // return env('App_version', 'Please define App Version');
    return  config('services.App_version');
 });
+
+Route::get('get_invoice_details/{id}', 'App\Http\Controllers\PlansController@get_invoice_details');
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');
 //Route::resource('/blog', PostsController::class);
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
@@ -322,6 +324,7 @@ Route::group([
         Route::get('user_recently_pro', 'App\Http\Controllers\Api\UserProductCountController@index');
 
         Route::post('/product_login_see', 'App\Http\Controllers\Api\ProductController@product_login_see');
+        Route::post('/property_notes_update', 'App\Http\Controllers\Api\ProductController@property_notes_update');
        Route::get('/solid_properties', 'App\Http\Controllers\Api\ProductOrderController@solid_properties');
        Route::get('/purchased_properties', 'App\Http\Controllers\Api\ProductOrderController@purchase_properties');
        Route::get('/user_order_product', 'App\Http\Controllers\Api\ProductOrderController@property_all_orders');
@@ -406,7 +409,13 @@ Route::group([
        Route::get('/delete_sub_locality', 'App\Http\Controllers\Api\AreaSubLocalityController@delete');
      Route::post('/sub_locality_update', 'App\Http\Controllers\Api\AreaSubLocalityController@sub_locality_update');
     Route::get('/edit_sub_locality_id', 'App\Http\Controllers\Api\AreaSubLocalityController@edit_sub_locality_id');
+// area group functionalty
 
+     Route::post('/area_group_create', 'App\Http\Controllers\Api\AreaGroupController@create');
+     Route::post('/area_group_update', 'App\Http\Controllers\Api\AreaGroupController@area_group_update');
+     Route::get('/get_group_list', 'App\Http\Controllers\Api\AreaGroupController@index');
+    Route::get('/delete_group', 'App\Http\Controllers\Api\AreaGroupController@delete'); 
+    Route::get('/get_group_details_id', 'App\Http\Controllers\Api\AreaGroupController@get_group_details_id');
 
     Route::get('/update_banner_id', 'App\Http\Controllers\Api\OfferBannerController@update_banner_id');
     Route::post('/banner_Update', 'App\Http\Controllers\Api\OfferBannerController@banner_Update');

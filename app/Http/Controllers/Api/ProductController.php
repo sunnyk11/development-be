@@ -133,7 +133,7 @@ class ProductController extends Controller
 
         $current_date= Carbon::now()->format('Y-m-d H:i:s');
      $chattarpur_id=area_locality::select('locality_id')->where(['locality' =>'CHATTARPUR','status' => '1'])->first();
-     // return count($chattarpur_id);
+     // return $chattarpur_id;
      if($chattarpur_id){
       
      $locality_data=product::select('products.id as product_id','products.build_name','products.area','products.flat_type','products.available_for','products.furnishing_status','products.security_deposit','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw('order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
@@ -152,9 +152,12 @@ class ProductController extends Controller
         $product_data=product::select('products.id as product_id','products.build_name','products.area','products.flat_type','products.available_for','products.furnishing_status','products.security_deposit','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw('order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
-            ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes','invoices.plan_type'=>'Let Out','products.state_id'=>null])
+            ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes','invoices.plan_type'=>'Let Out'])
+            ->whereNotNull('products.state_id')
            ->orderBy('plans_day_left','asc')
-            ->get(); 
+            ->get();
+
+      // return $product_data; 
         $grouped = $product_data->groupBy('state_id')->map(function ($row) {return $row->count();});
        $data=product::select('id','state_id')->where(['state_id'=> 1,'delete_flag'=> '0','rent_availability'=>'1','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('state_id')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
 
@@ -548,6 +551,23 @@ class ProductController extends Controller
 
     }
 
+     public function property_notes_update(Request $request){ 
+      $request->validate([
+                'property_id' => 'required',
+                'property_notes' => 'required',
+            ]);
+      try{
+          $user_id = Auth::user()->id;
+        product::where('id', $request->property_id)->update(['property_notes' =>  $request->property_notes,'notes_updateby' =>Auth::user()->id]);
+        return response()-> json([
+                    'data' => 'Notes Updated',
+                    'status'=> 200
+                ]);
+      }catch(\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }  
+     }
+
      public function product_login_see(Request $request){
         try{
             $request->validate([
@@ -558,7 +578,7 @@ class ProductController extends Controller
 
             $current_date= Carbon::now()->format('Y-m-d H:i:s');
 
-            $product = product::with('amenities','product_payment_details','Property_Type','product_img','product_comparision','Single_wishlist','UserDetail','product_state','product_district','product_locality','product_sub_locality','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration','pro_flat_Type','rent_invoice')
+            $product = product::with('amenities','product_payment_details','Property_Type','product_img','product_comparision','Single_wishlist','UserDetail','notes_updated','product_state','product_district','product_locality','product_sub_locality','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration','pro_flat_Type','rent_invoice')
              ->select('products.*','invoices.id as invoice_id','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
@@ -997,6 +1017,8 @@ class ProductController extends Controller
         $data->area_unit =$data1['area_unit'];
         $data->flat_type =$data1['flat_type'];
         $data->property_detail = $data1['property_desc'];
+         $data->property_notes = $data1['property_notes'];
+        $data->notes_updateby=$user_id;
 
         // step 2
         $data->address = $data2['address'];
@@ -1089,7 +1111,7 @@ class ProductController extends Controller
          $product_uid= rand (1000,9999).time();
 
             $product_data = [
-            'user_id' => $user_id ,
+            'user_id' => $user_id,
             'product_uid' => $product_uid,
             'build_name' =>$data1['property_name'],
             'type' =>$data1['property_type'],
@@ -1100,6 +1122,8 @@ class ProductController extends Controller
             'area_unit' => $data1['area_unit'],
             'flat_type' =>$data1['flat_type'],
             'property_detail' =>$data1['property_desc'],
+            'property_notes' => $data1['property_notes'],
+            'notes_updateby'=>$user_id,
 
             // step 2
             'address_details' =>  $data2['address_details'],
@@ -1911,6 +1935,9 @@ class ProductController extends Controller
         $data->area_unit =$data1['area_unit'];
         $data->flat_type =$data1['flat_type'];
         $data->property_detail = $data1['property_desc'];
+
+         $data->property_notes = $data1['property_notes'];
+        $data->notes_updateby=$user_id;
 
         // step 2
         $data->address = $data2['address'];

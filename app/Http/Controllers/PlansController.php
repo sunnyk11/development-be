@@ -11,7 +11,10 @@ use DB;
 use Auth;
 use App\Models\planCredit;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
+use App\Http\Resources\API\book_property;
+use App\Http\Resources\API\rented_property;
 use App\Models\invoices;
 use App\Models\product;
 use App\Models\LetOutPlansNew;
@@ -583,6 +586,7 @@ class PlansController extends Controller
     }
 
     public function post_selected_rent_plan(Request $request) {
+        // return $request->all();
         $data = json_decode($request->plan_features_data, true);
 
         $request->validate([
@@ -593,14 +597,18 @@ class PlansController extends Controller
             'expected_rent' => 'required',
             'plan_id' => 'required',
             'payment_type' => 'required',
+            'plan_aggrement_price'=>'required',
             'plan_price' => 'required',
             'property_id' => 'required',
             'property_name' => 'required',
             'gst_amount' => 'required',
             'security_deposit' => 'required',
+            'main_total_amount' => 'required',
             'total_amount' => 'required',
             'property_uid' => 'required',
-            'payment_mode' => 'required'
+            'payment_mode' => 'required',
+            'choose_payment_type'=>'required',
+            'payment_percentage'=>'required',
         ]);
 
         $order_id = 'OR'.rand (10,100).time();
@@ -631,14 +639,18 @@ class PlansController extends Controller
                 'plan_id' => $request->plan_id,
                 'expected_rent' => $request->expected_rent,
                 'plan_price' => $request->plan_price,
+                'agreement_price' => $request->plan_aggrement_price,
                 'payment_type' => $request->payment_type,
                 'property_id' => $request->property_id,
                 'property_name' => $request->property_name,
                 'gst_amount' => $request->gst_amount,
                 'maintenance_charge' => $request->maintenance_charge,
                 'security_deposit' => $request->security_deposit,
-                'total_amount' => $request->total_amount,
+                'total_amount' => $request->main_total_amount,
+                'amount_paid' => $request->total_amount,
                 'property_uid' => $request->property_uid,
+                'payment_percentage' => $request->payment_percentage,
+                'choose_payment_type' => $request->choose_payment_type,
                 'payment_mode' => $request->payment_mode
             ]);
 
@@ -662,7 +674,7 @@ class PlansController extends Controller
 
     public function get_invoice_details($invoiceID) {
         try{
-            $data =invoices::with('UserDetail')->with('plan_features','order_details')->where(
+            $data =invoices::with('UserDetail','plan_features','book_property','order_details')->where(
                 ['invoice_no'=> $invoiceID,'user_id'=> Auth::user()->id])->first();
             return response()->json([
                 'data' =>$data,
@@ -885,8 +897,82 @@ public function crm_get_invoice_details(Request $request) {
     }
 
     public function get_rented_properties($userEmail) {
+        // return $userEmail;
         try{
-       return $property_details = invoices::with('property_rent_table')->where(['user_email' => $userEmail, 'payment_status' => 'PAID','payment_received'=>'Yes','plan_type'=>'Rent'])->get();
+            $property_data=[];
+       $property_details = invoices::with('property_rented')->where(['user_email' => $userEmail, 'payment_status' => 'PAID','payment_received'=>'Yes','plan_type'=>'Rent','choose_payment_type'=>'purchase_property'])
+            ->get();
+
+        // return $property_data;
+            $book_property_details=invoices::with('property_rented')->where(['user_email' => $userEmail, 'payment_status' => 'PAID','payment_received'=>'Yes','plan_type'=>'Rent','choose_payment_type'=>'book_property'])
+               ->get();
+               if(count($book_property_details)>0){
+                $book_property_data=[];
+                $book_property_notlive=[];
+               foreach ($book_property_details as $key => $data) {
+                  $book_property_fetch=invoices::with('property_rented')->where(['order_id' => $data['order_id'],'plan_type'=>'Rent','choose_payment_type'=>'book_property_after_payment','transaction_status'=>'TXN_SUCCESS'])
+                    ->first();
+                   array_push($book_property_data,$book_property_fetch);
+                    }
+                    
+               foreach ($book_property_details as $key => $data) {
+                $book_property_fetch_notlive=invoices::with('property_rented')->where(['order_id' => $data['order_id'],'plan_type'=>'Rent','choose_payment_type'=>'book_property_after_payment'])->where(function (Builder $query) {
+                    return $query->where([['transaction_status','!=','TXN_SUCCESS']])
+                                 ->orWhere([['transaction_status',Null]]);
+                })->first();
+                // return $book_property_fetch_notlive;
+                 array_push($book_property_notlive,$book_property_fetch_notlive);
+                  }
+                //   not live book property 
+                foreach ($book_property_notlive as $i=>$row_notlive) {
+                    if ($row_notlive == null)
+                       unset($book_property_notlive[$i]);
+                }
+                $array_notlive2 = array();
+                foreach ($book_property_notlive as $row_notlive2) {
+                    if ($row_notlive2 !== null)
+                        $array_notlive2[] = $row_notlive2;
+                }
+                
+                $book_property_notlive =  json_decode(json_encode($array_notlive2));
+                    foreach ($book_property_data as $i=>$row) {
+                        if ($row == null)
+                           unset($book_property_data[$i]);
+                    }
+                    $array2 = array();
+                    foreach ($book_property_data as $row2) {
+                        if ($row2 !== null)
+                            $array2[] = $row2;
+                    }
+                    $book_property_data = $array2;
+                    if(count($book_property_data)>0){
+                   array_push($property_data,$book_property_data);
+                    $array1=
+                   json_decode(json_encode($book_property_data));
+
+                    $array2=
+                   json_decode(json_encode($property_details));
+                   $original_book_data=array_merge($array1,$array2);   
+                    }else{
+                    $array2=
+                   json_decode(json_encode($property_details));
+                   $original_book_data=array_merge($array2);
+                    }
+                return response()->json([
+                    'purchased_property'=>$original_book_data,
+                    'book_property'=>$book_property_notlive,
+                    'Status'=>200,
+                ], 200);
+
+               }else{
+        array_push($property_data,$property_details);
+        $original_purchase_data=
+                   json_decode(json_encode($property_details));
+                return response()->json([
+                    'purchased_property'=>$original_purchase_data,
+                    'Status'=>200,
+                ], 200);
+               }
         }catch(\Exception $e) {
             return $this->getExceptionResponse1($e);
         } 
@@ -1260,16 +1346,15 @@ public function crm_get_invoice_details(Request $request) {
     }
 
     public function generate_rent_invoice(Request $request) {
-        try {
+        // try {
 
             $order_details = DB::table('plans_rent_orders')->where('order_id', $request->orderID)->get();
-    
+    // return $order_details;
             $todayDate =  Carbon::now()->format('Y-m-d H:i:s');
 
                $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'user_email' => $order_details[0]->user_email,
-                    'plan_status' => 'used','plan_name'=>$order_details[0]->plan_name,'payment_type'=>'Post','plan_type'=>'Rent'])->first();
+                    'plan_status' => 'used','plan_name'=>$order_details[0]->plan_name,'payment_type'=>'Post','plan_type'=>'Rent','choose_payment_type'=>$order_details[0]->choose_payment_type])->where('payment_percentage','100')->first();
                if($invoice_letout){
-
                     return response()->json([
                         'data' =>  $invoice_letout->invoice_no,
                         'status'=>200
@@ -1290,9 +1375,8 @@ public function crm_get_invoice_details(Request $request) {
                             else {
                                 $invoice_id = $order_details[0]->invoice_no;
                             }
-
-                 
-                       $invoice = new invoices([
+                    if($order_details[0]->choose_payment_type=='purchase_property'){
+                                $invoice = new invoices([
                         'invoice_no' => $invoice_id,
                         'plan_name' => $order_details[0]->plan_name,
                         'plan_id' => $order_details[0]->plan_id,
@@ -1301,9 +1385,84 @@ public function crm_get_invoice_details(Request $request) {
                         'order_id' => $order_details[0]->order_id,
                         'expected_rent' => $order_details[0]->expected_rent,
                         'plan_price' => $order_details[0]->plan_price,
+
+                        'agreement_price' =>$order_details[0]->agreement_price,
                         'payment_status' => 'UNPAID',
                         'plan_status'=>'used',
                         'property_uid'=>$order_details[0]->property_uid,
+                        'user_email' => $order_details[0]->user_email,
+                        'user_id' => $order_details[0]->user_id,
+                        'total_amount'=>$order_details[0]->total_amount,
+                        'amount_paid'=>$order_details[0]->amount_paid,
+                        'invoice_generated_date' => $todayDate,
+                        'payment_mode' => 'Cash',
+                        'choose_payment_type' => $order_details[0]->choose_payment_type,
+                        'payment_percentage' => $order_details[0]->payment_percentage,
+                        'payment_received' => 'Pending'  
+                    ]);
+
+                    $invoice->save();
+                
+                    
+                    return response()->json([
+                        'data' => $invoice_id,
+                        'status'=>201
+                    ], 201);
+
+             }
+              elseif($order_details[0]->choose_payment_type=='book_property'){
+                        $invoice = new invoices([
+                        'invoice_no' => $invoice_id,
+                        'plan_name' => $order_details[0]->plan_name,
+                        'plan_id' => $order_details[0]->plan_id,
+                        'plan_type' => $order_details[0]->plan_type,
+                        'payment_type' => $order_details[0]->payment_type,
+                        'order_id' => $order_details[0]->order_id,
+                        'expected_rent' => $order_details[0]->expected_rent,
+                        'plan_price' => $order_details[0]->plan_price,
+
+                       'agreement_price' =>$order_details[0]->agreement_price,
+                        'payment_status' => 'UNPAID',
+                        'plan_status'=>'used',
+                        'total_amount'=>$order_details[0]->total_amount,
+                        'amount_paid'=>$order_details[0]->amount_paid,
+                        'property_uid'=>$order_details[0]->property_uid,
+                        'user_email' => $order_details[0]->user_email,
+                        'user_id' => $order_details[0]->user_id,
+                        'invoice_generated_date' => $todayDate,
+                        'payment_mode' => 'Cash',
+                        'choose_payment_type' => $order_details[0]->choose_payment_type,
+                        'payment_percentage' => $order_details[0]->payment_percentage,
+                        'payment_received' => 'Pending'  
+                    ]);
+
+                    $invoice->save();
+
+
+                                $year = Carbon::now()->format('y');
+                                $month = Carbon::now()->format('m');
+                                $day = Carbon::now()->format('d');
+                                $hour = Carbon::now()->format('h');
+                                $minute = Carbon::now()->format('i');
+                                $second = Carbon::now()->format('s');
+                            $main_invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second+1;
+                     $invoice = new invoices([
+                        'invoice_no' => $main_invoice_id,
+                        'plan_name' => $order_details[0]->plan_name,
+                        'plan_id' => $order_details[0]->plan_id,
+                        'plan_type' => $order_details[0]->plan_type,
+                        'payment_type' => $order_details[0]->payment_type,
+                        'order_id' => $order_details[0]->order_id,
+                        'expected_rent' => $order_details[0]->expected_rent,
+                        'plan_price' => $order_details[0]->plan_price,
+
+                         'agreement_price' =>$order_details[0]->agreement_price,
+                        'payment_status' => 'UNPAID',
+                        'plan_status'=>'used',
+                        'property_uid'=>$order_details[0]->property_uid,
+
+                        'total_amount'=>$order_details[0]->total_amount,
+                          'payment_percentage' =>100- $order_details[0]->payment_percentage,
                         'user_email' => $order_details[0]->user_email,
                         'user_id' => $order_details[0]->user_id,
                         'invoice_generated_date' => $todayDate,
@@ -1315,16 +1474,20 @@ public function crm_get_invoice_details(Request $request) {
                 
                     
                     return response()->json([
-                        'data' => $invoice_id,
+                        'data' => $main_invoice_id,
                         'status'=>201
                     ], 201);
+
+             }
+
+                       
             
                }
                 
-            }
-        catch (\Exception $e) {
-            return $this->getExceptionResponse($e);
-        }
+        //     }
+        // catch (\Exception $e) {
+        //     return $this->getExceptionResponse($e);
+        // }
         
     }
 

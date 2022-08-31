@@ -84,7 +84,9 @@ class product extends Model
         'enabled',
         'property_mode',
         'crm_user_email',
-        'flat_type'
+        'flat_type',
+        'property_notes',
+        'notes_updateby'
     ];
 
     public function productid()
@@ -95,6 +97,10 @@ class product extends Model
     public function UserDetail()
     {
         return $this->hasOne('App\Models\User', 'id','user_id');
+    }
+    public function notes_updated()
+    {
+        return $this->hasOne('App\Models\User', 'id','notes_updateby')->select('id','email','other_mobile_number','name','last_name');
     }
     public function pro_user_details()
     {

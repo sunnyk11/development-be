@@ -102,7 +102,7 @@ class AreaSubLocalityController extends Controller
             $token  = $request->header('authorization');
             $object = new Authicationcheck();
             if($object->authication_check($token) == true){
-                    $locality = area_sub_locality::where('locality_id', $request->locality_id)->orderBy('sub_locality_id','asc')->get();
+                    $locality = area_sub_locality::where('locality_id', $request->locality_id)->where('status','1')->orderBy('sub_locality_id','asc')->get();
                     if(count($locality)>0){
                     return response()->json([
                         'data' => $locality,

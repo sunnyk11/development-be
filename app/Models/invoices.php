@@ -31,7 +31,11 @@ class invoices extends Model
                            'plan_status',
                            'property_uid',
                            'plan_apply_date',
-                           'property_amount'
+                           'property_amount',
+                           'choose_payment_type',
+                           'payment_percentage',
+                           'total_amount',
+                           'agreement_price'
                         ];
                         
     public function productDetails()
@@ -56,10 +60,18 @@ class invoices extends Model
     {
         return $this->hasOne('App\Models\plansRentOrders', 'invoice_no','invoice_no');
     }
+    public function property_rented()
+    {
+        return $this->hasOne('App\Models\plansRentOrders', 'order_id','order_id')->with('book_invoice');
+    }
     
     public function UserDetail()
     {
         return $this->hasOne('App\Models\User', 'id','user_id');
+    }
+    public function book_property()
+    {
+        return $this->hasOne('App\Models\invoices', 'order_id','order_id')->where('choose_payment_type','book_property');
     }
 
     public function plan_features() {
