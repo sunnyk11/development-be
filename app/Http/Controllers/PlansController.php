@@ -1367,7 +1367,8 @@ public function crm_get_invoice_details(Request $request) {
                                 $hour = Carbon::now()->format('h');
                                 $minute = Carbon::now()->format('i');
                                 $second = Carbon::now()->format('s');
-                                $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second;
+                                $x=1;
+                              $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second . $x;
                                 plansRentOrders::where('order_id', $request->orderID)->update(['invoice_no' => $invoice_id, 'payment_status' => 'UNPAID']);
                             }
                             else {
@@ -1444,7 +1445,8 @@ public function crm_get_invoice_details(Request $request) {
                                 $hour = Carbon::now()->format('h');
                                 $minute = Carbon::now()->format('i');
                                 $second = Carbon::now()->format('s');
-                            $main_invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second+1;
+                                $x=2;
+                            $main_invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second . $x;
                      $invoice = new invoices([
                         'invoice_no' => $main_invoice_id,
                         'plan_name' => $order_details[0]->plan_name,

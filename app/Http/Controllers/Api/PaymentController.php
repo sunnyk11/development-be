@@ -409,11 +409,11 @@ class PaymentController extends Controller
                 $hour = Carbon::now()->format('h');
                 $minute = Carbon::now()->format('i');
                 $second = Carbon::now()->format('s');
-                
+                $x=1;
                 //$invoice_id = 'INV'.rand (10,100).time();
 
                 $order_details = DB::table('plans_rent_orders')->where('order_id', $request->ORDERID)->get();
-                $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second;
+                $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second.$x;
                 plansRentOrders::where('order_id', $request->ORDERID)->update([ 'invoice_no' => $invoice_id, 'payment_status' => 'PAID']); 
 
                 $user_email = $order_details[0]->user_email;
@@ -455,7 +455,7 @@ class PaymentController extends Controller
                           'payment_mode' => 'Online',
                           'payment_received' => 'Yes',
                           'property_uid' => $order_details[0]->property_uid,
-                          'property_amount' => $order_details[0]->expected_rent     ,
+                          'property_amount' => $order_details[0]->expected_rent,
                           'choose_payment_type' => $order_details[0]->choose_payment_type,
                           'payment_percentage' => $order_details[0]->payment_percentage
                        ];
@@ -519,14 +519,22 @@ class PaymentController extends Controller
                           'payment_mode' => 'Online',
                           'payment_received' => 'Yes',
                           'property_uid' => $order_details[0]->property_uid,
-                          'property_amount' => $order_details[0]->expected_rent     ,
+                          'property_amount' => $order_details[0]->expected_rent,
                           'choose_payment_type' => $order_details[0]->choose_payment_type,
                           'payment_percentage' => $order_details[0]->payment_percentage
                        ];
 
                      invoices::updateOrCreate($exist_invoice, $invoice);
                      // second invoice 
-                     $main_invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second+1;
+                       $year2 = Carbon::now()->format('y');
+                        $month2 = Carbon::now()->format('m');
+                        $day2 = Carbon::now()->format('d');
+                        $hour2 = Carbon::now()->format('h');
+                        $minute2 = Carbon::now()->format('i');
+                        $second2 = Carbon::now()->format('s');
+                        $x=2;
+
+                     $main_invoice_id = 'INV' . $year2 . $month2 . $day . $hour2 . $minute2 . $second2 . $x;
                      $main_invoice =[
                           'invoice_no' => $main_invoice_id,
                           'plan_name' => $order_details[0]->plan_name,
