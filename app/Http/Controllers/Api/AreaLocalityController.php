@@ -129,6 +129,39 @@ class AreaLocalityController extends Controller
         }
     }
     
+   public function crm_locality_id(Request $request) {
+     $request->validate([
+                'locality_id' => 'required',
+            ]);
+    try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                     $locality=area_locality::select('locality_id','locality','district_id','status')->where(['locality_id'=> $request->locality_id,'status'=> '1'])->first();
+                     if($locality){
+                        return response()->json([
+                            'data' => $locality,
+                            'status'=>200
+                        ], 200);
+                     }else{
+                        return response()->json([
+                            'message' =>'FAIL',
+                         'description' => 'Locality Id is Invalid !!!...',
+                         'status'=>200
+                     ],200);
+                     }
+              }else{
+                return response() -> json([
+                    'message' => 'Failure',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }   
+               
+       }catch(\Exception $e) {
+        return $this->getExceptionResponse($e);
+        }
+    }
     
 
    public function search_locality1(Request $request) {

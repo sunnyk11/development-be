@@ -42,6 +42,8 @@ Route::get('/get_crm_property', 'App\Http\Controllers\Api\ProductController@get_
 
 Route::get('/crm_search_locality', 'App\Http\Controllers\Api\AreaLocalityController@crm_search_locality');
 
+Route::get('/crm_locality_id', 'App\Http\Controllers\Api\AreaLocalityController@crm_locality_id');
+
 Route::get('/crm_sub_localityby_localityid', 'App\Http\Controllers\Api\AreaSubLocalityController@crm_sub_localityby_localityid');
 
  Route::get('crm_property_rent_slip', 'App\Http\Controllers\Api\ProductController@crm_property_rent_slip');
@@ -175,6 +177,7 @@ Route::group([
         Route::post('payment','App\Http\Controllers\Api\PaymentController@payment')->name('payment.payment');
         Route::get('plans_payment/{id}','App\Http\Controllers\Api\PaymentController@plans_payment');
         Route::get('plans_rent_payment/{id}','App\Http\Controllers\Api\PaymentController@plans_rent_payment');
+        Route::get('remaing_plans_rent_payment/{id}','App\Http\Controllers\Api\PaymentController@remaing_plans_rent_payment');
         
         Route::post('post_selected_plan','App\Http\Controllers\PlansController@post_selected_plan');
         Route::post('store_fixed_appointment','App\Http\Controllers\Api\FixedAppointmentController@store');
@@ -213,6 +216,7 @@ Route::group([
 Route::post('post-payment','App\Http\Controllers\Api\PaymentController@postPayment')->name('post.payment');
 Route::post('plans-post-payment','App\Http\Controllers\Api\PaymentController@PlansPostPayment');
 Route::post('plans-rent-post-payment','App\Http\Controllers\Api\PaymentController@PlansRentPostPayment');
+Route::post('plans-rent-remaining-payment','App\Http\Controllers\Api\PaymentController@PlansRentPostPaymentRemaining');
 
 Route::get('/get_permissions', 'App\Http\Controllers\Api\RolesPermissionsController@get_permissions');
 Route::post('/create_role', 'App\Http\Controllers\Api\RolesPermissionsController@create_role');

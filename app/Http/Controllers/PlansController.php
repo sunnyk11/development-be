@@ -683,7 +683,7 @@ class PlansController extends Controller
     }
     public function admin_get_invoice_data($invoiceID) {
         try{
-            $data =invoices::with('UserDetail')->with('plan_features','order_details')->where(
+            $data =invoices::with('UserDetail','plan_features','book_property','order_details','purchased_property')->where(
                 ['invoice_no'=> $invoiceID])->first();
             return response()->json([
                 'data' =>$data,
@@ -1112,11 +1112,61 @@ public function crm_get_invoice_details(Request $request) {
     public function get_all_user_invoices($emailID) {
         
       try{
-            $data =invoices::with('productDetails')->where([
-                ['user_email', $emailID]])->get();
-            return response()->json([
-                'data' =>$data,
-            ], 201);
+            $let_out =invoices::with('productDetails')->where([
+                ['user_email', $emailID],['plan_type', 'Let Out']])->get();
+
+                    $property_data=[];
+                    $property_details = invoices::with('property_rented')->where(['user_email' => $emailID, 'plan_type'=>'Rent','choose_payment_type'=>'purchase_property'])
+                         ->get();
+             
+                     // return $property_data;
+                         $book_property_details=invoices::with('property_rented')->where(['user_email' => $emailID,'plan_type'=>'Rent','choose_payment_type'=>'book_property'])
+                            ->get();
+                            if(count($book_property_details)>0){
+                             $book_property_data=[];
+                            foreach ($book_property_details as $key => $data) {
+                               $book_property_fetch=invoices::with('property_rented')->where(['order_id' => $data['order_id'],'plan_type'=>'Rent','choose_payment_type'=>'book_property_after_payment'])->first();
+                                array_push($book_property_data,$book_property_fetch);
+                                 }
+                              foreach ($book_property_data as $i=>$row) {
+                                     if ($row == null)
+                                        unset($book_property_data[$i]);
+                                 }
+                                 $array2 = array();
+                                 foreach ($book_property_data as $row2) {
+                                     if ($row2 !== null)
+                                         $array2[] = $row2;
+                                 }
+                                 $book_property_data = $array2;
+                                 if(count($book_property_data)>0){
+                                array_push($property_data,$book_property_data);
+                                 $array1=
+                                json_decode(json_encode($book_property_data));
+             
+                                 $array2=
+                                json_decode(json_encode($property_details));
+                                $original_book_data=array_merge($array1,$array2);   
+                                 }else{
+                                 $array2=
+                                json_decode(json_encode($property_details));
+                                $original_book_data=array_merge($array2);
+                                 }
+                             return response()->json([
+                                'let_out' =>$let_out,
+                                 'rent_out'=>$original_book_data,
+                                 'Status'=>200,
+                             ], 200);
+             
+                            }else{
+                     array_push($property_data,$property_details);
+                     $original_purchase_data=
+                                json_decode(json_encode($property_details));
+                             return response()->json([
+                                 'let_out' =>$let_out,
+                                 'rent_out'=>$original_purchase_data,
+                                 'Status'=>200,
+                             ], 200);
+                            }
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
         }  

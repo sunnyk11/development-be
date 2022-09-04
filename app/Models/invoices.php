@@ -108,7 +108,7 @@ class invoices extends Model
 
             $start_date = Carbon::createFromFormat('Y-m-d H:i:s', $start_date_modified);
             $end_date = Carbon::createFromFormat('Y-m-d H:i:s', $end_date_modified);
-                $query->whereBetween('created_at', [$start_date,$end_date]);
+                $query->whereBetween('invoices.created_at', [$start_date,$end_date]);
         }
         if($searchTerm->invoice_type){
           $query = $query->where('invoices.payment_status',$searchTerm->invoice_type);

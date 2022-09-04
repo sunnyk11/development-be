@@ -368,6 +368,44 @@ class PaymentController extends Controller
 
     }
 
+    public function remaing_plans_rent_payment($orderId) {
+            try {
+                $order_details = DB::table('plans_rent_orders')->where('order_id', $orderId)->get();
+                $remaing_amount=$order_details[0]->total_amount-$order_details[0]->amount_paid;
+                $MOBILE_NO = Auth::user()->other_mobile_number;
+                $EMAIL =  Auth::user()->email;
+                $CUST_ID = Auth::user()->id;
+
+                 $body = [
+                     "MID"              => getenv("MID"),
+                     "WEBSITE"          => getenv("WEBSITE"),
+                     "INDUSTRY_TYPE_ID" => getenv("INDUSTRY_TYPE_ID"),
+                     "ORDER_ID"         => $orderId,
+                     "CALLBACK_URL"     => getenv("CALLBACK_URL_RENT_PLANS_REMAIN"),
+                     "TXN_AMOUNT"       =>$remaing_amount,
+                     "CUST_ID"          => $CUST_ID,
+                     "MOBILE_NO"        => $MOBILE_NO,
+                     "EMAIL"            => $EMAIL
+                 ];
+                 $Payment_argument=getenv("Payment_Parameter");
+                 $paytmChecksum = PaytmChecksum::generateSignature($body,$Payment_argument);
+                 $body["CHECKSUMHASH"] = $paytmChecksum;
+                 
+                 $jsonbody = json_encode($body);
+                //  error_log($jsonbody);
+              
+                 return response()->json([
+                     'data' => $body,
+                     'status' => 201
+                     
+                 ], 200);
+             } 
+             catch (\Exception $e) {
+                 return $this->getExceptionResponse($e);
+             }
+
+        }
+
     public function PlansRentPostPayment(Request $request) {
         try {   
             $plan_transaction= [
@@ -394,9 +432,7 @@ class PaymentController extends Controller
             // transaction save on database by Unique order id
             $exist_order= [
                 'order_id' =>$request->ORDERID
-              ];
-            // plansTransaction::create($plan_transaction);
-            
+              ];            
             plansTransaction::updateOrCreate($exist_order, $plan_transaction);
 
             // transaction status update
@@ -413,16 +449,18 @@ class PaymentController extends Controller
                 //$invoice_id = 'INV'.rand (10,100).time();
 
                 $order_details = DB::table('plans_rent_orders')->where('order_id', $request->ORDERID)->get();
+
                 $invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second.$x;
+                
                 plansRentOrders::where('order_id', $request->ORDERID)->update([ 'invoice_no' => $invoice_id, 'payment_status' => 'PAID']); 
 
                 $user_email = $order_details[0]->user_email;
 
                 $todayDate = Carbon::now()->format('Y-m-d H:i:s');
                 
-                 $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'user_email' => $order_details[0]->user_email,'plan_name'=>$order_details[0]->plan_name,'payment_status'=>'PAID','plan_status' => 'used','payment_type'=>'Post','plan_type'=>'Rent'])->where('payment_percentage','100')->first();
-               if($invoice_letout){
-                  $angular_url = env('angular_url').'invoice?'.'invoice_no='.$invoice_letout->invoice_no;
+                 $invoice_rentout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'user_email' => $order_details[0]->user_email,'plan_name'=>$order_details[0]->plan_name,'payment_status'=>'PAID','plan_status' => 'used','payment_type'=>'Post','plan_type'=>'Rent'])->where('payment_percentage','100')->first();
+               if($invoice_rentout){
+                  $angular_url = env('angular_url').'invoice?'.'invoice_no='.$invoice_rentout->invoice_no;
             
                }else{
 
@@ -463,6 +501,7 @@ class PaymentController extends Controller
                      invoices::updateOrCreate($exist_invoice, $invoice);
                    $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out'])->first();
                       if($invoice_letout && $invoice_letout->plan_name == 'Standard' && $order_details[0]->payment_percentage==100){
+
                           $letout_plan_details= DB::table('plans_orders')->where(['invoice_no'=> $invoice_letout->invoice_no])->first(); 
                           $sgst_amount = (9 * $letout_plan_details->expected_rent) / 100;
                           $cgst_amount = (9 * $letout_plan_details->expected_rent) / 100;
@@ -557,9 +596,18 @@ class PaymentController extends Controller
                           'payment_percentage' =>100- $order_details[0]->payment_percentage,
                           'plan_apply_date'=> $todayDate,
                           'payment_received' => 'Pending',
-                          'property_uid' => $order_details[0]->property_uid
+                          'property_uid' => $order_details[0]->property_uid,
+                          'property_amount' => $order_details[0]->expected_rent
                        ];
+
                      invoices::Create($main_invoice);
+
+                     DB::table('invoices')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Booked to Another User']);  
+                     DB::table('invoices')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Book']);
+                     
+                     DB::table('invoices')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $main_invoice_id])->update(['property_status' => 'Property Book']);
+
+
                     product::where('id', $order_details[0]->property_id)->update(['order_status' => '2']);
                       
                       UserProductCount::where('product_id', $order_details[0]->property_id)->update(['status' => '0']);
@@ -577,9 +625,90 @@ class PaymentController extends Controller
             else {
                 plansRentOrders::where('order_id', $request->ORDERID)->update(['payment_status' => 'FAIL']);
                 $angular_url = env('angular_url').'product-listing?'.'status='.$request->RESPCODE;
+            return response()->redirectTo($angular_url);  
             }
-            
-            return response()->redirectTo($angular_url);     
+               
+        }
+        catch (\Exception $e) {
+            return $this->getExceptionResponse($e);
+        }
+    }
+
+ public function PlansRentPostPaymentRemaining(Request $request) {
+        try {   
+            $plan_transaction= [
+                'order_id'           =>  $request->ORDERID,
+                'MID'                =>  $request->MID,
+                'transaction_id'     =>  $request->TXNID,
+                'transaction_amount' =>  $request->TXNAMOUNT,
+                'transaction_status' =>  $request->STATUS,
+                'transaction_date'   =>  $request->TXNDATE,
+                'respcode'           =>  $request->RESPCODE,
+                'resp_message'       =>  $request->RESPMSG,
+                'getwayname'         =>  $request->GATEWAYNAME,
+                'bank_txn_id'        =>  $request->BANKTXNID,
+                'bank_name'          =>  $request->BANKNAME,
+                'checksumhash'       =>  $request->CHECKSUMHASH,
+                'paymentmode'        =>  $request->PAYMENTMODE,
+                'currency'           =>  $request->CURRENCY,
+                'retryAllowed'       =>  $request->retryAllowed,
+                'errorMessage'       =>  $request->errorMessage,
+                'errorCode'          =>  $request->errorCode
+            ];  
+            // plansTransaction::Create($plan_transaction);
+
+            // transaction status update
+            plansRentOrders::where('order_id', $request->ORDERID)->update(['transaction_status' => $request->STATUS]);
+
+            if($request->STATUS == 'TXN_SUCCESS') {
+
+                $invoice_details = invoices::where('order_id', $request->ORDERID)->orderBy('id','desc')->first();
+                
+                plansRentOrders::where('order_id', $request->ORDERID)->update(['payment_status' => 'PAID']); 
+
+                $user_email = $invoice_details->user_email;
+
+                $todayDate = Carbon::now()->format('Y-m-d H:i:s');
+                   $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out'])->first();
+
+                     invoices::where(['property_uid'=> $invoice_details->property_uid,'invoice_no'=> $invoice_details->invoice_no])->update(['transaction_status'=>'TXN_SUCCESS','payment_mode'=>'Online','payment_status'=>'PAID']);
+
+                      if($invoice_letout && $invoice_letout->plan_name == 'Standard' && $order_details[0]->payment_percentage==100){
+
+                          $letout_plan_details= DB::table('plans_orders')->where(['invoice_no'=> $invoice_letout->invoice_no])->first(); 
+                          $sgst_amount = (9 * $letout_plan_details->expected_rent) / 100;
+                          $cgst_amount = (9 * $letout_plan_details->expected_rent) / 100;
+                          $total_amount_plan= $letout_plan_details->expected_rent + $sgst_amount+$cgst_amount;
+                          invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['property_amount'=>$letout_plan_details->expected_rent,'amount_paid'=>$total_amount_plan,'payment_status' => 'PAID','payment_mode'=>'Payment Paid by user','payment_received'=>'Yes','payment_status_change_reason'=>'Payment Received from Renter','transaction_status'=>'Cross_Payment','invoice_paid_date'=>$todayDate,'service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate]);
+                          // DB::table('plans_orders')->where(['invoice_no'=> $letout_plan_details->invoice_no])->update(['transaction_status'=>'Cross_Payment','payment_status' => 'PAID','amount_paid'=>$total_amount_plan]);
+                      }
+                      
+                      if($invoice_letout && ($invoice_letout->plan_name == 'Raja' || $invoice_letout->plan_name == 'MahaRaja')){
+                          invoices::where(['property_uid'=> $invoice_details->property_uid,'plan_type'=>'Let Out','payment_status'=>'PAID'])->update(['service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate]);
+                      }
+
+                     DB::table('invoices')->where(['property_uid'=> $invoice_details->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);  
+                     DB::table('invoices')->where(['property_uid'=>  $invoice_details->property_uid,'invoice_no'=> $invoice_details->invoice_no])->update(['property_status' => 'Property Rented','service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate]);
+                                  
+                      product::where('id', $order_details[0]->property_id)->update(['order_status' => '1']);
+                      
+                      UserProductCount::where('product_id', $order_details[0]->property_id)->delete();
+                   
+                      /* Wishlist disabled by ID */
+                      Wishlist::where('product_id', $order_details[0]->property_id)->delete();
+                        /* Product comparison disabled by ID */
+                      Product_Comparision::where('product_id', $order_details[0]->property_id)->delete();
+                      
+                      $angular_url = env('angular_url').'invoice?'.'invoice_no='.$invoice_details->invoice_no;
+                
+                
+            }
+            else {
+                plansRentOrders::where('order_id', $request->ORDERID)->update(['payment_status' => 'FAIL']);
+                $angular_url = env('angular_url').'my-properties';
+            return response()->redirectTo($angular_url);  
+            }
+               
         }
         catch (\Exception $e) {
             return $this->getExceptionResponse($e);

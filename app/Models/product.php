@@ -255,6 +255,17 @@ class product extends Model
 
     public function rent_invoice() {
         return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->with('UserDetail')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Rent']);
+    }
+    public function book_property() {
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->select('order_id','choose_payment_type','invoice_no','total_amount','amount_paid','property_uid')->where(['plan_type'=> 'Rent','choose_payment_type'=>'book_property','payment_status'=> 'PAID']);
+    }
+
+    public function purchase_property() {
+        return $this->hasOne('App\Models\invoices','property_uid','product_uid')->select('order_id','choose_payment_type','user_id','property_uid','invoice_no','total_amount','amount_paid')->with('User_details')->where(['plan_type'=> 'Rent','payment_status'=> 'PAID'])->where([['choose_payment_type','!=','book_property']]);
+    }
+
+    public function rented_invoice() {
+        return $this->hasOne('App\Models\plansRentOrders', 'property_id','id')->with('book_property','User_details','purchase_property')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Rent']);
     }		
      public function scopeSearch($query, $searchTerm) {
         if ($searchTerm->build_name) {
@@ -363,6 +374,9 @@ class product extends Model
         }
         if($searchTerm->admin_property_type=='rentout_property'){
           $query = $query->where('order_status','1');
+        }
+        if($searchTerm->admin_property_type=='book_property'){
+          $query = $query->where('order_status','2');
         }
 
         if($searchTerm->user_mobile_no){

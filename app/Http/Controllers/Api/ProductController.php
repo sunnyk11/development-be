@@ -72,7 +72,7 @@ class ProductController extends Controller
       if($request->invoice_no){
        $invoice_details = invoices::select('property_uid','id')->with('propertyDetails')->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN'],['invoice_no',$request->invoice_no]])->first();
        if($invoice_details){
-       $data=product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes','product_uid'=>$invoice_details->property_uid])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->paginate(5);
+       $data=product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes','product_uid'=>$invoice_details->property_uid])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','purchase_property','book_property')->orderBy('id', 'desc')->search($request)->paginate(5);
 
          return response()->json([
             'data' =>$data,
@@ -88,7 +88,7 @@ class ProductController extends Controller
 
        }
       }else{
-        $data = product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes'])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->paginate(5);
+        $data = product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes'])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','purchase_property','book_property')->orderBy('id', 'desc')->search($request)->paginate(5);
         return response()->json([
             'data' =>$data,
             'status' => '200'
