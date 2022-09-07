@@ -35,7 +35,8 @@ class invoices extends Model
                            'choose_payment_type',
                            'payment_percentage',
                            'total_amount',
-                           'agreement_price'
+                           'agreement_price',
+                           'book_order_id'
                         ];
                         
     public function productDetails()

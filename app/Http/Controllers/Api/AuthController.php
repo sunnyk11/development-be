@@ -806,7 +806,8 @@ class AuthController extends Controller
             'BuyerName' => $user[0]['name'].' '. $user[0]['last_name'],
             'Source' => 'Web',
             'Appointment'=>'Appointment Fixed',
-            'AppointmentTime' => $request_time
+            'AppointmentTime' => $request_time,
+            'LeadCreatedFrom' => 'WEBSITEUSER'
         ]);
         
         $date = strtotime($response->headers()['Date'][0]);

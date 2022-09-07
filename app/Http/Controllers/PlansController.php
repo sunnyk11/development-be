@@ -766,8 +766,9 @@ public function crm_get_invoice_details(Request $request) {
             if($object->authication_check($token) == true){
 
                 $invoice_data =invoices::with('propertyDetails')->where(['invoice_no'=> $request->invoice_no,'plan_status'=>'used'])->first();
-                // return $invoice_data;
+                // return $invoice_data->payment_status;
                 if($invoice_data){
+                    if($invoice_data->payment_status != 'RETURN' && $invoice_data->payment_status != 'CANCEL'&& $invoice_data->payment_status != 'Payment Returned' ){
                          if($invoice_data->plan_type == 'Let Out'){
                             // return $invoice_data;
                             if($invoice_data['propertyDetails']['order_status'] == 0){
@@ -871,6 +872,13 @@ public function crm_get_invoice_details(Request $request) {
                                  'status'=>200
                              ], 200);
                         }
+                    }else{
+                        return response()->json([
+                            'message' =>'FAIL',
+                            'description' => 'Invoice Already Rollback !!!...',
+                            'status'=>404
+                        ], 404);
+                   }
 
                 }else{
                      return response()->json([
@@ -1496,7 +1504,9 @@ public function crm_get_invoice_details(Request $request) {
                                 $minute = Carbon::now()->format('i');
                                 $second = Carbon::now()->format('s');
                                 $x=2;
-                            $main_invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second . $x;
+                            
+                    $main_invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second . $x;
+                    $book_order_id=$order_details[0]->order_id . '-' .rand(1,9);;
                      $invoice = new invoices([
                         'invoice_no' => $main_invoice_id,
                         'plan_name' => $order_details[0]->plan_name,
@@ -1518,12 +1528,12 @@ public function crm_get_invoice_details(Request $request) {
                         'user_id' => $order_details[0]->user_id,
                         'invoice_generated_date' => $todayDate,
                         'payment_mode' => 'Cash',
-                        'payment_received' => 'Pending'  
+                        'payment_received' => 'Pending' ,
+                        'book_order_id'=>$book_order_id 
                     ]);
 
                     $invoice->save();
-                
-                    
+                plansRentOrders::where('order_id',$order_details[0]->order_id)->update(['book_order_id' => $book_order_id]);                    
                     return response()->json([
                         'data' => $invoice_id,
                         'property_type'=>$order_details[0]->choose_payment_type,

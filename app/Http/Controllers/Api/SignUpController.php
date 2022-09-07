@@ -164,7 +164,8 @@ class SignUpController extends Controller
                 'BuyerEmail' => 'newlead1@housingstreet.com',
                 'PhoneNo' => $request->form_data['mobile_no'],
                 'BuyerName' => $request->form_data['user_name'],
-                'Source' => 'Web'
+                'Source' => 'Web',
+                'LeadCreatedFrom' => 'WEBSITEUSER'
             ]);
 
             return response()->json([
