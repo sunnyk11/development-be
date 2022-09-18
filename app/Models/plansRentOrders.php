@@ -34,7 +34,7 @@ class plansRentOrders extends Model
         'payment_percentage',
         'property_uid',
         'agreement_price',
-        'book_order_id'
+        'book_order_id',
     ];
 
     public  function product_details(){
@@ -49,13 +49,13 @@ class plansRentOrders extends Model
     public function book_property() {
         return $this->hasOne('App\Models\invoices', 'order_id','order_id')->select('order_id','book_order_id','choose_payment_type','invoice_no','total_amount','amount_paid')->where(['plan_type'=> 'Rent','choose_payment_type'=>'book_property']);
     }
+    public function purchase_property() {
+        return $this->hasOne('App\Models\invoices', 'order_id','order_id')->select('order_id','book_order_id','choose_payment_type','invoice_no','total_amount','amount_paid')->where(['plan_type'=> 'Rent'])->where([['choose_payment_type','!=','book_property']]);
+    }
 
     public function User_details()
     {
         return $this->hasOne('App\Models\User', 'id','user_id')->select('id','email','other_mobile_number','name','last_name','usertype','internal_user');
-    }
-    public function purchase_property() {
-        return $this->hasOne('App\Models\invoices', 'order_id','order_id')->select('order_id','book_order_id','choose_payment_type','invoice_no','total_amount','amount_paid')->where(['plan_type'=> 'Rent'])->where([['choose_payment_type','!=','book_property']]);
     }
 
 }

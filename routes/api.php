@@ -192,6 +192,7 @@ Route::group([
         Route::get('get_rented_properties/{id}', 'App\Http\Controllers\PlansController@get_rented_properties');
 
         Route::get('get_property_payment/{id}', 'App\Http\Controllers\API\AdminPaymentSummeryController@get_property_payment');
+        Route::get('user_paymentfail/', 'App\Http\Controllers\PlansController@user_paymentfail');
         
         Route::get('get_property_details/{id}', 'App\Http\Controllers\PlansController@get_property_details');
         Route::get('update_property_details/{id}', 'App\Http\Controllers\PlansController@update_property_details');

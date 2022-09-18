@@ -408,6 +408,8 @@ class PaymentController extends Controller
 
     public function PlansRentPostPayment(Request $request) {
         try {   
+
+            $order_details = plansRentOrders::where('order_id', $request->ORDERID)->first();
             $plan_transaction= [
                 'order_id'           =>  $request->ORDERID,
                 'MID'                =>  $request->MID,
@@ -514,8 +516,8 @@ class PaymentController extends Controller
                           invoices::where(['property_uid'=> $order_details[0]->property_uid,'plan_type'=>'Let Out','payment_status'=>'PAID'])->update(['service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate]);
                       }
 
-                     DB::table('invoices')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);  
-                     DB::table('invoices')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Rented','service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate]);
+                     DB::table('invoices')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID','plan_type'=>'Rent'])->update(['property_status' => 'Property Rented to Another User']);  
+                     DB::table('invoices')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id,'plan_type'=>'Rent'])->update(['property_status' => 'Property Rented','service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate]);
                                   
                       product::where('id', $order_details[0]->property_id)->update(['order_status' => '1']);
                       
@@ -588,6 +590,8 @@ class PaymentController extends Controller
                           'agreement_price' =>$order_details[0]->agreement_price,
                           'payment_status' => 'UNPAID',
                           'total_amount'=>$order_details[0]->total_amount,
+                          
+                        'amount_paid'=>$order_details[0]->total_amount- $order_details[0]->amount_paid,
                           'plan_status'=>'used',
                           'user_email' => $order_details[0]->user_email,
                           'user_id' => $order_details[0]->user_id,
@@ -605,7 +609,7 @@ class PaymentController extends Controller
                      invoices::Create($main_invoice);
                    plansRentOrders::where('order_id',$order_details[0]->order_id)->update(['book_order_id' => $book_order_id]); 
 
-                     DB::table('invoices')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Booked to Another User']);  
+                     DB::table('invoices')->where(['property_uid'=> $order_details[0]->property_uid,'payment_status'=>'UNPAID','plan_type'=>'Rent'])->update(['property_status' => 'Property Booked to Another User']);  
                      DB::table('invoices')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $invoice_id])->update(['property_status' => 'Property Book']);
                      
                      DB::table('invoices')->where(['property_uid'=>  $order_details[0]->property_uid,'invoice_no'=> $main_invoice_id])->update(['property_status' => 'Property Book']);
@@ -621,15 +625,17 @@ class PaymentController extends Controller
                       Product_Comparision::where('product_id', $order_details[0]->property_id)->delete();
                       
                       $angular_url = env('angular_url').'book-property?'.'invoice_no='.$invoice_id;
-
-                  return response()->redirectTo($angular_url); 
                      }
                 }
+
+                return response()->redirectTo($angular_url); 
                 
             }
             else {
+
+                $order_details = plansRentOrders::where('order_id', $request->ORDERID)->first();
                 plansRentOrders::where('order_id', $request->ORDERID)->update(['payment_status' => 'FAIL']);
-                $angular_url = env('angular_url').'product-listing?'.'status='.$request->RESPCODE;
+                $angular_url = env('angular_url').'payment-fail';
             return response()->redirectTo($angular_url);  
             }
                
@@ -679,7 +685,7 @@ class PaymentController extends Controller
 
                 $invoice_letout=  invoices::where(['property_uid'=> $invoice_details->property_uid,'plan_type'=>'Let Out'])->first();
 
-             invoices::where(['property_uid'=> $invoice_details->property_uid,'invoice_no'=> $invoice_details->invoice_no])->update(['transaction_status'=>'TXN_SUCCESS','payment_mode'=>'Online','payment_status'=>'PAID','amount_paid'=>$request->TXNAMOUNT]);
+             invoices::where(['property_uid'=> $invoice_details->property_uid,'invoice_no'=> $invoice_details->invoice_no])->update(['transaction_status'=>'TXN_SUCCESS','payment_mode'=>'Online','payment_received'=>'Yes','payment_status'=>'PAID','amount_paid'=>$request->TXNAMOUNT]);
 
                  if($invoice_letout && $invoice_letout->plan_name == 'Standard'){
 
@@ -697,26 +703,29 @@ class PaymentController extends Controller
                      DB::table('invoices')->where(['property_uid'=> $invoice_details->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);
 
                      DB::table('invoices')->where(['order_id'=>  $invoice_details->order_id,'book_order_id'=>NULL])->update(['property_status' => 'Property Rented','service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate,'invoice_paid_date'=>$todayDate]);  
-                     DB::table('invoices')->where(['property_uid'=>  $invoice_details->property_uid,'invoice_no'=> $invoice_details->invoice_no])->update(['property_status' => 'Property Rented','service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate,'invoice_paid_date'=>$todayDate]);
+                     DB::table('invoices')->where(['property_uid'=>  $invoice_details->property_uid,'invoice_no'=> $invoice_details->invoice_no])->update(['property_status' => 'Property Rented','payment_status_change_reason'=>NULL,'property_status'=>NULL,'service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate,'invoice_paid_date'=>$todayDate]);
                                   
-                      product::where('id', $invoice_details->property_id)->update(['order_status' => '1']);
+                      product::where('product_uid', $invoice_details->property_uid)->update(['order_status' => '1']);
+
+                     $property_data= product::where('product_uid', $invoice_details->property_uid)->first();
                       
-                      UserProductCount::where('product_id', $invoice_details->property_id)->delete();
+                      UserProductCount::where('product_id', $property_data->id)->delete();
                    
                       /* Wishlist disabled by ID */
-                      Wishlist::where('product_id', $invoice_details->property_id)->delete();
+                      Wishlist::where('product_id',$property_data->id)->delete();
                         /* Product comparison disabled by ID */
-                      Product_Comparision::where('product_id', $invoice_details->property_id)->delete();
+                      Product_Comparision::where('product_id', $property_data->id)->delete();
                       
                     
                 $angular_url = env('angular_url').'my-properties';
+               return response()->redirectTo($angular_url); 
                 
             }
             else {
                 plansRentOrders::where('order_id', $request->ORDERID)->update(['payment_status' => 'FAIL']);
                 $angular_url = env('angular_url').'my-properties';
-            }
-            return response()->redirectTo($angular_url);  
+               return response()->redirectTo($angular_url); 
+            } 
                
         }
         catch (\Exception $e) {

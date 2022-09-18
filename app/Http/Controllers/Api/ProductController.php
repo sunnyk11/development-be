@@ -102,7 +102,7 @@ class ProductController extends Controller
       if($request->invoice_no){
        $invoice_details = invoices::select('property_uid','id')->with('propertyDetails')->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN'],['invoice_no',$request->invoice_no]])->first();
        if($invoice_details){
-       $data=product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes','product_uid'=>$invoice_details->property_uid])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->get();
+       $data=product::select('id','product_uid','property_mode','user_id','crm_user_email','state_id','district_id','locality_id','sub_locality_id','build_name','expected_pricing','rent_availability','sale_availability','expected_rent','delete_flag','draft','enabled','order_status')->where(['delete_flag'=> '0','draft'=> '0', 'enabled' => 'yes','product_uid'=>$invoice_details->property_uid])->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','purchase_property','book_property')->orderBy('id', 'desc')->search($request)->get();
 
         $excel= ProductListResource::collection($data);
           return response()->json([
@@ -491,7 +491,7 @@ class ProductController extends Controller
             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
             ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes','invoices.plan_type'=>'Let Out'])
-            ->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN']])
+            ->where([['invoices.payment_status','!=','CANCEL'],['invoices.payment_status','!=','RETURN']])
            ->search($request)
            ->orderBy('plans_day_left','asc')
             ->paginate(8);
@@ -1634,6 +1634,7 @@ class ProductController extends Controller
                         'area_unit' => $request->area_unit,
                         'flat_type' =>$request->flat_type,
                         'property_detail' =>$request->property_detail,
+                        'property_notes' => $request->property_notes,
 
                         // step 2
                         'address_details' => $request->address_details,
@@ -1752,6 +1753,7 @@ class ProductController extends Controller
                 $data->area_unit =$request->area_unit;
                 $data->flat_type =$request->flat_type;
                 $data->property_detail =$request->property_detail;
+                $data->property_notes = $request->property_notes;
                 // step 2
                 $data->address =$request->address;
                 $data->address_details = $request->address_details;

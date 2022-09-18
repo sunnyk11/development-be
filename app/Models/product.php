@@ -250,18 +250,21 @@ class product extends Model
 
 
     public function letout_invoice() {
-        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['plan_status'=>'used','plan_type'=> 'Let Out'])->with('UserDetail')->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN']]);
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->where(['plan_status'=>'used','plan_type'=> 'Let Out'])->with('UserDetail')->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN'],['payment_status','!=','Payment Returned']]);
     }
 
     public function rent_invoice() {
         return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->with('UserDetail')->where(['transaction_status'=> 'TXN_SUCCESS', 'plan_type'=> 'Rent']);
     }
     public function book_property() {
-        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->select('order_id','choose_payment_type','invoice_no','total_amount','amount_paid','property_uid')->where(['plan_type'=> 'Rent','choose_payment_type'=>'book_property','payment_status'=> 'PAID']);
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->with('admin_purchase_property')->select('order_id','choose_payment_type','invoice_no','total_amount','amount_paid','property_uid')->where(['plan_type'=> 'Rent','choose_payment_type'=>'book_property','payment_status'=> 'PAID']);
+    }
+    public function crm_book_property() {
+        return $this->hasOne('App\Models\invoices', 'property_uid','product_uid')->with('crm_purchase_property')->select('order_id','choose_payment_type','invoice_no','total_amount','amount_paid','property_uid','payment_status')->where(['plan_type'=> 'Rent','choose_payment_type'=>'book_property','payment_status'=> 'PAID']);
     }
 
     public function purchase_property() {
-        return $this->hasOne('App\Models\invoices','property_uid','product_uid')->select('order_id','choose_payment_type','user_id','property_uid','invoice_no','total_amount','amount_paid')->with('User_details')->where(['plan_type'=> 'Rent','payment_status'=> 'PAID'])->where([['choose_payment_type','!=','book_property']]);
+        return $this->hasOne('App\Models\invoices','property_uid','product_uid')->select('payment_status','order_id','choose_payment_type','user_id','property_uid','invoice_no','total_amount','amount_paid')->with('User_details')->where(['plan_type'=> 'Rent','choose_payment_type'=>'purchase_property','payment_status'=> 'PAID'])->orderBy('id', 'desc');
     }
 
     public function rented_invoice() {

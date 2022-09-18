@@ -54,7 +54,7 @@ class invoices extends Model
     }
     public function propertyDetails()
     {
-        return $this->hasOne('App\Models\product', 'product_uid','property_uid')->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice');
+        return $this->hasOne('App\Models\product', 'product_uid','property_uid')->with('product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice','purchase_property','crm_book_property');
     }
 
     public function property_rent_table()
@@ -78,6 +78,22 @@ class invoices extends Model
     public function purchased_property()
     {
         return $this->hasOne('App\Models\invoices', 'order_id','order_id')->orderBy('id', 'desc');
+    }
+
+    public function admin_purchase_property() {
+        return $this->hasOne('App\Models\invoices','order_id','order_id')->select('payment_status','order_id','choose_payment_type','user_id','book_order_id','property_uid','invoice_no','total_amount','amount_paid')->with('User_details')->where(['plan_type'=> 'Rent'])->orderBy('id', 'desc');
+    }
+    
+    public function crm_purchase_property() {
+        return $this->hasOne('App\Models\invoices','order_id','order_id')->select('payment_status','order_id','choose_payment_type','user_id','book_order_id','property_uid','invoice_no','total_amount','amount_paid')->where(['plan_type'=> 'Rent'])->orderBy('id', 'desc');
+    }
+    
+    public function crm_book_property() {
+        return $this->hasOne('App\Models\invoices', 'order_id','order_id')->with('crm_purchase_property')->select('order_id','choose_payment_type','invoice_no','total_amount','amount_paid','property_uid','payment_status')->where(['plan_type'=> 'Rent','choose_payment_type'=>'book_property']);
+    }
+    
+    public function purchase_property_crm() {
+        return $this->hasOne('App\Models\invoices', 'order_id','order_id')->select('order_id','choose_payment_type','invoice_no','total_amount','amount_paid','property_uid','payment_status')->where(['plan_type'=> 'Rent','choose_payment_type'=>'purchase_property']);
     }
 
     public function plan_features() {
