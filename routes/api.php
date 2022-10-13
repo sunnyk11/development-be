@@ -26,6 +26,7 @@ Route::get('get_invoice_details/{id}', 'App\Http\Controllers\PlansController@get
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');
 //Route::resource('/blog', PostsController::class);
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
+Route::get('getheading_data', 'App\Http\Controllers\Api\ListingPageContentController@getheading_data');
 Route::get('getoffer_banner_web', 'App\Http\Controllers\Api\OfferBannerController@getoffer_banner_web');
 Route::get('getarea_unit', 'App\Http\Controllers\Api\AreaUnitController@index');
 Route::get('get_dropdown_data', 'App\Http\Controllers\Api\Authicationcheck@get_dropdown_data');
@@ -51,6 +52,7 @@ Route::get('/crm_sub_localityby_localityid', 'App\Http\Controllers\Api\AreaSubLo
 Route::post('/invoice_status_change', 'App\Http\Controllers\PlansController@invoice_status_change');
 Route::post('/property_price_change', 'App\Http\Controllers\PlansController@property_price_change');
 Route::post('/rollback_property', 'App\Http\Controllers\PlansController@rollback_property');
+Route::post('/payment_forfeited', 'App\Http\Controllers\PlansController@payment_forfeited');
 Route::get('rent_property_slip', 'App\Http\Controllers\PlansController@rent_property_slip');
 Route::get('crm_getinvoiceById', 'App\Http\Controllers\PlansController@crm_get_invoice_details');
 
@@ -130,6 +132,7 @@ Route::group([
     Route::get('/get_areas', 'App\Http\Controllers\Api\AuthController@get_areas');
     Route::get('/get_locality', 'App\Http\Controllers\Api\AreaLocalityController@index');
     Route::get('/get_sub_locality', 'App\Http\Controllers\Api\AreaSubLocalityController@sub_localitybyid');
+    Route::post('/sub_locality_byid', 'App\Http\Controllers\Api\AreaSubLocalityController@sub_locality_byid');
     Route::get('/get_common_area_data/{value}', 'App\Http\Controllers\Api\AreaSubLocalityController@get_common_area_data');
     Route::get('/get_internal_user_locality/{value}', 'App\Http\Controllers\Api\AreaSubLocalityController@get_internal_user_locality');
     
@@ -380,6 +383,7 @@ Route::group([
          Route::get('/get_userlist_byinternal', 'App\Http\Controllers\Api\AuthController@get_userlist_byinternal');
     Route::post('/create_user_byinternal', 'App\Http\Controllers\Api\AuthController@create_user_byinternal');
     Route::post('/banner_created', 'App\Http\Controllers\Api\OfferBannerController@create');
+    Route::post('/listing_page_heading_create', 'App\Http\Controllers\Api\ListingPageContentController@create');
 
 // state functionalty
     Route::get('/get_state_data', 'App\Http\Controllers\Api\AreaStateController@index');
@@ -426,6 +430,10 @@ Route::group([
     Route::post('/banner_Update', 'App\Http\Controllers\Api\OfferBannerController@banner_Update');
     Route::post('/banner_status_changes', 'App\Http\Controllers\Api\OfferBannerController@banner_status_changes');
     Route::get('/get_banner', 'App\Http\Controllers\Api\OfferBannerController@index');
+    Route::get('/get_listing_heading', 'App\Http\Controllers\Api\ListingPageContentController@index');
+    Route::post('/listing_page_heading_Update', 'App\Http\Controllers\Api\ListingPageContentController@heading_Update');
+    Route::post('/heading_status_changes', 'App\Http\Controllers\Api\ListingPageContentController@heading_status_changes');
+    Route::get('/delete_heading', 'App\Http\Controllers\Api\ListingPageContentController@delete');
     Route::get('/delete_Banner', 'App\Http\Controllers\Api\OfferBannerController@delete');
     Route::post('/update_user_byinternal', 'App\Http\Controllers\Api\AuthController@update_user_byinternal');
     

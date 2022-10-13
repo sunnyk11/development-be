@@ -31,6 +31,7 @@ class invoiceResource extends JsonResource
             'plan_status' => $this->plan_status,
             'payment_type' => $this->payment_type,
             'plan_price' => $this->plan_price,
+            'agreement_price' =>($this->agreement_price == null ? 0 :$this->agreement_price),
             'payment_status' => $this->payment_status,
             'payment_mode' => $this->payment_mode,
             'payment_received' => $this->payment_received,

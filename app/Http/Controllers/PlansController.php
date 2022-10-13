@@ -781,7 +781,7 @@ public function crm_get_invoice_details(Request $request) {
                 $invoice_data =invoices::with('propertyDetails')->where(['invoice_no'=> $request->invoice_no,'plan_status'=>'used'])->first();
                 // return $invoice_data;
                 if($invoice_data){
-                    if($invoice_data->payment_status != 'RETURN' && $invoice_data->payment_status != 'CANCEL'&& $invoice_data->payment_status != 'Payment Returned' ){
+                    if($invoice_data->payment_status != 'RETURN' && $invoice_data->payment_status != 'CANCEL'&& $invoice_data->payment_status != 'Payment Returned' && $invoice_data->payment_status != 'Payment Forfeited' ){
                          if($invoice_data->plan_type == 'Let Out'){
                             // return $invoice_data;
                             if($invoice_data['propertyDetails']['order_status'] == 0){
@@ -938,7 +938,7 @@ public function crm_get_invoice_details(Request $request) {
                                 }
                             }else if($invoice_data->propertyDetails->crm_book_property->crm_purchase_property->invoice_no==$request->invoice_no){
                                 if($invoice_data->propertyDetails->crm_book_property->crm_purchase_property->payment_status=='PAID'){
-                                    invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'UNPAID','payment_status_change_reason'=>$request->payment_status_change_reason,'amount_paid'=>NULL,'transaction_status'=>NULL,'invoice_paid_date'=>NULL,'service_delivered_status'=>NULL,'service_delivered_date'=>NULL]);
+                                    invoices::where(['invoice_no'=>$invoice_data->invoice_no])->update(['payment_status'=>'UNPAID','payment_status_change_reason'=>$request->payment_status_change_reason,'amount_paid'=>NULL,'transaction_status'=>NULL,'property_status' => 'Property Book','invoice_paid_date'=>NULL,'service_delivered_status'=>NULL,'service_delivered_date'=>NULL]);
                                     product::where('product_uid', $invoice_data->property_uid)->update(['order_status' => '2']);
                                     return response()->json([
                                         'message' =>'SUCCESS',
@@ -996,6 +996,112 @@ public function crm_get_invoice_details(Request $request) {
         }catch(\Exception $e) {
             return $this->getExceptionResponse1($e);
         }  
+    }
+    public function payment_forfeited(Request $request){
+        $request->validate([
+                'invoice_no' => 'required',
+                'payment_status_change_reason'=>'required|string|min:10|max:100'
+            ]);
+        try{
+            $token  = $request->header('authorization');
+            $object = new Authicationcheck();
+            if($object->authication_check($token) == true){
+                $invoice_data =invoices::with('propertyDetails')->where(['invoice_no'=> $request->invoice_no,'plan_status'=>'used'])->first();
+                // return $invoice_data;
+                if($invoice_data){
+
+                    if($invoice_data->payment_status != 'RETURN' && $invoice_data->payment_status != 'CANCEL'&& $invoice_data->payment_status != 'Payment Returned' && $invoice_data->payment_status != 'Payment Forfeited' ){
+                        if($invoice_data->plan_type == 'Rent' && $invoice_data->propertyDetails->crm_book_property != null){
+                               if($invoice_data->propertyDetails->crm_book_property->invoice_no==$request->invoice_no){
+
+                                if($invoice_data->propertyDetails->crm_book_property->crm_purchase_property->payment_status=='UNPAID'){
+                                     DB::table('plans_rent_orders')->where(['order_id'=>$invoice_data->order_id])->update(['property_status' => 'Forfeited','payment_status'=>'Payment Forfeited']);
+                                $invoices_update =invoices::where(['order_id'=>$invoice_data->order_id])->update(['payment_status'=>'Payment Forfeited','property_status' => ' Forfeited','payment_status_change_reason'=>$request->payment_status_change_reason,'transaction_status'=>NULL,'service_delivered_status'=>NULL,'service_delivered_date'=>NULL]);
+
+
+                                if($invoice_data->property_uid){
+    
+                                    $product_data= product::where('product_uid', $invoice_data ->property_uid)->first();
+ 
+                                 // letout invoice plan_status status change
+ 
+                                $invoice_letout=  invoices::where(['property_uid'=>$invoice_data->property_uid,'plan_type'=>'Let Out'])->first();
+                                // return $invoice_letout;
+                                if( $invoice_letout  && $invoice_letout->plan_name == 'Standard'){
+                                            invoices::where(['property_uid'=> $invoice_data->property_uid,'plan_type'=>'Let Out','plan_name'=>'Standard'])->update(['property_amount'=>NULL,'amount_paid'=>NULL,'payment_status' => 'UNPAID','payment_mode'=>NULL,'payment_received'=>'no','payment_status_change_reason'=>$request->payment_status_change_reason,'transaction_status'=> NULL,'invoice_paid_date'=>NULL,'plan_apply_date'=>NULL,'service_delivered_status'=>NULL,'service_delivered_date'=>NULL]);
+        
+                                            // DB::table('plans_orders')->where(['invoice_no'=> $invoice_letou1t->invoice_no])->update(['transaction_status'=>NULL,'payment_status' => 'UNPAID','amount_paid'=>NULL]);
+                                    }
+        
+                                    if($invoice_letout && ($invoice_letout->plan_name == 'Raja' || $invoice_letout->plan_name == 'MahaRaja')){
+        
+                                    invoices::where(['property_uid'=> $invoice_data->property_uid,'plan_type'=>'Let Out','payment_status'=>'PAID'])->update(['service_delivered_status'=>NULL,'service_delivered_date'=>NULL]);
+                                    }
+                                    product::where('product_uid', $invoice_data->property_uid)->update(['order_status' => '0','enabled'=>'Yes','delete_flag'=>'0']);
+                                    UserProductCount::where('product_id',$product_data->id)->delete();
+                                            /* Wishlist disabled by ID */
+                                    Wishlist::where('product_id', $product_data->id)->delete();
+                                              /* Product comparison disabled by ID */
+                                    Product_Comparision::where('product_id',$product_data->id)->delete();
+                                }
+                                return response()->json([
+                                    'message' =>'SUCCESS',
+                                    'description' => 'Book Property Both Invoice details Payment Forfeited',
+                                    'status'=>200
+                                ], 200);
+
+                                }else{
+                                    return response()->json([
+                                        'message' =>'FAIL',
+                                        'description' => 'Book Second Invoice PAID.Dont Payment Forfeited!!!...',
+                                        'status'=>200
+                                    ], 200);
+
+                                }
+                                }else{
+                             return response()->json([
+                                 'message' =>'FAIL',
+                                 'description' => 'Only Accept Book Invoice first!!!...',
+                                 'status'=>200
+                             ], 200);
+                        }
+
+
+
+                        }else{
+                             return response()->json([
+                                 'message' =>'FAIL',
+                                 'description' => 'Invoice details is Invalid!!!...',
+                                 'status'=>200
+                             ], 200);
+                        }
+                    }else{
+                        return response()->json([
+                            'message' =>'FAIL',
+                            'description' => 'Invoice Already Forfeited !!!...',
+                            'status'=>404
+                        ], 404);
+                   }
+
+                }else{
+                     return response()->json([
+                         'message' =>'FAIL',
+                         'description' => 'Invoice details is Invalid !!!...',
+                         'status'=>404
+                     ], 404);
+                }
+                
+            }else{
+                return response() -> json([
+                    'message' => 'FAIL',
+                    'description'=>'Unauthication',
+                    'status'=> 401,
+                ]);
+            }
+
+        }catch(\Exception $e) {
+            return $this->getExceptionResponse1($e);
+        } 
     }
 
     public function get_rented_properties($userEmail) {

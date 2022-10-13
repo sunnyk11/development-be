@@ -205,6 +205,17 @@ class AreaSubLocalityController extends Controller
         }
    }
 
+ public function sub_locality_byid(Request $request) {
+       try{
+        $data=area_sub_locality::where(['status'=> '1'])->whereIn('sub_locality_id',$request->Locality_id)->orderBy('sub_locality_id', 'asc')->get();
+        return response()->json([
+            'data' => $data
+        ], 200);
+       }catch(\Exception $e) {
+        return $this->getExceptionResponse($e);
+        }
+   }
+
     /**
      * Store a newly created resource in storage.
      *

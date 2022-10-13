@@ -350,12 +350,12 @@ class product extends Model
             $sub_locality=null;
         } 
         if($sub_locality){
-            $query = $query->where('sub_locality_id',$searchTerm->sub_locality);            
+            $query = $query->whereIn('sub_locality_id',$searchTerm->sub_locality);            
         }
         if ($locality) {
-            $locality = area_locality::select('locality_id')->where('locality', $searchTerm->locality)->get();
-            if(count($locality)>0){
-              $query = $query->whereIn('locality_id',$locality);  
+            $locality_id = area_locality::select('locality_id')->where('locality', $searchTerm->locality)->get();
+            if(count($locality_id)>0){
+              $query = $query->whereIn('locality_id',$locality_id);  
             }else{
                 $sub_locality = area_sub_locality::select('locality_id')->where('sub_locality', $searchTerm->locality)->get();
                 // $locality_update = area_locality::select('locality_id')->where('locality_id', $sub_locality)->get();

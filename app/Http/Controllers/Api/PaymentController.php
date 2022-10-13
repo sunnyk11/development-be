@@ -703,7 +703,7 @@ class PaymentController extends Controller
                      DB::table('invoices')->where(['property_uid'=> $invoice_details->property_uid,'payment_status'=>'UNPAID'])->update(['property_status' => 'Property Rented to Another User']);
 
                      DB::table('invoices')->where(['order_id'=>  $invoice_details->order_id,'book_order_id'=>NULL])->update(['property_status' => 'Property Rented','service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate,'invoice_paid_date'=>$todayDate]);  
-                     DB::table('invoices')->where(['property_uid'=>  $invoice_details->property_uid,'invoice_no'=> $invoice_details->invoice_no])->update(['property_status' => 'Property Rented','payment_status_change_reason'=>NULL,'property_status'=>NULL,'service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate,'invoice_paid_date'=>$todayDate]);
+                     DB::table('invoices')->where(['property_uid'=>  $invoice_details->property_uid,'invoice_no'=> $invoice_details->invoice_no])->update(['property_status' => 'Property Rented','payment_status_change_reason'=>NULL,'service_delivered_status'=>'Service Delivered','service_delivered_date'=>$todayDate,'invoice_paid_date'=>$todayDate]);
                                   
                       product::where('product_uid', $invoice_details->property_uid)->update(['order_status' => '1']);
 
