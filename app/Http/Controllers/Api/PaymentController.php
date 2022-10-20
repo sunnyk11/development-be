@@ -536,6 +536,9 @@ class PaymentController extends Controller
                         'invoice_no' => $invoice_id
                       ];
 
+                invoices::where('property_uid',$order_details[0]->property_uid)->where('user_id',$order_details[0]->user_id)->update(['payment_status' => 'CANCEL']); 
+
+                
                       $invoice =[
                           'invoice_no' => $invoice_id,
                           'plan_name' => $order_details[0]->plan_name,

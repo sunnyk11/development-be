@@ -1765,6 +1765,8 @@ public function crm_get_invoice_details(Request $request) {
 
              }
               elseif($order_details[0]->choose_payment_type=='book_property'){
+                invoices::where('property_uid',$order_details[0]->property_uid)->where('user_id',$order_details[0]->user_id)->update(['payment_status' => 'CANCEL']);                    
+                
                         $invoice = new invoices([
                         'invoice_no' => $invoice_id,
                         'plan_name' => $order_details[0]->plan_name,
