@@ -1112,8 +1112,7 @@ public function crm_get_invoice_details(Request $request) {
             ->get();
 
         // return $property_data;
-            $book_property_details=invoices::with('property_rented')->where(['user_email' => $userEmail, 'payment_status' => 'PAID','payment_received'=>'Yes','plan_type'=>'Rent','choose_payment_type'=>'book_property'])
-               ->get();
+            $book_property_details=invoices::with('property_rented')->where(['user_email' => $userEmail,'plan_type'=>'Rent','choose_payment_type'=>'book_property'])->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN'],['payment_status','!=','Payment Returned']])->get();
                if(count($book_property_details)>0){
                 $book_property_data=[];
                 $book_property_notlive=[];
@@ -1705,7 +1704,7 @@ public function crm_get_invoice_details(Request $request) {
             $todayDate =  Carbon::now()->format('Y-m-d H:i:s');
 
                $invoice_letout=  invoices::where(['property_uid'=> $order_details[0]->property_uid,'user_email' => $order_details[0]->user_email,
-                    'plan_status' => 'used','plan_name'=>$order_details[0]->plan_name,'payment_type'=>'Post','plan_type'=>'Rent','choose_payment_type'=>$order_details[0]->choose_payment_type])->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN'],['payment_status','!=','Payment Returned']])->first();
+                    'plan_status' => 'used','plan_name'=>$order_details[0]->plan_name,'payment_type'=>'Post','plan_type'=>'Rent','choose_payment_type'=>$order_details[0]->choose_payment_type])->where([['payment_status','!=','CANCEL'],['payment_status','!=','RETURN'],['payment_status','!=','Payment Returned'],['payment_status','!=','Payment Forfeited']])->first();
                if($invoice_letout){
                     return response()->json([
                         'data' =>  $invoice_letout->invoice_no,
@@ -1805,7 +1804,7 @@ public function crm_get_invoice_details(Request $request) {
                                 $x=2;
                             
                     $main_invoice_id = 'INV' . $year . $month . $day . $hour . $minute . $second . $x;
-                    $book_order_id=$order_details[0]->order_id . '-' .rand(1,9);;
+                    $book_order_id=$order_details[0]->order_id . '-' .rand(1,9);
                      $invoice = new invoices([
                         'invoice_no' => $main_invoice_id,
                         'plan_name' => $order_details[0]->plan_name,
