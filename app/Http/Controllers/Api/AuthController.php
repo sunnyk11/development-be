@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use App\Models\InternalUser;
 use App\Models\UserRole;
+use App\Models\user_grouping_pivot;
 use App\Models\crmApiCalls;
 use App\Models\user_bank_details_history;
 use App\Models\product;
@@ -461,7 +462,7 @@ class AuthController extends Controller
             'password' => 'required',
             'userRole' => 'required'
         ]);
-        
+      
         $user = new User([
             'name' => $request->userName,
             'email' => $request->email,
@@ -478,7 +479,17 @@ class AuthController extends Controller
             $role_id[] = $value['item_id'];
         }
         //return $role_id;
-        $user->roles()->attach($role_id);												
+        $user->roles()->attach($role_id);
+
+        // grouping functionalty add on 
+        foreach($request->area_group as $group => $group_value) {
+            $area_id[] = $group_value['area_id'];
+            $user_grouping=[
+                        'user_id' =>$user->id,
+                        'area_group' => $group_value['area_id']
+                    ];
+            user_grouping_pivot::create($user_grouping);
+        }						
        
         eventtracker::create(['symbol_code' => '2', 'event' => $request->user_name.' created a new Internal User Account']);
 
@@ -1125,7 +1136,7 @@ class AuthController extends Controller
 
     public function get_all_internal_users() {
         try{
-        $internal_users =  User::where('internal_user', 'Yes')->with('roles')->paginate(15);
+        $internal_users =  User::where('internal_user', 'Yes')->with('roles','area_group_data')->paginate(15);
         return $internal_users;
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);

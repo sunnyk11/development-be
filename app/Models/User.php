@@ -88,6 +88,10 @@ class User extends Authenticatable
 	public function roles() {
         return $this->belongsToMany(Role::class, 'user_roles_pivot', 'user_id', 'role_id')->with('permissions');
     }
+
+    public function area_group_data() {
+        return $this->hasMany('App\Models\user_grouping_pivot','user_id','id')->with('area_group_permission');
+    }
     public function created_by() {
         return $this->belongsto('App\Models\User','user_createdBy', 'id');
     }

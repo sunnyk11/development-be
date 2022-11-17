@@ -84,4 +84,19 @@ class AdminControllerNew extends Controller
             'permissions' => $permissions
         ]);
     }
+
+    public function get_user_area_group($user_id) {
+        $user = User::where(['id' => $user_id])->with('area_group_data')->first();
+        $permissions = array();
+        foreach($user->area_group_data as $group => $value) {
+            foreach($value['area_group_permission']->pivot_data as $permission => $value1) {
+                $permissions[] = $value1['sub_locality_id'];
+            }
+        } 
+        $permission_unique=array_unique($permissions);
+        return response()->json([
+            'user' => $user,
+            'permissions' => $permission_unique
+        ]);
+    }
 }

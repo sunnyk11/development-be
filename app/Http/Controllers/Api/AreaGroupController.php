@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\area_group;
 use App\Models\area_group_pivot;
+use App\Models\user_grouping_pivot;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
+use DB;
 
 class AreaGroupController extends Controller
 {
@@ -42,7 +44,7 @@ class AreaGroupController extends Controller
         // return $request->all();
          $request->validate([
             'group_id' => 'required',   
-            'group_name' => 'required'               
+            // 'group_name' => 'required|unique:area_groups'               
         ]);
 
       try{
@@ -86,17 +88,41 @@ class AreaGroupController extends Controller
               return $this->getExceptionResponse($e);
         } 
     }
+    public function area_group_name_update(Request $request)
+    {
+         $request->validate([
+            'group_id' => 'required',   
+            'group_name' => 'required|unique:area_groups'               
+        ]);
+
+      try{
+      $update_data= area_group::where('id', $request->group_id)->update(['group_name' => $request->group_name,'created_user'=>Auth::user()->id]);
+              return response()->json([
+              'message' =>'data updated',
+              'status'=>201
+            ], 201);
+        }catch(\Exception $e) {
+              return $this->getExceptionResponse($e);
+        } 
+    }
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
+    public function get_area_group() {
+        $area_group = DB::table('area_groups')->get();
+        return response()->json([
+            'area_group' => $area_group
+        ], 200);
+    }
+
     public function create(Request $request)
     {
         // return $request->all();
          $request->validate([
-            'group_name' => 'required'  
+            'group_name' => 'required|unique:area_groups'  
         ]);
 
         try{ 
@@ -120,6 +146,30 @@ class AreaGroupController extends Controller
         }catch(\Exception $e) {
             return $this->getExceptionResponse($e);
         }
+    }
+
+    public function edit_user_group(Request $request) {
+        $request->validate([
+            'user_id' => 'required'
+        ]);
+
+        $user = user_grouping_pivot::where('user_id', $request->user_id)->delete();
+        $group_id = array();
+        foreach($request->rolesArray['EditgroupArray'] as $group => $value) { 
+            if($value == true) {
+                $group_id[] = DB::table('area_groups')->where('group_name', $group)->first()->id;
+            }
+        }
+        if($group_id != null) {
+                foreach ($group_id as $group) {
+                $user_grouping=[
+                            'user_id' => $request->user_id,
+                            'area_group' => $group
+                        ];
+                user_grouping_pivot::create($user_grouping);
+            }
+        }
+
     }
 
     /**

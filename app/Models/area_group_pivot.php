@@ -17,7 +17,7 @@ class area_group_pivot extends Model
         return $date->format('Y-m-d H:i:s');
     }
      public function sub_locality() {
-        return $this->hasone('App\Models\area_sub_locality',  'sub_locality_id', 'sub_locality_id')->where('status','1')->select('sub_locality_id','sub_locality','status');
+        return $this->hasone('App\Models\area_sub_locality',  'sub_locality_id', 'sub_locality_id');
     }
 
 }

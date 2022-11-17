@@ -20,11 +20,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/get_version', function () {
     // return env('App_version', 'Please define App Version');
    return  config('services.App_version');
-});
+});   
 
 Route::get('get_invoice_details/{id}', 'App\Http\Controllers\PlansController@get_invoice_details');
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');
 //Route::resource('/blog', PostsController::class);
+Route::get('/get_group_details_id', 'App\Http\Controllers\Api\AreaGroupController@get_group_details_id');
+
 Route::resource('amenities', 'App\Http\Controllers\Api\AmenitieController');
 Route::get('getheading_data', 'App\Http\Controllers\Api\ListingPageContentController@getheading_data');
 Route::get('getoffer_banner_web', 'App\Http\Controllers\Api\OfferBannerController@getoffer_banner_web');
@@ -114,7 +116,9 @@ Route::group([
     Route::get('/sign_up_user_details', 'App\Http\Controllers\Api\SignUpController@sign_up_user_details');
 
 	Route::post('admin_login', 'App\Http\Controllers\Api\AdminControllerNew@admin_login');
-	Route::get('/get_user_permissions/{id}', 'App\Http\Controllers\Api\AdminControllerNew@get_user_permissions');																											 
+	Route::get('/get_user_permissions/{id}', 'App\Http\Controllers\Api\AdminControllerNew@get_user_permissions');	
+
+    Route::get('/get_user_area_group_permission/{id}', 'App\Http\Controllers\Api\AdminControllerNew@get_user_area_group');																										 
     Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
     Route::post('/user_signup', 'App\Http\Controllers\Api\AuthController@user_signup');
 																								  
@@ -211,7 +215,9 @@ Route::group([
         Route::get('get_all_internal_users', 'App\Http\Controllers\Api\AuthController@get_all_internal_users');
         Route::get('get_internal_user_details/{id}', 'App\Http\Controllers\Api\AuthController@get_internal_user_details');
         Route::get('get_user_roles/{id}', 'App\Http\Controllers\Api\RolesPermissionsController@get_user_roles');
+        Route::get('getUsergroup/{id}', 'App\Http\Controllers\Api\RolesPermissionsController@get_user_group');
         Route::post('edit_user_roles', 'App\Http\Controllers\Api\RolesPermissionsController@edit_user_roles');
+        Route::post('edit_user_group', 'App\Http\Controllers\Api\AreaGroupController@edit_user_group');
         Route::get('delete_internal_user/{id}', 'App\Http\Controllers\Api\AuthController@delete_internal_user');
        
     });
@@ -225,6 +231,7 @@ Route::post('plans-rent-remaining-payment','App\Http\Controllers\Api\PaymentCont
 Route::get('/get_permissions', 'App\Http\Controllers\Api\RolesPermissionsController@get_permissions');
 Route::post('/create_role', 'App\Http\Controllers\Api\RolesPermissionsController@create_role');
 Route::get('/get_roles', 'App\Http\Controllers\Api\RolesPermissionsController@get_roles');
+Route::get('/get_area_group', 'App\Http\Controllers\Api\AreaGroupController@get_area_group');
 Route::post('/get_role_permissions', 'App\Http\Controllers\Api\RolesPermissionsController@get_role_permissions');
 Route::post('/edit_role', 'App\Http\Controllers\Api\RolesPermissionsController@edit_role');
 Route::post('/delete_role', 'App\Http\Controllers\Api\RolesPermissionsController@delete_role');
@@ -422,6 +429,7 @@ Route::group([
 
      Route::post('/area_group_create', 'App\Http\Controllers\Api\AreaGroupController@create');
      Route::post('/area_group_update', 'App\Http\Controllers\Api\AreaGroupController@area_group_update');
+     Route::post('/area_group_name_update', 'App\Http\Controllers\Api\AreaGroupController@area_group_name_update');
      Route::get('/get_group_list', 'App\Http\Controllers\Api\AreaGroupController@index');
     Route::get('/delete_group', 'App\Http\Controllers\Api\AreaGroupController@delete'); 
     Route::get('/get_group_details_id', 'App\Http\Controllers\Api\AreaGroupController@get_group_details_id');

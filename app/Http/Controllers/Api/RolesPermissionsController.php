@@ -144,6 +144,22 @@ class RolesPermissionsController extends Controller
         return $roles;
     }
 
+    public function get_user_group($user_id) {
+        $area_groups = DB::table('area_groups')->get();
+        $internal_user_group =  DB::table('user_grouping_pivots')->where('user_id', $user_id)->get();
+        foreach($area_groups as $area_group) {
+            $area_group->status = false;
+        }
+        foreach($internal_user_group as $val) {
+            foreach($area_groups as $val1) {
+                if($val->area_group == $val1->id) {
+                    $val1->status = true;
+                }
+            }
+        }
+        return $area_groups;
+    }
+
     public function edit_user_roles(Request $request) {
         $request->validate([
             'user_id' => 'required'
