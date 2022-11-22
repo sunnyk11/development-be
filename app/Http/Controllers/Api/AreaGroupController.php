@@ -20,7 +20,7 @@ class AreaGroupController extends Controller
     public function index()
     {
         try{
-            $data=area_group::orderBy('id', 'asc')->with('pivot_data')->paginate(8);
+            $data=area_group::orderBy('id', 'asc')->paginate(8);
             return response()->json([
                 'data' => $data
             ], 200);
