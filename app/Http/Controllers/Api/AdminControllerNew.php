@@ -85,8 +85,9 @@ class AdminControllerNew extends Controller
         ]);
     }
 
-    public function get_user_area_group($user_id) {
-        $user = User::where(['id' => $user_id])->with('area_group_data')->first();
+    public function get_user_area_group(Request $request) {
+        $sub_locality_id=$request->sublocality;
+        $user = User::where(['id' => $request->user_id])->with('area_group_data')->first();
         $permissions = array();
         foreach($user->area_group_data as $group => $value) {
             foreach($value['area_group_permission']->pivot_data as $permission => $value1) {
@@ -94,9 +95,20 @@ class AdminControllerNew extends Controller
             }
         } 
         $permission_unique=array_unique($permissions);
-        return response()->json([
-            'user' => $user,
-            'permissions' => $permission_unique
-        ]);
+         if (in_array($sub_locality_id, $permission_unique))
+          {
+            
+            return response()->json([
+                'user' => $user,
+                'permissions' => true,
+            ]);
+          }
+          else
+          {
+            return response()->json([
+                'user' => $user,
+                'permissions' => false
+            ]);
+          }
     }
 }

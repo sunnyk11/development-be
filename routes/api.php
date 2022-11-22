@@ -118,7 +118,7 @@ Route::group([
 	Route::post('admin_login', 'App\Http\Controllers\Api\AdminControllerNew@admin_login');
 	Route::get('/get_user_permissions/{id}', 'App\Http\Controllers\Api\AdminControllerNew@get_user_permissions');	
 
-    Route::get('/get_user_area_group_permission/{id}', 'App\Http\Controllers\Api\AdminControllerNew@get_user_area_group');																										 
+    Route::get('/get_user_area_group_permission', 'App\Http\Controllers\Api\AdminControllerNew@get_user_area_group');																										 
     Route::post('user_logs','App\Http\Controllers\Api\UserLogsController@store');
     Route::post('/user_signup', 'App\Http\Controllers\Api\AuthController@user_signup');
 																								  
