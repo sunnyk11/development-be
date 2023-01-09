@@ -137,15 +137,17 @@ class SignUpController extends Controller
                 'mobile_no' => 'required|numeric|digits:10'
             ]);
         try{
-
+$country_code='+91';
             $token = getenv("TWILIO_AUTH_TOKEN");
             $twilio_sid = getenv("TWILIO_SID");
             $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
             $twilio = new Client($twilio_sid, $token);
             $verification = $twilio->verify->v2->services($twilio_verify_sid)
                 ->verificationChecks
-                ->create($data['verification_code'], array('to' => "+91".$data['mobile_no']));
-
+                  ->create([
+                           "code" => $data['verification_code'],
+                            "to" =>$country_code.$data['mobile_no']
+                    ]);
             if ($verification->valid) {
                 $verify_code = Carbon::now()->format('mdhis'); 
                 $todayDate =  Carbon::now()->format('Y-m-d H:i:s');                    
