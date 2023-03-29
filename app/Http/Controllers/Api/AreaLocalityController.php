@@ -177,7 +177,7 @@ class AreaLocalityController extends Controller
      public function get_locality_searching(Request $request) {
     try{
         if($request->search_district_id){
-        $data=area_locality::where('locality', 'like',  "%" . $request->value . "%")->with('district')->where('district_id', $request->search_district_id)->where('status','1')->orderBy('locality_id', 'asc')->paginate(7);
+        $data=area_locality::where('locality', 'like',  "%" . $request->value . "%")->with('district')->where('district_id', $request->search_district_id)->orderBy('locality_id', 'asc')->paginate(7);
             return response()->json([
                 'data' => $data
             ], 200);

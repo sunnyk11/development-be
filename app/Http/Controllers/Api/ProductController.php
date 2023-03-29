@@ -133,9 +133,10 @@ class ProductController extends Controller
 
         $current_date= Carbon::now()->format('Y-m-d H:i:s');
      $chattarpur_id=area_locality::select('locality_id')->where(['locality' =>'CHATTARPUR','status' => '1'])->first();
+     $Vasant_id=area_locality::select('locality_id')->where(['locality' =>'Vasant Kunj','status' => '1'])->first();
      // return $chattarpur_id;
      if($chattarpur_id){
-      
+        $Vasant=[];
      $locality_data=product::select('products.id as product_id','products.build_name','products.area','products.flat_type','products.available_for','products.furnishing_status','products.security_deposit','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw('order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
@@ -159,6 +160,24 @@ class ProductController extends Controller
            ->orderBy('plans_day_left','asc')
             ->get();
 
+
+            if($Vasant_id){
+                $locality_data1=product::select('products.id as product_id','products.build_name','products.area','products.flat_type','products.available_for','products.furnishing_status','products.security_deposit','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw('order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
+                ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
+                ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
+                ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes','invoices.plan_type'=>'Let Out','locality_id' =>$Vasant_id['locality_id']])
+                ->where([['invoices.payment_status','!=','CANCEL'],['invoices.payment_status','!=','RETURN'],['invoices.payment_status','!=','Payment Returned']])
+               ->orderBy('plans_day_left','asc')
+                ->get();
+                    $Vasant_data = $locality_data1->groupBy('locality_id')->map(function ($row) {return $row->count();});
+                   
+                    if(count($Vasant_data)>0){
+                        $Vasantr_array=['city'=>'Vasant Kunj','Vasant_count'=>$Vasant_data['1781']];
+                        array_push($Vasant,$Vasant_array);
+                    }
+            }
+
+
       // return $product_data; 
         $grouped = $product_data->groupBy('state_id')->map(function ($row) {return $row->count();});
        $data=product::select('id','state_id')->where(['state_id'=> 1,'delete_flag'=> '0','rent_availability'=>'1','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->groupBy('state_id')->havingRaw('COUNT(*) > 0')->orderBy('id', 'asc')->get(); 
@@ -171,7 +190,8 @@ class ProductController extends Controller
         }
         return response()->json([
             'data'=>$city_data,
-            'Chattarpur_data'=> $chattarpur 
+            'Chattarpur_data'=> $chattarpur,
+            'Vasant_data'=> $Vasant 
         ], 200);
      }else{
       $city_data=[];
@@ -459,7 +479,7 @@ class ProductController extends Controller
          if($request->product_id){
               $request->validate([
                          'product_id' => 'required|min:9'
-                      ]);        
+                ]);        
            }
          
       try{
@@ -473,10 +493,25 @@ class ProductController extends Controller
            ->search($request)
            ->orderBy('plans_day_left','asc')
             ->paginate(8);
-            return response()->json([
-              'data'=> $product,
-              'status'=>200
-            ], 201);
+            if(count($product)<1){
+                $product = product::with('product_img_listing','listing_wishlist','listing_pro_comp','Property_Type','pro_user_details','pro_flat_Type','Property_area_unit','product_state','product_locality','product_sub_locality')
+                ->select('products.id as product_id','products.build_name','products.area','products.flat_type','products.available_for','products.furnishing_status','products.security_deposit','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','invoices.invoice_no','invoices.payment_status','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw('order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
+                    ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
+                    ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
+                    ->where(['rent_availability'=>'1','delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes','invoices.plan_type'=>'Let Out'])
+                    ->where([['invoices.payment_status','!=','CANCEL'],['invoices.payment_status','!=','RETURN'],['invoices.payment_status','!=','Payment Returned']])
+                   ->orderBy('plans_day_left','asc')
+                    ->paginate(8);
+                    return response()->json([
+                      'data'=> $product,
+                      'status'=>200
+                    ], 201);
+            }else{
+                return response()->json([
+                  'data'=> $product,
+                  'status'=>200
+                ], 201);
+            }
         }catch(\Exception $e) {
               return $this->getExceptionResponse($e);
         }      

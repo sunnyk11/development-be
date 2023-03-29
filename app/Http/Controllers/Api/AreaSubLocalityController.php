@@ -143,12 +143,12 @@ class AreaSubLocalityController extends Controller
  public function get_sub_locality_searching(Request $request) {
     try{
         if($request->search_locality_id){
-           $data=area_sub_locality::where('sub_locality', 'like',  "%" . $request->value . "%")->with('locality')->where('locality_id', $request->search_locality_id)->where('status','1')->orderBy('sub_locality_id', 'asc')->paginate(7);
+           $data=area_sub_locality::where('sub_locality', 'like',  "%" . $request->value . "%")->with('locality')->where('locality_id', $request->search_locality_id)->orderBy('sub_locality_id', 'asc')->paginate(7);
             return response()->json([
                 'data' => $data
             ], 200); 
         }else{
-            $data=area_sub_locality::where('sub_locality', 'like',  "%" . $request->value . "%")->with('locality')->where('status','1')->orderBy('sub_locality_id', 'asc')->paginate(7);
+            $data=area_sub_locality::where('sub_locality', 'like',  "%" . $request->value . "%")->with('locality')->orderBy('sub_locality_id', 'asc')->paginate(7);
             return response()->json([
                 'data' => $data
             ], 200);
