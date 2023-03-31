@@ -172,7 +172,7 @@ class ProductController extends Controller
                     $Vasant_data = $locality_data1->groupBy('locality_id')->map(function ($row) {return $row->count();});
                    
                     if(count($Vasant_data)>0){
-                        $Vasantr_array=['city'=>'Vasant Kunj','Vasant_count'=>$Vasant_data['1781']];
+                        $Vasant_array=['city'=>'Vasant Kunj','Vasant_count'=>$Vasant_data['1781']];
                         array_push($Vasant,$Vasant_array);
                     }
             }
