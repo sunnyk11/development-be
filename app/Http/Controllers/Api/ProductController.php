@@ -334,7 +334,7 @@ class ProductController extends Controller
 
     public function index_featured()
     {
-        $data = product::with('UserDetail','product_img','Property_Type','product_state','product_locality','Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
+        $data = product::with('UserDetail','product_img','Property_Type','pro_flat_Type','product_sub_locality','product_state','product_locality','Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
         return response()->json([
             'data' =>$data,
         ], 201);
@@ -342,7 +342,7 @@ class ProductController extends Controller
     public function index_featured_wishlist()
     {
        $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','Single_wishlist','product_img','product_comparision','Property_Type','product_state','product_locality','Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
+        $product = product::with('UserDetail','Single_wishlist','product_img','product_comparision','Property_Type','product_state','product_locality','Property_area_unit','pro_flat_Type','product_sub_locality',)->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
             return response()->json([
             'data' =>$product,
           ], 201);
