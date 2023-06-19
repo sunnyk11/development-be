@@ -458,6 +458,7 @@ Route::group([
         Route::get('admin_get_invoice_data/{id}', 'App\Http\Controllers\PlansController@admin_get_invoice_data');
         Route::get('/admin_get_property', 'App\Http\Controllers\Api\ProductController@admin_get_property');
         Route::get('/admin_get_property_excel', 'App\Http\Controllers\Api\ProductController@admin_get_property_excel');
+        Route::get('/admin_get_all_property_excel', 'App\Http\Controllers\Api\ProductController@admin_get_all_property_excel');
         Route::get('/get_invoice_searching', 'App\Http\Controllers\Api\InvoiceController@search_data');
         Route::get('/get_invoice_searching_excel', 'App\Http\Controllers\Api\InvoiceController@search_data_excel');
         Route::get('/get_visit_user_feedback', 'App\Http\Controllers\Api\UserVisitFeedbackController@search_data');

@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use App\Models\flat_type;
 use Illuminate\Support\Facades\Input;
 use App\Http\Resources\API\Product\ProductListResource;
+use App\Http\Resources\API\Product\AllproductResource;
 use App\Http\Resources\API\crm_rentslip;
 
 class ProductController extends Controller
@@ -126,6 +127,17 @@ class ProductController extends Controller
             'status' => '200'
         ], 200);
       }
+        
+    }
+    public function admin_get_all_property_excel(Request $request)
+    {
+        $data = product::where(['delete_flag'=> '0'])->with('Property_area_unit','pro_flat_Type','product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->get();
+        // return $data;
+        $excel= AllproductResource::collection($data);
+        return response()->json([
+            'data'=>$excel,
+            'status' => '200'
+        ], 200);
         
     }
     public function product_city_details()
