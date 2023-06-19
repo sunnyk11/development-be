@@ -20,7 +20,7 @@ class AllproductResource extends JsonResource
         // return parent::toArray($request);
         return[
         'property_id' => $this->id,
-        'property_url'=>"https://www.housingstreet.com/product-details?id=".$this->id,
+        'property_url'=>"https://www.housingstreet.com/product-details?id=".$this->id."&name=".$this->build_name."&city=".$this->product_state->state."&product_district=".($this->product_district == null ? 'No': $this->product_district->district).'&locality='.($this->product_locality == null ? 'No': $this->product_locality->locality).'&sub_locality='.($this->product_sub_locality == null ? 'No': $this->product_sub_locality->sub_locality),
         'property_name' => $this->build_name,
         'property_price' => $this->expected_rent,
         'property_detail'=>$this->property_detail,
@@ -47,9 +47,9 @@ class AllproductResource extends JsonResource
         'product_district' =>$this->product_district == null ? 'No': $this->product_district->district,
         'product_locality' =>$this->product_locality == null ? 'No': $this->product_locality->locality,
         'product_sub_locality' =>$this->product_sub_locality == null ? 'No': $this->product_sub_locality->sub_locality,
-        'property_draft_mode'=>$this->draft=='0' ? 'No':'Yes',
-        'property_enabled'=>$this->enabled=='no' ? 'No':'Yes',
-        'Porperty_status'=>($this->order_status == 0 ? 'Letout' :'Rentout'),
+        // 'property_draft_mode'=>$this->draft=='0' ? 'No':'Yes',
+        // 'property_enabled'=>$this->enabled=='no' ? 'No':'Yes',
+        // 'Porperty_status'=>($this->order_status == 0 ? 'Letout' :'Rentout'),
     ];
         
     }
