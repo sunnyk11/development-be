@@ -131,9 +131,24 @@ class ProductController extends Controller
     }
     public function admin_get_all_property_excel(Request $request)
     {
-        $data = product::where(['delete_flag'=> '0'])->with('Property_area_unit','pro_flat_Type','product_img','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->get();
-        // return $data;
-        $excel= AllproductResource::collection($data);
+        $data = product::where(['delete_flag'=> '0'])->with('Property_area_unit','pro_flat_Type','Property_Type','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->get();
+     $array_data=[];
+     $sendData = array();
+        foreach($data as $key =>  $value){
+            // product::where(['delete_flag'=> '0'])->get();
+            if($value->locality_id != null){
+                $minPrice=$value->expected_rent-4000;
+                $maxPrice=$value->expected_rent;
+                $sendData[$key] = $value;
+                $data[$key]->simlilar_property_id= implode(',',DB::table('products')->where(['delete_flag'=> '0','locality_id'=>$value->locality_id])->whereBetween('expected_rent', [$minPrice, $maxPrice])->pluck('id')->toArray());    
+            }
+            $data[$key]->product_img =implode(',',DB::table('product_imgs')->where(['status'=> '1','product_id'=>$value->id])->pluck('image')->toArray());
+          
+           
+            // $sendData['data'][$key]['locality_id_testing'] = $value->locality_id;
+     }
+    //  return  $data;
+        $excel= AllproductResource::collection( $data);
         return response()->json([
             'data'=>$excel,
             'status' => '200'

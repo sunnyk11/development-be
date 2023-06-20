@@ -21,6 +21,8 @@ Route::get('/get_version', function () {
     // return env('App_version', 'Please define App Version');
    return  config('services.App_version');
 });   
+Route::get('/admin_get_all_property_excel', 'App\Http\Controllers\Api\ProductController@admin_get_all_property_excel');
+       
 
 Route::get('get_invoice_details/{id}', 'App\Http\Controllers\PlansController@get_invoice_details');
 //Route::post('/blog-create-post', 'App\Http\Controllers\PostController@store');

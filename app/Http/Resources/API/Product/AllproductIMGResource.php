@@ -17,7 +17,7 @@ class AllproductIMGResource extends JsonResource
         // return parent::toArray($request);
             return [
                 // 'Product_img_id' =>$this->id,
-                '/storage/'.$this->image
+                'https://admin.housingstreet.com/storage/'.$this->image
                 // 'Product_image' => $this->pluck('image')->implode(','),
                 
                 // 'Product_image' =>$this->image->pluck('image')->implode(','),
