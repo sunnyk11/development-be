@@ -140,14 +140,19 @@ class ProductController extends Controller
                 $minPrice=$value->expected_rent-4000;
                 $maxPrice=$value->expected_rent;
                 $sendData[$key] = $value;
-                $data[$key]->simlilar_property_id= implode(',',DB::table('products')->where(['delete_flag'=> '0','locality_id'=>$value->locality_id])->whereBetween('expected_rent', [$minPrice, $maxPrice])->pluck('id')->toArray());    
+                $data[$key]->simlilar_property_id= implode(', ',DB::table('products')->where(['delete_flag'=> '0','locality_id'=>$value->locality_id])->whereBetween('expected_rent', [$minPrice, $maxPrice])->pluck('id')->toArray());    
             }
-            $data[$key]->product_img =implode(',',DB::table('product_imgs')->where(['status'=> '1','product_id'=>$value->id])->pluck('image')->toArray());
+            $array_img=[];
+            $product_imgs_data=DB::table('product_imgs')->where(['status'=> '1','product_id'=>$value->id])->pluck('image')->toArray();
+            foreach ($product_imgs_data as &$img) {
+                $img_url ='https://admin.housingstreet.com/storage/'. $img;
+                array_push($array_img,$img_url);
+            }
+            $data[$key]->product_img =implode(', ',$array_img);
           
            
             // $sendData['data'][$key]['locality_id_testing'] = $value->locality_id;
      }
-    //  return  $data;
         $excel= AllproductResource::collection( $data);
         return response()->json([
             'data'=>$excel,
@@ -361,7 +366,7 @@ class ProductController extends Controller
 
     public function index_featured()
     {
-        $data = product::with('UserDetail','product_img','Property_Type','pro_flat_Type','product_sub_locality','product_state','product_locality','Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
+        $data = product::with('UserDetail','product_img','Property_Type','pro_flat_Type','product_sub_locality','product_state','product_district','product_locality','Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
         return response()->json([
             'data' =>$data,
         ], 201);
@@ -369,7 +374,7 @@ class ProductController extends Controller
     public function index_featured_wishlist()
     {
        $user_id = Auth::user()->id;
-        $product = product::with('UserDetail','Single_wishlist','product_img','product_comparision','Property_Type','product_state','product_locality','Property_area_unit','pro_flat_Type','product_sub_locality',)->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
+        $product = product::with('UserDetail','Single_wishlist','product_img','product_comparision','Property_Type','product_state','product_district','product_locality','Property_area_unit','pro_flat_Type','product_sub_locality',)->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(9)->get();
             return response()->json([
             'data' =>$product,
           ], 201);
@@ -511,7 +516,7 @@ class ProductController extends Controller
          
       try{
         $current_date= Carbon::now()->format('Y-m-d H:i:s');
-        $product = product::with('product_img_listing','listing_wishlist','maintenance_condition','listing_pro_comp','Property_Type','pro_user_details','pro_flat_Type','Property_area_unit','product_state','product_locality','product_sub_locality')
+        $product = product::with('product_img_listing','listing_wishlist','maintenance_condition','listing_pro_comp','Property_Type','pro_user_details','pro_flat_Type','Property_area_unit','product_state','product_district','product_locality','product_sub_locality')
         ->select('products.id as product_id','products.build_name','products.maintenance_charge','products.available_for','products.area','products.flat_type','products.available_for','products.furnishing_status','products.security_deposit','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','invoices.invoice_no','invoices.payment_status','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw('order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
@@ -521,7 +526,7 @@ class ProductController extends Controller
            ->orderBy('plans_day_left','asc')
             ->paginate(8);
             if(count($product)<1){
-                $product = product::with('product_img_listing','maintenance_condition','listing_wishlist','listing_pro_comp','Property_Type','pro_user_details','pro_flat_Type','Property_area_unit','product_state','product_locality','product_sub_locality')
+                $product = product::with('product_img_listing','maintenance_condition','listing_wishlist','listing_pro_comp','Property_Type','pro_user_details','pro_flat_Type','Property_area_unit','product_state','product_district','product_locality','product_sub_locality')
                 ->select('products.id as product_id','products.build_name','products.maintenance_charge_condition','products.area','products.flat_type','products.available_for','products.furnishing_status','products.security_deposit','products.user_id','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.plan_type','invoices.plan_name','invoices.invoice_no','invoices.payment_status','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw('order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
                     ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
                     ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
@@ -548,7 +553,7 @@ class ProductController extends Controller
       
       try{
         $current_date= Carbon::now()->format('Y-m-d H:i:s');
-        $product = product::with('product_img_listing','Property_Type','maintenance_condition','pro_flat_Type','pro_user_details','Property_area_unit','product_state','product_locality','product_sub_locality')
+        $product = product::with('product_img_listing','Property_Type','maintenance_condition','pro_flat_Type','pro_user_details','Property_area_unit','product_state','product_district','product_locality','product_sub_locality')
         ->select('products.id as product_id','products.maintenance_charge','products.area','products.flat_type','products.available_for','products.furnishing_status','products.build_name','products.maintenance_charge_condition','products.security_deposit','products.user_id','products.order_status','products.rent_availability','products.sale_availability','products.state_id','products.sub_locality_id','products.locality_id','products.sale_availability','products.type','products.expected_pricing','products.expected_rent','products.bedroom','products.area_unit','products.bathroom','invoices.invoice_no','invoices.payment_status','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
             ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
             ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')
@@ -584,7 +589,7 @@ class ProductController extends Controller
     }
     public function feature_property()
     {
-        $product = product::with('UserDetail','product_img','Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
+        $product = product::with('UserDetail','product_img','Property_area_unit','pro_flat_Type','product_locality','product_sub_locality','product_district')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
 
         return response()->json([
             'data' =>$product,
@@ -593,7 +598,7 @@ class ProductController extends Controller
     }
     public function Recently_view()
     {
-        $product = product::with('UserDetail','Property_Type','Property_area_unit')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
+        $product = product::with('UserDetail','Property_Type','Property_area_unit','pro_flat_Type','product_locality','product_sub_locality','product_district')->where(['delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])->where('view_counter', '>=',1)->orderBy('view_counter', 'desc')->take(4)->get();
 
         return response()->json([
             'data' =>$product,
@@ -604,7 +609,7 @@ class ProductController extends Controller
       public function search_prod_by_city(Request $request){
         try{
              $locality_id = $request->locality_id;
-            $productSimilar=product::with('UserDetail','Property_area_unit','Property_Type','product_img','product_state','product_locality','product_sub_locality','pro_flat_Type')->where(['locality_id'=> $locality_id,'delete_flag'=>'0','draft'=>'0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(4)->get();
+            $productSimilar=product::with('UserDetail','Property_area_unit','Property_Type','product_img','product_state','product_district','product_locality','product_sub_locality','pro_flat_Type')->where(['locality_id'=> $locality_id,'delete_flag'=>'0','draft'=>'0','order_status'=> '0', 'enabled' => 'yes'])->orderBy('id', 'desc')->take(4)->get();
                 return response()-> json([
                     'data' => $productSimilar,
                 ]);
@@ -619,7 +624,7 @@ class ProductController extends Controller
             $current_date= Carbon::now()->format('Y-m-d H:i:s');
     
              $locality_id = $request->locality_id;  
-              $productArray = product::with('UserDetail','Property_area_unit','product_img','product_comparision','Property_Type','product_state','product_locality','Single_wishlist','Property_area_unit','product_sub_locality','pro_flat_Type')
+              $productArray = product::with('UserDetail','Property_area_unit','product_img','product_comparision','Property_Type','product_state','product_district','product_locality','Single_wishlist','Property_area_unit','product_sub_locality','pro_flat_Type')
              ->select('products.*','invoices.id as invoice_id','invoices.plan_type','invoices.plan_name','order_plan_features.plan_created_at','order_plan_features.client_visit_priority as priority',DB::raw(' order_plan_features.product_plans_days -DATEDIFF("'.$current_date.'",invoices.plan_apply_date)  as "plans_day_left"'))
              ->leftjoin('invoices','invoices.property_uid','=','products.product_uid')
              ->leftjoin('order_plan_features','order_plan_features.order_id','=','invoices.order_id')->where(['locality_id'=> $locality_id,'delete_flag'=> '0','draft'=> '0','order_status'=> '0', 'enabled' => 'yes'])
@@ -683,7 +688,7 @@ class ProductController extends Controller
                 'id' => 'required',
             ]);
             $prod_id = $request->id;
-            $product_data = product::where((['delete_flag'=> '0','enabled' => 'yes','draft'=> '0','id'=>$prod_id,'order_status'=> '0']))->with('amenities','Property_Type','product_img','UserDetail','product_state','product_locality','property_room','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration','pro_flat_Type','product_sub_locality')->first();
+            $product_data = product::where((['delete_flag'=> '0','enabled' => 'yes','draft'=> '0','id'=>$prod_id,'order_status'=> '0']))->with('amenities','Property_Type','product_img','UserDetail','product_state','product_district','product_locality','property_room','Property_area_unit','willing_rent_out','maintenance_condition','aggeement_type','ageement_duration','pro_flat_Type','product_sub_locality')->first();
 
         // increase product count 
             product::where('id', $prod_id)->update(['view_counter' => DB::raw('view_counter + 1')]);
