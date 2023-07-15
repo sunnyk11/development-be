@@ -18,7 +18,8 @@ class ProductComparisionController extends Controller
     {
         try{
             $user_id = Auth::user()->id;
-            $data=Product_Comparision::where('status', '1')->where('user_id',$user_id)->with('productdetails','amenities')->orderBy('id', 'asc')->take('4')->get();
+            $data=Product_Comparision::with('product_locality','Property_area_unit','product_sub_locality','pro_flat_Type')
+                  ->where('status', '1')->where('user_id',$user_id)->with('productdetails','amenities')->orderBy('id', 'asc')->take('4')->get();
             return response()->json([
                 'data' => $data
             ], 200);
@@ -31,7 +32,8 @@ class ProductComparisionController extends Controller
     {
         try{
             $user_id = Auth::user()->id;
-            $data=Product_Comparision::where('status', '1')->where('user_id',$user_id)->with('productdetails','amenities')->orderBy('id', 'asc')->take('2')->get();
+            $data=Product_Comparision::with('product_locality','Property_area_unit','product_sub_locality','pro_flat_Type')
+            ->where('status', '1')->where('user_id',$user_id)->with('productdetails','amenities')->orderBy('id', 'asc')->take('2')->get();
             return response()->json([
                 'data' => $data
             ], 200);
