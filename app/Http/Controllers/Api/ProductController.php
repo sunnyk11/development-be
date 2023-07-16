@@ -131,7 +131,7 @@ class ProductController extends Controller
     }
     public function admin_get_all_property_excel(Request $request)
     {
-        $data = product::where(['delete_flag'=> '0'])->with('Property_area_unit','pro_flat_Type','Property_Type','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->get();
+        $data = product::where(['delete_flag'=> '0','draft'=> '0','enabled' => 'yes'])->with('Property_area_unit','pro_flat_Type','Property_Type','product_state','product_district','product_locality','product_sub_locality','letout_invoice','rent_invoice')->orderBy('id', 'desc')->search($request)->get();
      $array_data=[];
      $sendData = array();
         foreach($data as $key =>  $value){
