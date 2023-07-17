@@ -140,7 +140,7 @@ class ProductController extends Controller
                 $minPrice=$value->expected_rent-4000;
                 $maxPrice=$value->expected_rent;
                 $sendData[$key] = $value;
-                $data[$key]->simlilar_property_id= implode(', ',DB::table('products')->where(['delete_flag'=> '0','draft'=> '0','enabled' => 'yes','locality_id'=>$value->locality_id])->whereBetween('expected_rent', [$minPrice, $maxPrice])->pluck('id')->toArray());    
+                $data[$key]->simlilar_property_id= implode(', ',DB::table('products')->where(['delete_flag'=> '0','draft'=> '0','enabled' => 'yes','order_status'=>'0','locality_id'=>$value->locality_id])->whereBetween('expected_rent', [$minPrice, $maxPrice])->pluck('id')->toArray());    
             }
             $array_img=[];
             $product_imgs_data=DB::table('product_imgs')->where(['status'=> '1','product_id'=>$value->id])->pluck('image')->toArray();

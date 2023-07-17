@@ -31,7 +31,7 @@ class AllproductResource extends JsonResource
         }
         return[
         'property_id' =>$this->id,
-        'property_url'=>"https://www.housingstreet.com/product-details?id=".$this->id."&name=".$this->build_name."&city=".$this->product_state->state."&product_district=".($this->product_district == null ? 'No': $this->product_district->district).'&locality='.($this->product_locality == null ? 'No': $this->product_locality->locality).'&sub_locality='.($this->product_sub_locality == null ? 'No': $this->product_sub_locality->sub_locality),
+        'property_url'=>str_replace([' ', '&'], ['%20', '%26'], urlencode("https://www.housingstreet.com/product-details?id=".$this->id.'&locality='.($this->product_locality == null ? 'No': $this->product_locality->locality).'&sub_locality='.($this->product_sub_locality == null ? 'No': $this->product_sub_locality->sub_locality))),
         'property_name' => $this->build_name,
         'property_price' => $this->expected_rent,
         'property_detail'=>$this->property_detail,
