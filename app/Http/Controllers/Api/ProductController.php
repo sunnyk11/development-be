@@ -2297,7 +2297,7 @@ class ProductController extends Controller
             'id' => 'required'
         ]);
 
-        return $product_details = product::where('id', $request->id)->with('Property_area_unit', 'maintenance_condition')->get();
+        return $product_details = product::where('id', $request->id)->with('Property_area_unit', 'maintenance_condition','pro_flat_Type','Property_Type','UserDetail')->get();
     }
 
     public function store(Request $request)
