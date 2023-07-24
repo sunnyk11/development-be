@@ -29,7 +29,7 @@ class AllproductResource extends JsonResource
                 $order_status='Not live';
             }
         }
-        $url =$this->id.'&locality='.($this->product_locality == null ? 'No': $this->product_locality->locality).'&sub_locality='.($this->product_sub_locality == null ? 'No': $this->product_sub_locality->sub_locality).'&flat-type='.($this->pro_flat_Type == null ? 'No': $this->pro_flat_Type->name);
+        $url =$this->id.'&locality='.($this->product_locality == null ? 'No': $this->product_locality->locality).'&sublocality='.($this->product_sub_locality == null ? 'No': $this->product_sub_locality->sub_locality).'&flat-type='.($this->pro_flat_Type == null ? 'No': $this->pro_flat_Type->name);
 
         // Replace spaces with "%20"
         $url = str_replace(' ', '%20', $url);
