@@ -18,7 +18,7 @@ class ProductComparisionController extends Controller
     {
         try{
             $user_id = Auth::user()->id;
-            $data=Product_Comparision::with('product_locality','Property_area_unit','product_sub_locality','pro_flat_Type')
+            $data=Product_Comparision::with('productdetails','Property_Type')
                   ->where('status', '1')->where('user_id',$user_id)->with('productdetails','amenities')->orderBy('id', 'asc')->take('4')->get();
             return response()->json([
                 'data' => $data
@@ -94,7 +94,7 @@ class ProductComparisionController extends Controller
             try{
                 $product_id=$request->param['id'];
                 $user_id = Auth::user()->id;
-                 $pro_user_data = Product_Comparision::where(['user_id'=>$user_id,'status'=>'1'])->get();
+                 $pro_user_data = Product_Comparision::with('productdetails','Property_Type')->where(['user_id'=>$user_id,'status'=>'1'])->get();
                 if(count($pro_user_data)<2){
                         $product_comp = [
                             'user_id' => $user_id,
